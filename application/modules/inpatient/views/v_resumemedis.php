@@ -201,8 +201,8 @@
 											<tr class="fw-bolder text-muted bg-light">
 												<th class="rounded-start">#</th>
 												<th>Tanggal</th>
-												<th>Resume Medis Belum Selesai</th>
-												<th>Resume Medis Sudah Selesai</th>
+												<th>Resume Medis Belum Selesai / Lebih dari 48 Jam</th>
+												<th>Resume Medis Sudah Selesai / Kurang dari 48 Jam</th>
 												<th>Data Pasien Pulang Inap</th>
 												<th class="pe-4 text-end rounded-end">Presentasi</th>
 											</tr>

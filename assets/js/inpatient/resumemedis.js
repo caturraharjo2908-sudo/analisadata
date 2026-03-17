@@ -55,7 +55,7 @@ function resumemedis(){
                     chartDataBulanan,
                     [
                         { name: "Resume > 48 Jam", field: "lebih48" },
-                        { name: "Resume = 48 Jam", field: "kurang48" }
+                        { name: "Resume <= 48 Jam", field: "kurang48" }
                     ],
                     "Periode Tanggal Pulang Rawat Inap",
                     "Persentase",
@@ -76,66 +76,23 @@ function resumemedis(){
 
                 renderchartpie("grafikresumemedisglobal",chartDataGlobal);
 
-                // LOOP DATA
-                for(let i in result){
-
-                    let item = result[i];
-
-                    if(item.TRANSCORESUME !== null && item.TRANSCORESUME !== ""){
-                        totalResume++;
-                    }else{
-                        if(parseInt(item.DURASI) > 2){
-                            resumelebih48jam++;
-                        }else{
-                            resumekurang48jam++;
-                        }
-                    }
-
-                    // =========================
-                    // GROUPING PER TANGGAL
-                    // =========================
-
-                    if(!item.TGLKELUAR) continue;
-
-                    let splitTgl;
-
-                    if(item.TGLKELUAR.includes(".")){
-                        splitTgl = item.TGLKELUAR.split(".");
-                    }else{
-                        splitTgl = item.TGLKELUAR.split("-");
-                    }
-
-                    let bulan   = splitTgl[1];
-                    let tanggal = item.TGLKELUAR;
-
-                    if(!tableBulanan[bulan][tanggal]){
-                        tableBulanan[bulan][tanggal] = {
-                            total:0,
-                            selesai:0,
-                            belum:0
-                        };
-                    }
-
-                    tableBulanan[bulan][tanggal].total++;
-
-                    if(item.TRANSCORESUME != null){
-                        tableBulanan[bulan][tanggal].selesai++;
-                    }else{
-                        tableBulanan[bulan][tanggal].belum++;
-                    }
-
-                }
+                // =========================
+                // 🔥 PROCESS DATA
+                // =========================
 
                 result.forEach(item => {
 
                     if(!item.TGLKELUAR) return;
 
-                    let splitTgl = item.TGLKELUAR.includes(".")
-                        ? item.TGLKELUAR.split(".")
-                        : item.TGLKELUAR.split("-");
+                    // ambil tanggal saja (tanpa jam)
+                    let tanggalOnly = item.TGLKELUAR.split(" ")[0];
+
+                    let splitTgl = tanggalOnly.includes(".")
+                        ? tanggalOnly.split(".")
+                        : tanggalOnly.split("-");
 
                     let bulan   = splitTgl[1];
-                    let tanggal = item.TGLKELUAR;
+                    let tanggal = tanggalOnly;
 
                     if(!tableBulanan[bulan][tanggal]){
                         tableBulanan[bulan][tanggal] = {
@@ -145,25 +102,38 @@ function resumemedis(){
                         };
                     }
 
+                    // total pasien
                     tableBulanan[bulan][tanggal].total++;
 
-                    if(item.TRANSCORESUME != null){
-                        tableBulanan[bulan][tanggal].selesai++;
-                        totalResume++;
-                    }else{
+                    let durasi     = parseInt(item.DURASI) || 0;
+                    let adaResume  = item.TRANSCORESUME !== null && item.TRANSCORESUME !== "";
+
+                    // =========================
+                    // 🔥 RULE FINAL
+                    // =========================
+                    if(durasi > 2 || !adaResume){
+
+                        // ❌ BELUM
                         tableBulanan[bulan][tanggal].belum++;
 
-                        if(parseInt(item.DURASI) > 2){
+                        if(durasi > 2){
                             resumelebih48jam++;
                         }else{
                             resumekurang48jam++;
                         }
+
+                    }else{
+
+                        // ✅ SELESAI (<=48 jam & ada resume)
+                        tableBulanan[bulan][tanggal].selesai++;
+                        totalResume++;
+
                     }
 
                 });
 
                 // =========================
-                // RENDER TABLE BULANAN
+                // 📊 RENDER TABLE
                 // =========================
 
                 for(let bulan in tableBulanan){
@@ -205,10 +175,25 @@ function resumemedis(){
                 }
             }
 
-            $("#totalpasienpulang").html("Total Pasien Pulang Rawat Inap : " + todesimal(result.length) + " Px");
-            $("#totalresume").html("Total Resume Yang Telah Di Buat : " + todesimal(totalResume) + " Px");
-            $("#pendingresumekurang").html("Pending Resume Medis <= 48 Jam : " + todesimal(resumekurang48jam) + " Px");
-            $("#pendingresumelebih").html("Pending Resume Medis > 48 Jam : " + todesimal(resumelebih48jam) + " Px");
+            // =========================
+            // 📌 SUMMARY
+            // =========================
+
+            $("#totalpasienpulang").html(
+                "Total Pasien Pulang Rawat Inap : " + todesimal(result.length) + " Px"
+            );
+
+            $("#totalresume").html(
+                "Total Resume Tepat Waktu (<=48 Jam) : " + todesimal(totalResume) + " Px"
+            );
+
+            $("#pendingresumekurang").html(
+                "Pending Resume (<=48 Jam belum isi) : " + todesimal(resumekurang48jam) + " Px"
+            );
+
+            $("#pendingresumelebih").html(
+                "Pending Resume (>48 Jam) : " + todesimal(resumelebih48jam) + " Px"
+            );
 
         },
         complete: function () {
