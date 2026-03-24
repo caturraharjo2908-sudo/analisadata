@@ -8,6 +8,26 @@ $(document).on("keyup", "#fieldsearch", function () {
     filterTableByKeywords("#fieldsearch", "#resultdatapendingresume");
 });
 
+function filterDokter(namaDokter){
+
+    // pindah ke tab resume pending
+    let tabTrigger = document.querySelector('a[href="#resumepending"]');
+
+    if(tabTrigger){
+        let tab = new bootstrap.Tab(tabTrigger);
+        tab.show();
+    }
+
+    // isi input search
+    $("#fieldsearch").val(namaDokter+", Resume Belum Dibuat");
+
+    // trigger search
+    $("#fieldsearch").trigger("keyup");
+
+    // focus biar UX bagus
+    $("#fieldsearch").focus();
+}
+
 function resumemedis(){
     let selectperiode = $("select[name='selectperiode']").val();
     $.ajax({
@@ -26,6 +46,7 @@ function resumemedis(){
             });
 
             $("#resultdatapendingresume").html("");
+            $("#resultdatapendingresumedokter").html("");
             $("#totalpasienpulang").html("Total Pasien Pulang Rawat Inap : 0 Px");
             $('#totalresume').html('Total Resume Yang Telah Di Buat : 0 Px');
             $('#pendingresumekurang').html('Pending Resume Medis <= 48 Jam : 0 Px');
@@ -37,13 +58,13 @@ function resumemedis(){
             let resumekurang48jam = 0;
             let resumelebih48jam  = 0;
             let tableresult       = "";
+            let htmlDokter        = "";
+            let noDokter          = 1;
 
             const result = data.responResult || [];
 
-            let tableBulanan = {
-                "01":{}, "02":{}, "03":{}, "04":{}, "05":{}, "06":{},
-                "07":{}, "08":{}, "09":{}, "10":{}, "11":{}, "12":{}
-            };
+            let tableBulanan = {"01":{}, "02":{}, "03":{}, "04":{}, "05":{}, "06":{},"07":{}, "08":{}, "09":{}, "10":{}, "11":{}, "12":{}};
+            let groupDokter  = {};
 
             if(data.responCode==="00"){    
 
@@ -88,12 +109,9 @@ function resumemedis(){
                     // ambil tanggal saja (tanpa jam)
                     let tanggalOnly = item.TGLKELUAR.split(" ")[0];
 
-                    let splitTgl = tanggalOnly.includes(".")
-                        ? tanggalOnly.split(".")
-                        : tanggalOnly.split("-");
-
-                    let bulan   = splitTgl[1];
-                    let tanggal = tanggalOnly;
+                    let splitTgl = tanggalOnly.includes(".") ? tanggalOnly.split(".") : tanggalOnly.split("-");
+                    let bulan    = splitTgl[1];
+                    let tanggal  = tanggalOnly;
 
                     if(!tableBulanan[bulan][tanggal]){
                         tableBulanan[bulan][tanggal] = {
@@ -123,6 +141,14 @@ function resumemedis(){
                         }else{
                             resumekurang48jam++;
                         }
+
+                        let dokter = item.DPJP || "TIDAK DIKETAHUI";
+
+                        if(!groupDokter[dokter]){
+                            groupDokter[dokter] = 0;
+                        }
+
+                        groupDokter[dokter]++;
 
                     }else{
                         tableBulanan[bulan][tanggal].selesai++;
@@ -212,6 +238,38 @@ function resumemedis(){
 
                     $("#resultdatabln"+bulan).html(html);
                 }
+
+                let dokterSorted = Object.keys(groupDokter).sort((a,b)=>{
+                    return groupDokter[b] - groupDokter[a];
+                });
+
+                dokterSorted.forEach(namaDokter => {
+
+                    let jumlah = groupDokter[namaDokter];
+
+                    let btnaction = `
+                                        <a class="dropdown-item btn btn-sm" href="javascript:void(0)" 
+                                        onclick="filterDokter('${namaDokter.replace(/'/g, "\\'")}')">
+                                            <i class="bi bi-search text-primary pe-2"></i> Detail
+                                        </a>
+                                    `;
+
+                    htmlDokter += "<tr>";
+                    htmlDokter += "<td class='ps-4'>"+noDokter+"</td>";
+                    htmlDokter += "<td>"+namaDokter+"</td>";
+                    htmlDokter += "<td class='text-center'>"+todesimal(jumlah)+"</td>";
+                    
+                    htmlDokter += "<td class='text-end pe-4'>";
+                    htmlDokter += "<div class='btn-group'>";
+                    htmlDokter += "<button type='button' class='btn btn-light-primary dropdown-toggle btn-sm' data-bs-toggle='dropdown'>Actions</button>";
+                    htmlDokter += "<div class='dropdown-menu'>";
+                    htmlDokter += btnaction;
+                    htmlDokter += "</div></div></td>";
+
+                    htmlDokter += "</tr>";
+
+                    noDokter++;
+                });
             }
 
             // =========================
@@ -219,6 +277,7 @@ function resumemedis(){
             // =========================
 
             $("#resultdatapendingresume").html(tableresult);
+            $("#resultdatapendingresumedokter").html(htmlDokter);
 
             $("#totalpasienpulang").html(
                 "Total Pasien Pulang Rawat Inap : " + todesimal(result.length) + " Px"
