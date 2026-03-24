@@ -36,6 +36,7 @@ function resumemedis(){
             let totalResume       = 0;
             let resumekurang48jam = 0;
             let resumelebih48jam  = 0;
+            let tableresult       = "";
 
             const result = data.responResult || [];
 
@@ -80,7 +81,7 @@ function resumemedis(){
                 // 🔥 PROCESS DATA
                 // =========================
 
-                result.forEach(item => {
+                result.forEach((item, i) => {
 
                     if(!item.TGLKELUAR) return;
 
@@ -130,6 +131,46 @@ function resumemedis(){
 
                     }
 
+                    // =========================
+                    // 🔥 TABLE DETAIL
+                    // =========================
+
+                    let btnaction = "<a class='dropdown-item btn btn-sm' href='#' onclick=\"openSejarah('" + item.PASIEN_ID + "')\"><i class='bi bi-clock-history text-primary pe-4'></i>Sejarah</a>";
+
+                    tableresult += "<tr>";
+                    tableresult += "<td class='ps-4'>"+(i+1)+"</td>";
+                    tableresult += "<td>"+(item.MRPAS || "")+"</td>";
+                    tableresult += "<td>"+(item.NAMAPASIEN || "")+"</td>";
+                    tableresult += "<td>"+(item.SEXID || "")+"</td>";
+                    tableresult += "<td>"+(item.RUANGRWT_ID || "")+"</td>";
+                    tableresult += "<td>"+(item.KELAS_ID || "")+"</td>";
+                    tableresult += "<td>"+(item.DPJP || "")+"</td>";
+                    tableresult += "<td>"+(item.TGLMASUK || "")+"</td>";
+                    tableresult += "<td>"+(item.TGLKELUAR || "")+"</td>";
+                    tableresult += "<td>"+(item.PROVIDER || "")+"</td>";
+                    tableresult += "<td>"+(item.CARAPULANG || "")+"</td>";
+
+                    if(adaResume){
+                        tableresult += "<td><span class='badge badge-light-success'>Resume Sudah Dibuat</span></td>";
+                    }else{
+                        if(durasi > 2){
+                            tableresult += "<td><span class='badge badge-light-danger'>Resume Belum Dibuat > 48 Jam</span></td>";
+                        }else{
+                            tableresult += "<td><span class='badge badge-light-warning'>Resume Belum Dibuat <= 48 Jam</span></td>";         
+                        }
+                    }
+
+                    tableresult += "<td>"+(item.CREATEDDATERESUME || "")+"</td>";
+
+                    tableresult += "<td class='text-end'>";
+                    tableresult += "<div class='btn-group'>";
+                    tableresult += "<button type='button' class='btn btn-light-primary dropdown-toggle btn-sm' data-bs-toggle='dropdown'>Actions</button>";
+                    tableresult += "<div class='dropdown-menu'>";
+                    tableresult += btnaction;
+                    tableresult += "</div></div></td>";
+
+                    tableresult += "</tr>";
+
                 });
 
                 // =========================
@@ -178,6 +219,8 @@ function resumemedis(){
             // =========================
             // 📌 SUMMARY
             // =========================
+
+            $("#resultdatapendingresume").html(tableresult);
 
             $("#totalpasienpulang").html(
                 "Total Pasien Pulang Rawat Inap : " + todesimal(result.length) + " Px"
