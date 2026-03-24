@@ -112,8 +112,9 @@ function resumemedis(){
                     // =========================
                     // 🔥 RULE FINAL
                     // =========================
-                    if(durasi > 2 || !adaResume){
 
+                    if(!adaResume){
+                       
                         // ❌ BELUM
                         tableBulanan[bulan][tanggal].belum++;
 
@@ -124,11 +125,8 @@ function resumemedis(){
                         }
 
                     }else{
-
-                        // ✅ SELESAI (<=48 jam & ada resume)
                         tableBulanan[bulan][tanggal].selesai++;
                         totalResume++;
-
                     }
 
                     // =========================
