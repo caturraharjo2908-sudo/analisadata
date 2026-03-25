@@ -272,7 +272,8 @@
 				<div class="card card-flush">
 					<div class="card-header pt-5" id="">
 						<h3 class="card-title align-items-start flex-column">
-							<span class="card-label fw-bolder fs-3 mb-1"></span>
+							<span class="card-label fw-bolder fs-3 mb-1">Laporan Resume Medis</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan data pasien berdasarkan periode transaksi</span>
 						</h3>
 						<div class="card-toolbar m-0">
 							<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">

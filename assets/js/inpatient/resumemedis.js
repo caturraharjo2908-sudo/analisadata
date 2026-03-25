@@ -117,11 +117,12 @@ function resumemedis(){
                         tableBulanan[bulan][tanggal] = {
                             total:0,
                             selesai:0,
-                            belum:0
+                            belum:0,
+                            indikatorsudah:0,
+                            indikatorbelum:0
                         };
                     }
 
-                    // total pasien
                     tableBulanan[bulan][tanggal].total++;
 
                     let durasi     = parseInt(item.DURASI) || 0;
@@ -131,10 +132,24 @@ function resumemedis(){
                     // 🔥 RULE FINAL
                     // =========================
 
-                    if(!adaResume){
-                       
-                        // ❌ BELUM
+                    if(adaResume){
+                        // ✅ SUDAH ADA RESUME
+                        tableBulanan[bulan][tanggal].selesai++;
+                        totalResume++;
+
+                        if(durasi <= 2){
+                            // ✅ indikator tercapai
+                            tableBulanan[bulan][tanggal].indikatorsudah++;
+                        }else{
+                            // ❌ terlambat (>48 jam)
+                            tableBulanan[bulan][tanggal].indikatorbelum++;
+                            resumelebih48jam++;
+                        }
+
+                    }else{
+                        // ❌ BELUM ADA RESUME
                         tableBulanan[bulan][tanggal].belum++;
+                        tableBulanan[bulan][tanggal].indikatorbelum++;
 
                         if(durasi > 2){
                             resumelebih48jam++;
@@ -142,6 +157,9 @@ function resumemedis(){
                             resumekurang48jam++;
                         }
 
+                        // =========================
+                        // GROUP DOKTER (PENDING)
+                        // =========================
                         let dokter = item.DPJP || "TIDAK DIKETAHUI";
 
                         if(!groupDokter[dokter]){
@@ -149,10 +167,6 @@ function resumemedis(){
                         }
 
                         groupDokter[dokter]++;
-
-                    }else{
-                        tableBulanan[bulan][tanggal].selesai++;
-                        totalResume++;
                     }
 
                     // =========================
@@ -175,7 +189,11 @@ function resumemedis(){
                     tableresult += "<td>"+(item.CARAPULANG || "")+"</td>";
 
                     if(adaResume){
-                        tableresult += "<td><span class='badge badge-light-success'>Resume Sudah Dibuat</span></td>";
+                        if(durasi > 2){
+                            tableresult += "<td><span class='badge badge-light-info'>Resume Sudah Dibuat > 48 Jam</span></td>";
+                        }else{
+                            tableresult += "<td><span class='badge badge-light-success'>Resume Sudah Dibuat <= 48 Jam</span></td>";
+                        }
                     }else{
                         if(durasi > 2){
                             tableresult += "<td><span class='badge badge-light-danger'>Resume Belum Dibuat > 48 Jam</span></td>";
@@ -221,14 +239,14 @@ function resumemedis(){
 
                         let persen = 0;
                         if(row.total > 0){
-                            persen = (row.selesai / row.total) * 100;
+                            persen = (row.indikatorsudah / row.total) * 100;
                         }
 
                         html += "<tr>";
                         html += "<td class='text-center'>"+no+"</td>";
                         html += "<td class='text-center'>"+tanggal+"</td>";
-                        html += "<td class='text-center'>"+todesimal(row.belum)+"</td>";
-                        html += "<td class='text-center'>"+todesimal(row.selesai)+"</td>";
+                        html += "<td class='text-center'>"+todesimal(row.indikatorbelum)+"</td>";
+                        html += "<td class='text-center'>"+todesimal(row.indikatorsudah)+"</td>";
                         html += "<td class='text-center'>"+todesimal(row.total)+"</td>";
                         html += "<td class='text-end pe-4'>"+persen.toFixed(2)+" %</td>";
                         html += "</tr>";

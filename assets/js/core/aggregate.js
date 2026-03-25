@@ -450,3 +450,67 @@ function aggregateResumeGlobal(data) {
         }
     ];
 }
+
+
+///New
+
+function aggregateFlexible(data, fieldTgl, sumField = null, periodeFormat = "MM") {
+    // Referensi bulan internal untuk format MM
+    const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+    const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+
+    // Inisialisasi jumlah/sum per periode
+    let jumlahPeriode = {};
+    if (periodeFormat === "MM") {
+        // default 12 bulan
+        bulanLengkap.forEach(b => jumlahPeriode[b] = 0);
+    }
+
+    // Proses data
+    data.forEach(item => {
+        const tgl = item[fieldTgl];
+        if (!tgl) return;
+
+        const tglParts = tgl.split("."); // format DD.MM.YYYY
+        let kodePeriode;
+
+        switch(periodeFormat) {
+            case "MM":
+                kodePeriode = tglParts[1]; // ambil bulan
+                break;
+            case "YYYY":
+                kodePeriode = tglParts[2]; // ambil tahun
+                break;
+            case "YYYY-MM":
+                kodePeriode = tglParts[2] + "-" + tglParts[1]; // ambil YYYY-MM
+                break;
+            default:
+                kodePeriode = tglParts[1];
+        }
+
+        if (!jumlahPeriode.hasOwnProperty(kodePeriode)) {
+            jumlahPeriode[kodePeriode] = 0; // buat key baru jika format selain MM
+        }
+
+        if (sumField && item[sumField] != null) {
+            jumlahPeriode[kodePeriode] += parseFloat(item[sumField]) || 0;
+        } else {
+            jumlahPeriode[kodePeriode] += 1; // count row
+        }
+    });
+
+    // Kembalikan langsung array {periode, value}
+    if (periodeFormat === "MM") {
+        // gunakan namaBulan sesuai urutan bulan
+        return bulanLengkap.map((b, i) => ({
+            periode: namaBulan[i],
+            value: jumlahPeriode[b]
+        }));
+    } else {
+        // untuk YYYY atau YYYY-MM, kembalikan sesuai key
+        return Object.keys(jumlahPeriode).map(k => ({
+            periode: k,
+            value: jumlahPeriode[k]
+        }));
+    }
+}
