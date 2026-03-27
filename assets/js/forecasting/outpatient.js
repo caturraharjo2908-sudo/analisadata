@@ -5,7 +5,6 @@ $('#selectperiode').on('change', function () {
 });
 
 function forecastingoutpatient() {
-
     let selectperiode = $("select[name='selectperiode']").val();
 
     $.ajax({
@@ -15,7 +14,6 @@ function forecastingoutpatient() {
         data     : { selectperiode: selectperiode },
 
         beforeSend: function () {
-
             Swal.fire({
                 title: 'Processing',
                 html: 'Please wait while the system displays the requested data.',
@@ -24,23 +22,21 @@ function forecastingoutpatient() {
                 showConfirmButton: false,
                 didOpen: () => Swal.showLoading()
             });
-
-            $("#grafikforecastingoutatient").html("");
-
         },
 
         success: function (response) {
 
             if (response.responCode !== "00") {
+
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Forecast Data Not Found',
-                    text: 'Forecasting data is not available. Do you want to run simulation forecasting now?',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, Run Simulation',
-                    cancelButtonText: 'Cancel',
+                    icon              : 'warning',
+                    title             : 'Forecast Data Not Found',
+                    text              : 'Forecasting data is not available. Do you want to run simulation forecasting now?',
+                    showCancelButton  : true,
+                    confirmButtonText : 'Yes, Run Simulation',
+                    cancelButtonText  : 'Cancel',
                     confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33'
+                    cancelButtonColor : '#d33'
                 }).then((result) => {
 
                     if (result.isConfirmed) {
@@ -135,7 +131,6 @@ function forecastingoutpatient() {
 }
 
 function simulationforecasting(){
-
     let selectperiode = $("select[name='selectperiode']").val();
 
     $.ajax({
@@ -145,56 +140,45 @@ function simulationforecasting(){
         data     : { selectperiode: selectperiode },
 
         beforeSend: function(){
-
             Swal.fire({
-                title: "AI Forecasting",
-                html: "AI Engine sedang melakukan simulasi forecasting...",
+                title            : "AI Forecasting",
+                html             : "AI Engine sedang melakukan simulasi forecasting...",
                 allowOutsideClick: false,
-                allowEscapeKey: false,
+                allowEscapeKey   : false,
                 showConfirmButton: false,
-                didOpen: () => Swal.showLoading()
+                didOpen          : () => Swal.showLoading()
             });
-
         },
 
         success: function(response){
 
             if(response.responCode !== "00"){
-
                 Swal.fire({
                     icon : "warning",
                     title: "Warning",
                     text : response.responDesc
                 });
+            }else{
+                Swal.fire({
+                    icon : "success",
+                    title: "Simulation Complete",
+                    text : "Forecasting berhasil dijalankan."
+                });
 
-                return;
+                forecastingoutpatient();
             }
-
-
-            Swal.fire({
-                icon : "success",
-                title: "Simulation Complete",
-                text : "Forecasting berhasil dijalankan."
-            });
-
-            forecastingoutpatient();
-
         },
 
         complete:function(){
-
-            Swal.close();
-
+            //
         },
 
         error:function(){
-
             Swal.fire({
                 icon : "error",
                 title: "Connection Error",
                 text : "Tidak dapat terhubung ke API forecasting"
             });
-
         }
 
     });

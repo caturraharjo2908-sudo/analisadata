@@ -1,5 +1,14 @@
 const chartInstances = {};
 
+function destroyAllCharts() {
+    Object.keys(chartInstances).forEach(key => {
+        if (chartInstances[key]) {
+            chartInstances[key].destroy();
+            chartInstances[key] = null;
+        }
+    });
+}
+
 function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori', valueField = 'qty', colorLabel = '#ffffff') {
     // Hapus chart lama jika sudah ada
     if (chartInstances[name]) {
@@ -80,7 +89,7 @@ function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori',
     chartInstances[name].render();
 }
 
-function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, slaValue, slaLabel, rightAxisIndex = null, rightAxisLabel = "") {
+function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, rightAxisIndex = null, rightAxisLabel = "", avgField = null, avgLabel = "Rata-rata") {
 
     if (chartInstances[name]) {
         chartInstances[name].destroy();
@@ -102,15 +111,34 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, slaV
         }];
     }
 
+    // 🔥 HITUNG AVG
+    let avgValue = null;
+
+    if (avgField) {
+        let total = 0;
+        let count = 0;
+
+        data.forEach(item => {
+            let val = parseFloat(item[avgField]);
+
+            if (!isNaN(val) && val > 0) {
+                total += val;
+                count++;
+            }
+        });
+
+        avgValue = count > 0 ? total / count : 0;
+    }
+
     const options = {
         chart: { type: "area", height: 350, toolbar: { show: false }, zoom: { enabled: false } },
         series: series,
         xaxis: {
-            categories   : data.map(item => item.periode),
-            title        : { text: titleX },
+            categories: data.map(item => item.periode),
+            title: { text: titleX },
             tickPlacement: 'on',
-            axisBorder   : { show: true },
-            axisTicks    : { show: true }
+            axisBorder: { show: true },
+            axisTicks: { show: true }
         },
         yaxis: rightAxisIndex !== null ? [
             {
@@ -140,12 +168,17 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, slaV
         tooltip: { y: { formatter: val => val.toLocaleString() } },
         grid: { strokeDashArray: 4 },
         legend: { position: 'top' },
-        annotations: slaValue ? {
+
+        // 🔥 GARIS AVG
+        annotations: avgValue !== null ? {
             yaxis: [{
-                y: slaValue,
+                y: avgValue,
                 borderColor: '#FF0000',
                 strokeDashArray: 3,
-                label: { text: slaLabel, style: { background: '#FF0000', color: '#fff' } }
+                label: {
+                    text: `${avgLabel} (${Math.round(avgValue).toLocaleString()})`,
+                    style: { background: '#FF0000', color: '#fff' }
+                }
             }]
         } : {}
     };
@@ -276,5 +309,125 @@ function renderchartpie(name, data) {
 
     // Render chart dan simpan instance
     chartInstances[name] = new ApexCharts(chartContainer, options);
+    chartInstances[name].render();
+}
+
+function renderPyramidChart(name, data = [], titleY = "Kategori", seriesConfig = [], categoryField = "RANGE_UMUR") {
+
+    // destroy chart lama
+    if (chartInstances[name]) {
+        chartInstances[name].destroy();
+        chartInstances[name] = null;
+    }
+
+    const el = document.querySelector(`#${name}`);
+    if (!el) return;
+
+    if (!data.length) {
+        el.innerHTML = "<div class='text-center text-muted'>No data available</div>";
+        return;
+    }
+
+    // kategori (Y-axis)
+    const categories = data.map(item => item[categoryField] || "-");
+
+    // helper format angka
+    const formatNumber = (val) => Math.abs(val).toLocaleString('id-ID');
+
+    // build series
+    const series = seriesConfig.map(cfg => ({
+        name: cfg.name,
+        data: data.map(item => {
+            let value = parseFloat(item[cfg.field]) || 0;
+            return cfg.negative ? -value : value;
+        })
+    }));
+
+    // 🔥 cari max value (biar simetris kiri-kanan)
+    let allValues = [];
+    series.forEach(s => allValues = allValues.concat(s.data));
+
+    const maxVal = Math.max(...allValues.map(v => Math.abs(v))) || 0;
+
+    const options = {
+        chart: {
+            type: 'bar',
+            height: 500,
+            stacked: true,
+            toolbar: { show: false }
+        },
+
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                barHeight: '80%',
+                borderRadius: 6,
+                borderRadiusApplication: 'end',
+                borderRadiusWhenStacked: 'all'
+            }
+        },
+
+        series: series,
+
+        xaxis: {
+            categories: categories,
+            min: -maxVal,
+            max: maxVal,
+            tickAmount: 6,
+            labels: {
+                formatter: function (val) {
+                    val = Math.abs(val);
+
+                    // 🔥 HILANGKAN AREA TENGAH
+                    if (val < (maxVal * 0.15)) return "";
+
+                    if (val >= 1000000) return (val / 1000000).toFixed(1) + "M";
+                    if (val >= 1000) return (val / 1000).toFixed(0) + "K";
+
+                    return val;
+                }
+            }
+        },
+
+        yaxis: {
+            title: { text: titleY }
+        },
+
+        dataLabels: {
+            enabled: true,
+            formatter: formatNumber
+        },
+
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: val => `${formatNumber(val)} Pasien`
+            }
+        },
+
+        stroke: {
+            width: 1,
+            colors: ['#fff']
+        },
+
+        legend: {
+            position: 'bottom'
+        },
+
+        colors: seriesConfig.map(cfg => cfg.color || undefined),
+
+        // 🔥 garis tengah (center line)
+        annotations: {
+            xaxis: [{
+                x: 0,
+                borderColor: '#999',
+                strokeDashArray: 3
+            }]
+        }
+    };
+
+    el.innerHTML = "";
+    chartInstances[name] = new ApexCharts(el, options);
     chartInstances[name].render();
 }

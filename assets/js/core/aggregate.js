@@ -454,63 +454,100 @@ function aggregateResumeGlobal(data) {
 
 ///New
 
-function aggregateFlexible(data, fieldTgl, sumField = null, periodeFormat = "MM") {
-    // Referensi bulan internal untuk format MM
+function aggregateFlexible(data, fieldTgl, config = [], periodeFormat = "MM") {
+
     const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
     const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
-    // Inisialisasi jumlah/sum per periode
     let jumlahPeriode = {};
+
+    // init periode
     if (periodeFormat === "MM") {
-        // default 12 bulan
-        bulanLengkap.forEach(b => jumlahPeriode[b] = 0);
+        bulanLengkap.forEach(b => {
+            jumlahPeriode[b] = {};
+            config.forEach(c => jumlahPeriode[b][c.key] = 0);
+        });
     }
 
-    // Proses data
     data.forEach(item => {
         const tgl = item[fieldTgl];
         if (!tgl) return;
 
-        const tglParts = tgl.split("."); // format DD.MM.YYYY
+        const tglParts = tgl.split(".");
         let kodePeriode;
 
         switch(periodeFormat) {
-            case "MM":
-                kodePeriode = tglParts[1]; // ambil bulan
-                break;
-            case "YYYY":
-                kodePeriode = tglParts[2]; // ambil tahun
-                break;
-            case "YYYY-MM":
-                kodePeriode = tglParts[2] + "-" + tglParts[1]; // ambil YYYY-MM
-                break;
-            default:
-                kodePeriode = tglParts[1];
+            case "MM": kodePeriode = tglParts[1]; break;
+            case "YYYY": kodePeriode = tglParts[2]; break;
+            case "YYYY-MM": kodePeriode = tglParts[2] + "-" + tglParts[1]; break;
+            default: kodePeriode = tglParts[1];
         }
 
-        if (!jumlahPeriode.hasOwnProperty(kodePeriode)) {
-            jumlahPeriode[kodePeriode] = 0; // buat key baru jika format selain MM
+        if (!jumlahPeriode[kodePeriode]) {
+            jumlahPeriode[kodePeriode] = {};
+            config.forEach(c => jumlahPeriode[kodePeriode][c.key] = 0);
         }
 
-        if (sumField && item[sumField] != null) {
-            jumlahPeriode[kodePeriode] += parseFloat(item[sumField]) || 0;
-        } else {
-            jumlahPeriode[kodePeriode] += 1; // count row
-        }
+        config.forEach(c => {
+
+            let value = 0;
+
+            if (c.type === "count") {
+                value = 1;
+            }
+
+            if (c.type === "sum") {
+                if (Array.isArray(c.field)) {
+                    c.field.forEach(f => {
+                        value += parseFloat(item[f]) || 0;
+                    });
+                } else {
+                    value = parseFloat(item[c.field]) || 0;
+                }
+            }
+
+            jumlahPeriode[kodePeriode][c.key] += value;
+        });
     });
 
-    // Kembalikan langsung array {periode, value}
+    // 🔥 helper rounding
+    function applyRounding(val, digits = 0) {
+        return Number(parseFloat(val).toFixed(digits));
+    }
+
+    // 🔥 format output + rounding
     if (periodeFormat === "MM") {
-        // gunakan namaBulan sesuai urutan bulan
-        return bulanLengkap.map((b, i) => ({
-            periode: namaBulan[i],
-            value: jumlahPeriode[b]
-        }));
+        return bulanLengkap.map((b, i) => {
+            let obj = { periode: namaBulan[i] };
+
+            config.forEach(c => {
+                let val = jumlahPeriode[b][c.key] || 0;
+
+                // gunakan rounding jika ada
+                if (c.round !== undefined) {
+                    val = applyRounding(val, c.round);
+                }
+
+                obj[c.key] = val;
+            });
+
+            return obj;
+        });
     } else {
-        // untuk YYYY atau YYYY-MM, kembalikan sesuai key
-        return Object.keys(jumlahPeriode).map(k => ({
-            periode: k,
-            value: jumlahPeriode[k]
-        }));
+        return Object.keys(jumlahPeriode).map(k => {
+            let obj = { periode: k };
+
+            config.forEach(c => {
+                let val = jumlahPeriode[k][c.key] || 0;
+
+                if (c.round !== undefined) {
+                    val = applyRounding(val, c.round);
+                }
+
+                obj[c.key] = val;
+            });
+
+            return obj;
+        });
     }
 }

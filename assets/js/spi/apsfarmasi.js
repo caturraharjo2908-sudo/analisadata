@@ -37,14 +37,22 @@ function rawdataapsfarmasi(){
                 return;
             }
 
-            var   tableresult       = "";
-            const result            = data.responResult || [];
-            const GolObat           = getDataGolongan(result);
-            const topObat           = getTopObat(result, 20);
+            var   tableresult         = "";
+            const result              = data.responResult || [];
+            const GolObat             = getDataGolongan(result);
+            const topObat             = getTopObat(result, 20);
+            const topObatNarkotik     = getTopObat(result, 20,'N');
+            const topObatPsikotropika = getTopObat(result, 20,'P');
+            const dataChartKunjungan  = aggregateFlexible(
+                                            result,
+                                            "TGLMASUK",
+                                            [
+                                                { key: "value_1", type: "count", field: "EPISODE_ID", round: 0 },
+                                                { key: "value_2", type: "sum", field: "TOTALHARGAOBAT", round: 0 }
+                                            ]
+                                        );
 
-            const dataChartKunjungan = aggregateFlexible(result, "TGLMASUK");
-
-            let dataChartGolobat = GolObat.categories.map((cat, i) => ({
+            const dataChartGolobat = GolObat.categories.map((cat, i) => ({
                 kategori: cat,
                 qty     : GolObat.values[i]
             }));
@@ -54,21 +62,21 @@ function rawdataapsfarmasi(){
                 qty     : item.qty
             }));
 
-            
+            const dataChartObatNarkotik = topObatNarkotik.map(item => ({
+                kategori: item.nama,
+                qty     : item.qty
+            }));
+
+            const dataChartObatPsikotropika = topObatPsikotropika.map(item => ({
+                kategori: item.nama,
+                qty     : item.qty
+            }));
 
             renderBarHorizontal('grafikgolonganobat', 'QTY Obat', dataChartGolobat, 'kategori', 'qty', true);
             renderBarHorizontal('grafikobat', 'QTY Obat', dataChartObat, 'kategori', 'qty', true);
-
-            renderchartarea(
-                "grafikpembelianobat",  // id div chart
-                dataChartKunjungan,          // data
-                "Periode Kunjungan",                // title X-axis
-                "Jumlah Transaksi",        // title Y-axis
-                "Transaksi",            // seriesName
-                "value",                // fieldName
-                null,                   // slaValue
-                ""                      // slaLabel
-            );
+            renderBarHorizontal('grafikobatnarkotik', 'QTY Obat', dataChartObatNarkotik, 'kategori', 'qty', true);
+            renderBarHorizontal('grafikobatpsikotropika', 'QTY Obat', dataChartObatPsikotropika, 'kategori', 'qty', true);
+            renderchartarea("grafikpembelianobat",dataChartKunjungan,"Periode Pelayanan","Pendapatan Farmasi (Rp)",["Pendapatan","Transaksi"],["value_2","value_1"],1,"Jumlah Kunjungan","value_2","Rata-rata Pendapatan");
             
             if(data.responCode === "00"){
                 for (var i in result) {
@@ -84,6 +92,7 @@ function rawdataapsfarmasi(){
                     tableresult += "<td>" + result[i].POLIKLINIK + "</td>";
                     tableresult += "<td>" + result[i].NAMADOKTER + "</td>";
                     tableresult += "<td>" + result[i].PROVIDER + "</td>";
+                    tableresult += "<td></td>";
                     tableresult += "<td>"+obat.nama+"</td>";
                     tableresult += "<td>"+obat.qty+"</td>";
                     tableresult += "<td>"+obat.golongan+"</td>";
@@ -196,7 +205,7 @@ function getDataGolongan(result){
     };
 }
 
-function getTopObat(result, limit = 20) {
+function getTopObat(result, limit = 20, filterGolObat = null) {
     const map = {};
 
     result.forEach(row => {
@@ -205,8 +214,13 @@ function getTopObat(result, limit = 20) {
         row.OBAT.split(";").forEach(item => {
             if (!item.trim()) return;
 
-            let [nama, qty, gol, golongan] = item.split(":");
-            nama = (nama+" [ "+(golongan || 'UNCLASSIFIED')+" ]" || 'UNKNOWN').trim();
+            let [nama, qty, gol_obat, golongan] = item.split(":");
+
+            // 🔥 FILTER GOL_OBAT (misal: 'N' untuk narkotik)
+            if (filterGolObat && gol_obat !== filterGolObat) return;
+
+            nama = (nama + " [ " + (golongan || 'UNCLASSIFIED') + " ]").trim();
+
             let jumlah = parseInt(qty);
             if (isNaN(jumlah)) jumlah = 0;
 
@@ -215,7 +229,11 @@ function getTopObat(result, limit = 20) {
         });
     });
 
-    // Konversi ke array dan sort descending
-    const sorted = Object.entries(map).map(([nama, qty]) => ({ nama, qty })).sort((a, b) => b.qty - a.qty).slice(0, limit); // ambil top N
+    // sort & ambil top N
+    const sorted = Object.entries(map)
+        .map(([nama, qty]) => ({ nama, qty }))
+        .sort((a, b) => b.qty - a.qty)
+        .slice(0, limit);
+
     return sorted;
 }

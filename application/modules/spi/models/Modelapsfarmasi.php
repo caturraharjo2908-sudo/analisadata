@@ -22,7 +22,7 @@
                             SELECT
                                 RSP.EPISODE_ID,
                                 RSP.PASIEN_ID,
-                                RTRIM(
+                                REGEXP_REPLACE(
                                     XMLAGG(
                                         XMLELEMENT(E,
                                             RSP.NAMA_OBAT || ':' || 
@@ -32,13 +32,14 @@
                                         )
                                         ORDER BY RSP.NAMA_OBAT
                                     ).EXTRACT('//text()').GETCLOBVAL(),
-                                ';') AS OBAT
+                                    ';$',''
+                                ) AS OBAT
                             FROM (
-                                SELECT DISTINCT
+                                SELECT
                                     A.EPISODE_ID,
                                     A.PASIEN_ID,
                                     A.OBAT_ID,
-                                    A.QTY,
+                                    SUM(A.QTY) AS QTY, -- 🔥 FIX DUPLIKAT (INI KUNCI)
                                     B.NAMA AS NAMA_OBAT,
                                     B.GOL_OBAT,
                                     C.KETERANGAN AS GOLONGANOBAT
@@ -50,6 +51,13 @@
                                 WHERE A.LOKASI_ID = '001'
                                 AND A.SHOW_ITEM = '1'
                                 AND A.TYPE NOT IN ('01','02')
+                                GROUP BY
+                                    A.EPISODE_ID,
+                                    A.PASIEN_ID,
+                                    A.OBAT_ID,
+                                    B.NAMA,
+                                    B.GOL_OBAT,
+                                    C.KETERANGAN
                             ) RSP
                             GROUP BY RSP.EPISODE_ID, RSP.PASIEN_ID
                         )
@@ -71,13 +79,15 @@
                             R.NAMA       AS PROVIDER,
                             K.NIK        AS NIKKARYAWAN,
 
-                            B.OBAT
+                            B.OBAT,
+
+                            SR01_PENDAPATAN_RAJAL.OBAT_RAJAL(A.EPISODE_ID,A.PASIEN_ID) AS TOTALHARGAOBAT
 
                         FROM SR01_KEU_EPISODE A
 
                         LEFT JOIN OBAT B 
                             ON B.PASIEN_ID  = A.PASIEN_ID
-                        AND B.EPISODE_ID = A.EPISODE_ID
+                            AND B.EPISODE_ID = A.EPISODE_ID
 
                         LEFT JOIN SR01_MED_POLI_MS P 
                             ON P.POLI_ID = A.POLI_ID
@@ -90,16 +100,16 @@
 
                         LEFT JOIN HRD_KARYAWAN_MS K 
                             ON K.MEDREC = A.PASIEN_ID
-                        AND K.SHOW_ITEM = '1'
-                        AND K.AKTIFASI  = '1'
+                            AND K.SHOW_ITEM = '1'
+                            AND K.AKTIFASI  = '1'
 
                         WHERE A.LOKASI_ID = '001'
-                        AND   A.AKTIF = '1'
-                        AND   A.STATUS_EPISODE <> '99'
-                        AND   A.POLI_ID = 'KLINI0000000001'
+                        AND A.AKTIF = '1'
+                        AND A.STATUS_EPISODE <> '99'
+                        AND A.POLI_ID = 'KLINI0000000001'
                         AND   A.TGL_MASUK >= TO_DATE('01-01-" . $periode . "','DD-MM-YYYY')
                         AND   A.TGL_MASUK <  TO_DATE('01-01-" . ($periode+1) . "','DD-MM-YYYY')
-                        AND   B.OBAT IS NOT NULL
+                        AND B.OBAT IS NOT NULL
 
                         ORDER BY A.TGL_MASUK DESC
                     ";

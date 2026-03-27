@@ -103,39 +103,7 @@
     </div>
     <div class="col-xl-3">
     </div> -->
-	<div class="col-xl-9">
-		<div class="card card-flush">
-			<div class="card-header pt-5">
-				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan IGD</span>
-					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
-				</h3>
-				<div class="card-toolbar m-0">
-					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800 active" data-bs-toggle="tab" role="tab" href="#aggregagatekunjunganigd">Aggregate Data</a>
-						</li>
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#aikunjunganigd">AI Analysis</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div class="card-body pt-0">
-				<div class="tab-content">
-					<div id="aggregagatekunjunganigd" class="card-body p-0 tab-pane fade show active" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkunjunganigd"></div>
-					</div>
-					<div id="aikunjunganigd" class="card-body p-0 tab-pane fade" role="tabpanel">
-						<textarea name="analisaaikunjunganigd" id="analisaaikunjunganigd" class="form-control" rows="11" readonly></textarea>
-						<br>
-						<a class="btn btn-light-primary btn-sm" href="javascript:void(0)" onclick="analisaaikunjunganigd()"><i class="bi bi-stars"></i> Generate Analysis AI</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-    <div class="col-xl-3">
+	<div class="col-xl-4">
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
@@ -148,20 +116,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-xl-9">
-		<div class="card card-flush">
-			<div class="card-header pt-5">
-				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Rawat Jalan</span>
-					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
-				</h3>
-			</div>
-			<div class="card-body pt-0">
-				<div class="card-rounded-bottom" id="grafikkunjunganrj"></div>
-			</div>
-		</div>
-	</div>
-    <div class="col-xl-3">
+	<div class="col-xl-4">
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
@@ -174,20 +129,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-xl-9">
-		<div class="card card-flush">
-			<div class="card-header pt-5">
-				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Rawat Inap</span>
-					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
-				</h3>
-			</div>
-			<div class="card-body pt-0">
-				<div class="card-rounded-bottom" id="grafikkunjunganri"></div>
-			</div>
-		</div>
-	</div>
-    <div class="col-xl-3">
+	<div class="col-xl-4">
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
@@ -200,6 +142,48 @@
 			</div>
 		</div>
 	</div>
+	<div class="col-xl-12">
+		<div class="card card-flush">
+			<div class="card-header pt-5">
+				<h3 class="card-title align-items-start flex-column">
+					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Pasien</span>
+					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
+				</h3>
+				<div class="card-toolbar m-0">
+					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800 active" data-bs-toggle="tab" role="tab" href="#tabigd">IGD</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabrj">Rawat Jalan</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabexecutive">Poli Executive</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabri">Rawat Inap</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="card-body pt-0">
+				<div class="tab-content">
+					<div id="tabigd" class="card-body p-0 tab-pane fade show active" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganigd"></div>
+					</div>
+					<div id="tabrj" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganrj"></div>
+					</div>
+					<div id="tabexecutive" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganexecutive"></div>
+					</div>
+					<div id="tabri" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganri"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>   
 	<div class="col-xl-4">
 		<div class="card card-xl-stretch mb-5 mb-xl-8">
 			<div class="card-header border-0">

@@ -51,8 +51,8 @@
 				<div class="card card-flush">
                     <div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
-                            <span class="card-label fw-bolder fs-3 mb-1">Distribusi Jumlah Obat</span>
-                            <span class="text-muted mt-1 fw-bold fs-7">Menunjukkan total QTY obat yang masuk setiap golongan dalam periode tertentu</span>
+                            <span class="card-label fw-bolder fs-3 mb-1">20 Obat dengan Penjualan Tertinggi</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan 20 obat dengan jumlah penjualan (QTY) terbanyak dalam periode yang dipilih</span>
                         </h3>
 					</div>
 					<div class="card-body p-0">
@@ -70,6 +70,32 @@
 					</div>
 					<div class="card-body p-0">
 						<div class="card-rounded-bottom" id="grafikgolonganobat"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-6">
+				<div class="card card-flush">
+                    <div class="card-header pt-5">
+						<h3 class="card-title align-items-start flex-column">
+                            <span class="card-label fw-bolder fs-3 mb-1">Penjualan Obat Golongan Narkotik</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan daftar obat golongan narkotik dengan jumlah penjualan</span>
+                        </h3>
+					</div>
+					<div class="card-body p-0">
+						<div class="card-rounded-bottom" id="grafikobatnarkotik"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-6">
+				<div class="card card-flush">
+                    <div class="card-header pt-5">
+						<h3 class="card-title align-items-start flex-column">
+                            <span class="card-label fw-bolder fs-3 mb-1">Penjualan Obat Golongan Psikotropika</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan daftar obat golongan psikotropika dengan jumlah penjualan</span>
+                        </h3>
+					</div>
+					<div class="card-body p-0">
+						<div class="card-rounded-bottom" id="grafikobatpsikotropika"></div>
 					</div>
 				</div>
 			</div>
@@ -124,6 +150,7 @@
 										<th rowspan="2">Poliklinik</th>
 										<th rowspan="2">Dokter</th>
 										<th rowspan="2">Provider</th>
+										<th rowspan="2">Diagnosa</th>
                                         <th colspan="3" class="text-center">Obat</th>
 										<th class="pe-4 text-end rounded-end" rowspan="2">Actions</th>
 									</tr>

@@ -84,8 +84,7 @@
 //     });
 // };
 
-
-
+destroyAllCharts();
 demografiumur();
 pasientransit();
 datakunjunganrj();
@@ -96,6 +95,8 @@ datakunjunganrjprovider();
 datakunjunganriprovider();
 
 $('#selectperiode').on('change', function () {
+    destroyAllCharts();
+
     datakunjunganrj();
     datakunjunganri();
     datakunjunganigd();
@@ -167,6 +168,7 @@ function demografiumur(){
         type    : "POST",
         dataType: "JSON",
         cache   : false,
+
         beforeSend: function () {            
             Swal.fire({
                 title            : 'Processing',
@@ -183,22 +185,14 @@ function demografiumur(){
             renderPyramidChart(
                 "grafikumur",
                 result,
+                "Kelompok Umur",
                 [
-                    {
-                        name: "Laki-laki",
-                        field: "LAKI_LAKI",
-                        negative: true,
-                        color: "#3b82f6"
-                    },
-                    {
-                        name: "Perempuan",
-                        field: "PEREMPUAN",
-                        negative: false,
-                        color: "#ec4899"
-                    }
+                    {name: "Laki-laki",field: "LAKI_LAKI",negative: true,color: "#3b82f6"},
+                    {name: "Perempuan",field: "PEREMPUAN",negative: false,color: "#ec4899"}
                 ]
             );           
         },
+
         error: function () {
             Swal.fire({
                 icon : 'error',
@@ -211,11 +205,13 @@ function demografiumur(){
 
 function datakunjunganigd(){
     let selectperiode = $("select[name='selectperiode']").val();
+
     $.ajax({
         url      : url + "index.php/dashboard/dashboard/datakunjunganigd",
         type     : "POST",
         dataType : "JSON",
         data     : { selectperiode: selectperiode },
+
         beforeSend: function () {
             Swal.fire({
                 title: 'Processing',
@@ -226,6 +222,7 @@ function datakunjunganigd(){
                 didOpen: () => Swal.showLoading()
             });
         },
+
         success: function (response) {
 
             if (response.responCode !== "00") {
@@ -248,28 +245,17 @@ function datakunjunganigd(){
             });
 
             const chartDataKunjungan = bulanLengkap.map((b, index) => ({
-                periode: namaBulan[index],
+                periode   : namaBulan[index],
                 totalValue: dataMapKunjungan[b] ?? 0
             }));
 
-            const bulanAktif = chartDataKunjungan.filter(item => item.totalValue > 0);
-            const totalAll   = bulanAktif.reduce((sum, item) => sum + item.totalValue, 0);
-            const avgValue   = bulanAktif.length > 0 ? totalAll / bulanAktif.length : 0;
-
-            renderchartarea(
-                "grafikkunjunganigd",
-                chartDataKunjungan,
-                "Periode Pelayanan",
-                "Jumlah Kunjungan",
-                "Kunjungan IGD",
-                "totalValue",
-                avgValue,
-                "Rata-rata: " + Math.round(avgValue).toLocaleString()
-            );
+            renderchartarea("grafikkunjunganigd",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,null,"totalValue","Rata-rata Kunjungan");
         },
+
         complete: function () {
             Swal.close();
         },
+
         error: function () {
             Swal.fire({
                 icon : 'error',
@@ -312,46 +298,27 @@ function datakunjunganrj(){
             }
 
             const result       = response.responResult || [];
-
             const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
             const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
-            const mapExec = {};
+            const mapExec    = {};
             const mapNonExec = {};
 
             result.forEach(item => {
-
                 mapExec[item.BULAN]     = parseInt(item.KUNJUNGAN_EXECUTIVE);
                 mapNonExec[item.BULAN]  = parseInt(item.KUNJUNGAN_NON_EXECUTIVE);
-
             });
 
-            const chartData = bulanLengkap.map((b, index) => ({
-                periode: namaBulan[index],
-                executive: mapExec[b] ?? 0,
+            const chartDataKunjungan = bulanLengkap.map((b, index) => ({
+                periode     : namaBulan[index],
+                executive   : mapExec[b] ?? 0,
                 nonexecutive: mapNonExec[b] ?? 0
             }));
 
+            // renderchartarea("grafikkunjunganrj",chartDataKunjungan,"Periode Pelayanan","Non Executive",["Non Executive", "Executive"],["nonexecutive", "executive"],1,"Executive","nonexecutive","Rata-rata Kunjungan Non Executive");
+            renderchartarea("grafikkunjunganrj",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Non Executive"],["nonexecutive"],null,null,"nonexecutive","Rata-rata Kunjungan Non Executive");
+            renderchartarea("grafikkunjunganexecutive",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Executive"],["executive"],null,null,"executive","Rata-rata Kunjungan Executive");
 
-            // rata-rata total kunjungan
-            const totalAll = chartData.reduce((sum, item) =>
-                sum + item.executive + item.nonexecutive, 0);
-
-            const avgValue = totalAll / 12;
-
-
-            renderchartarea(
-                "grafikkunjunganrj",
-                chartData,
-                "Periode Pelayanan",
-                "Non Executive",
-                ["Non Executive","Executive"],
-                ["nonexecutive","executive"],
-                avgValue,
-                "Rata-rata " + Math.round(avgValue).toLocaleString(),
-                1,
-                "Executive"
-            );
         },
 
         complete: function () {
@@ -370,11 +337,13 @@ function datakunjunganrj(){
 
 function datakunjunganri(){
     let selectperiode = $("select[name='selectperiode']").val();
+
     $.ajax({
         url      : url + "index.php/dashboard/dashboard/datakunjunganri",
         type     : "POST",
         dataType : "JSON",
         data     : { selectperiode: selectperiode },
+
         beforeSend: function () {
             Swal.fire({
                 title: 'Processing',
@@ -385,6 +354,7 @@ function datakunjunganri(){
                 didOpen: () => Swal.showLoading()
             });
         },
+
         success: function (response) {
 
             if (response.responCode !== "00") {
@@ -407,28 +377,17 @@ function datakunjunganri(){
             });
 
             const chartDataKunjungan = bulanLengkap.map((b, index) => ({
-                periode: namaBulan[index],
+                periode   : namaBulan[index],
                 totalValue: dataMapKunjungan[b] ?? 0
             }));
 
-            const bulanAktif = chartDataKunjungan.filter(item => item.totalValue > 0);
-            const totalAll   = bulanAktif.reduce((sum, item) => sum + item.totalValue, 0);
-            const avgValue   = bulanAktif.length > 0 ? totalAll / bulanAktif.length : 0;
-
-            renderchartarea(
-                "grafikkunjunganri",
-                chartDataKunjungan,
-                "Periode Pelayanan",
-                "Jumlah Kunjungan",
-                "Kunjungan Rawat Inap",
-                "totalValue",
-                avgValue,
-                "Rata-rata: " + Math.round(avgValue).toLocaleString()
-            );
+            renderchartarea("grafikkunjunganri",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,null,"totalValue","Rata-rata Kunjungan");
         },
+
         complete: function () {
             Swal.close();
         },
+
         error: function () {
             Swal.fire({
                 icon : 'error',
@@ -567,64 +526,3 @@ function datakunjunganriprovider(){
         }
     });
 };
-
-function analisaaikunjunganigd() {
-    let selectperiode = $("select[name='selectperiode']").val();
-
-    Swal.fire({
-        title: 'Sedang menganalisis...',
-        html: 'AI sedang memproses data kunjungan IGD. Mohon tunggu beberapa saat.',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-
-            $.ajax({
-                url: url + "index.php/dashboard/dashboard/analisaaikunjunganigd",
-                data: { selectperiode: selectperiode },
-                type: "POST",
-                dataType: "JSON",
-                success: function(response) {
-                    if(response.status){
-                        Swal.fire({
-                            title: 'Analisa Selesai',
-                            html: '<pre style="text-align:left;">'+response.result_ai+'</pre>',
-                            icon: 'success',
-                            width: 600
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal',
-                            text: response.message,
-                            icon: 'error'
-                        });
-                    }
-                },
-                error: function(xhr){
-                    Swal.fire({
-                        title: 'Error',
-                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat menghubungi server.',
-                        icon: 'error'
-                    });
-                }
-            });
-        }
-    });
-}
-
-function typeWriterEffect(element, text, speed = 5, callback = null) {
-    element.val('');
-    let i = 0;
-
-    function typing() {
-        if (i < text.length) {
-            element.val(element.val() + text.charAt(i));
-            element.scrollTop(element[0].scrollHeight);
-            i++;
-            setTimeout(typing, speed);
-        } else {
-            if (callback) callback(); // 🔥 jalankan setelah selesai
-        }
-    }
-
-    typing();
-}
