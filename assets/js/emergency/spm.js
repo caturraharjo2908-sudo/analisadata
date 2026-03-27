@@ -55,29 +55,8 @@ function spmigd(){
                 };
             });
 
-            // Render Chart IGD → SPRI
-            renderchartarea(
-                "grafikspmspri",
-                chartDataIGD,
-                "Periode Pelayanan",
-                "Rata-rata Waktu (Menit)",
-                "IGD → SPRI",
-                "avgValue",
-                360,
-                "Target SLA 6 Jam (360 Menit)"
-            );
-
-            // Render Chart RANAP → TRANSFER
-            renderchartarea(
-                "grafiktransfer",
-                chartDataTransfer,
-                "Periode Pelayanan",
-                "Rata-rata Waktu (Menit)",
-                "RANAP → TRANSFER",
-                "avgValue",
-                60, // misal SLA 1 jam
-                "Target SLA 1 Jam (60 Menit)"
-            );
+            renderchartarea("grafikspmspri",chartDataIGD,"Periode Pelayanan","Jumlah Kunjungan",["IGD - SPRI"],["avgValue"],null,"",null,"Target SLA 6 Jam (360 Menit)",360);
+            renderchartarea("grafiktransfer",chartDataTransfer,"Periode Pelayanan","Jumlah Kunjungan",["RANAP - TRANSFER"],["avgValue"],null,"",null,"Target SLA 1 Jam (60 Menit)",60);
         },
         complete: function () {
             Swal.close();

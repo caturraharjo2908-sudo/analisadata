@@ -46,7 +46,7 @@
 
         public function simulationforecasting(){
 			$periode = $this->input->post("selectperiode");
-			$url     = "http://127.0.0.1:5050/forecast?tahun=".$periode;
+			$url     = "http://10.12.120.58:5050/forecast?tahun=".$periode;
 
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);

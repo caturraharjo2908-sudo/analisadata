@@ -89,7 +89,7 @@ function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori',
     chartInstances[name].render();
 }
 
-function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, rightAxisIndex = null, rightAxisLabel = "", avgField = null, avgLabel = "Rata-rata") {
+function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, rightAxisIndex = null, rightAxisLabel = "", avgField = null, avgLabel = "Rata-rata", annotationValue = null) {
 
     if (chartInstances[name]) {
         chartInstances[name].destroy();
@@ -111,7 +111,7 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
         }];
     }
 
-    // 🔥 HITUNG AVG
+    // ? HITUNG AVG
     let avgValue = null;
 
     if (avgField) {
@@ -120,7 +120,6 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
 
         data.forEach(item => {
             let val = parseFloat(item[avgField]);
-
             if (!isNaN(val) && val > 0) {
                 total += val;
                 count++;
@@ -128,6 +127,18 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
         });
 
         avgValue = count > 0 ? total / count : 0;
+    }
+
+    // ? PRIORITAS: annotationValue > avgValue
+    let finalAnnotation = null;
+    let finalLabel = "";
+
+    if (annotationValue !== null) {
+        finalAnnotation = annotationValue;
+        finalLabel = avgLabel; // label bebas (misal: "SLA")
+    } else if (avgValue !== null) {
+        finalAnnotation = avgValue;
+        finalLabel = `${avgLabel} (${Math.round(avgValue).toLocaleString()})`;
     }
 
     const options = {
@@ -169,14 +180,14 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
         grid: { strokeDashArray: 4 },
         legend: { position: 'top' },
 
-        // 🔥 GARIS AVG
-        annotations: avgValue !== null ? {
+        // ? ANNOTATION FLEXIBLE
+        annotations: finalAnnotation !== null ? {
             yaxis: [{
-                y: avgValue,
+                y: finalAnnotation,
                 borderColor: '#FF0000',
                 strokeDashArray: 3,
                 label: {
-                    text: `${avgLabel} (${Math.round(avgValue).toLocaleString()})`,
+                    text: finalLabel,
                     style: { background: '#FF0000', color: '#fff' }
                 }
             }]

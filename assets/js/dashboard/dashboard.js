@@ -249,7 +249,7 @@ function datakunjunganigd(){
                 totalValue: dataMapKunjungan[b] ?? 0
             }));
 
-            renderchartarea("grafikkunjunganigd",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,null,"totalValue","Rata-rata Kunjungan");
+            renderchartarea("grafikkunjunganigd",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Kunjungan",null);
         },
 
         complete: function () {
@@ -316,8 +316,8 @@ function datakunjunganrj(){
             }));
 
             // renderchartarea("grafikkunjunganrj",chartDataKunjungan,"Periode Pelayanan","Non Executive",["Non Executive", "Executive"],["nonexecutive", "executive"],1,"Executive","nonexecutive","Rata-rata Kunjungan Non Executive");
-            renderchartarea("grafikkunjunganrj",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Non Executive"],["nonexecutive"],null,null,"nonexecutive","Rata-rata Kunjungan Non Executive");
-            renderchartarea("grafikkunjunganexecutive",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Executive"],["executive"],null,null,"executive","Rata-rata Kunjungan Executive");
+            renderchartarea("grafikkunjunganrj",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Non Executive"],["nonexecutive"],null,"","nonexecutive","Rata-rata Kunjungan Non Executive",null);
+            renderchartarea("grafikkunjunganexecutive",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Executive"],["executive"],null,"","executive","Rata-rata Kunjungan Executive",null);
 
         },
 
@@ -381,7 +381,7 @@ function datakunjunganri(){
                 totalValue: dataMapKunjungan[b] ?? 0
             }));
 
-            renderchartarea("grafikkunjunganri",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,null,"totalValue","Rata-rata Kunjungan");
+            renderchartarea("grafikkunjunganri",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Kunjungan",null);
         },
 
         complete: function () {

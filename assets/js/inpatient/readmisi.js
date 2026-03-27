@@ -10,11 +10,13 @@ $(document).on("keyup", "#fieldsearch", function () {
 
 function datapasienreadmisi(){
     let selectperiode = $("select[name='selectperiode']").val();
+
     $.ajax({
         url       : url +"index.php/inpatient/readmisi/datapasienreadmisi",
         data      : {selectperiode:selectperiode},
         type      : "POST",
         dataType  : "JSON",
+
         beforeSend: function () {
             Swal.fire({
                 title            : 'Processing',
@@ -27,14 +29,13 @@ function datapasienreadmisi(){
 
             $("#grafikreadmisiaggregate").html("");
         },
+
         success:function(data){
             var   tableresult  = "";
             const result       = data.responResult || [];
             const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
             const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
             let bulanan = {};
-
-            
 
             if(data.responCode==="00"){
                 for(var i in result){
@@ -77,29 +78,14 @@ function datapasienreadmisi(){
                 periode: namaBulan[index],
                 totalValue: bulanan[b] || 0
             }));
-
-            // ===== hitung rata-rata =====
-            const bulanAktif = chartDataBulanan.filter(x => x.totalValue > 0);
-            const totalAll   = bulanAktif.reduce((sum,x)=>sum + x.totalValue,0);
-            const avgValue   = bulanAktif.length > 0 ? totalAll / bulanAktif.length : 0;
-
-            // ===== render chart =====
-            renderchartarea(
-                "grafikreadmisiaggregate",
-                chartDataBulanan,
-                "Periode Pelayanan",
-                "Jumlah Re Admisi",
-                "Re Admisi Pasien",
-                "totalValue",
-                avgValue,
-                "Rata-rata: " + Math.round(avgValue)
-            );
-
-            // renderchartarea("grafikreadmisiaggregate",chartDataBulanan,"Periode Pelayanan","Jumlah Re Admisi");
+            
+            renderchartarea("grafikreadmisiaggregate",chartDataBulanan,"Periode Pelayanan","Jumlah Re Admisi",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Kunjungan",null);
         },
+
         complete: function () {
             Swal.close();
         },
+        
         error: function () {
             Swal.fire({
                 icon : 'error',

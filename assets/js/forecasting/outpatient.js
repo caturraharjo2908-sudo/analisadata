@@ -27,7 +27,6 @@ function forecastingoutpatient() {
         success: function (response) {
 
             if (response.responCode !== "00") {
-
                 Swal.fire({
                     icon              : 'warning',
                     title             : 'Forecast Data Not Found',
@@ -38,13 +37,9 @@ function forecastingoutpatient() {
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor : '#d33'
                 }).then((result) => {
-
                     if (result.isConfirmed) {
-
                         simulationforecasting();
-
                     }
-
                 });
 
                 return;
@@ -54,13 +49,8 @@ function forecastingoutpatient() {
 
             if (result.length === 0) return;
 
-            const data = result[0];
-
-            const namaBulan = [
-                "Jan","Feb","Mar","Apr","Mei","Jun",
-                "Jul","Agu","Sep","Okt","Nov","Des"
-            ];
-
+            const data      = result[0];
+            const namaBulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
             const chartData = [];
 
             for (let i = 1; i <= 12; i++) {
@@ -75,24 +65,8 @@ function forecastingoutpatient() {
 
             }
 
+            renderchartarea("grafikforecastingoutatient",chartData,"Periode Pelayanan","Jumlah Kunjungan",["Real","Forecast"],["real","prediksi"],null,"",null,"",null);
 
-            // ======================
-            // RENDER CHART
-            // ======================
-
-            renderchartarea(
-                "grafikforecastingoutatient",
-                chartData,
-                "Periode Pelayanan",
-                "Jumlah Kunjungan",
-                ["Real","Forecast"],
-                ["real","prediksi"]
-            );
-
-
-            // ======================
-            // VALIDATION METRICS
-            // ======================
 
             $("#forecast_mae").html(
                 Math.round(parseFloat(data.MAE)).toLocaleString()

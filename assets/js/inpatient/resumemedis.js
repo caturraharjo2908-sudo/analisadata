@@ -302,7 +302,7 @@ function resumemedis(){
             );
 
             $("#totalresume").html(
-                "Total Resume Tepat Waktu (<=48 Jam) : " + todesimal(totalResume) + " Px"
+                "Total Resume Yang Telah Di Buat : " + todesimal(totalResume) + " Px"
             );
 
             $("#pendingresumekurang").html(
