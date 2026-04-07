@@ -12,107 +12,233 @@ class ResumeMedisAI extends REST_Controller {
         $this->load->model("ModelResumeMedisAI","md");
     }
 
-    public function generateresumeai_post(){
-        $id_kunjungan = $this->post('id_kunjungan');
+    public function generateresumeai_post($episodeid){
+        $body        = [];
+        $sourcedata  = [];
+        $aigenerated = [];
+        $kunjungan   = [];
 
-        // if(empty($id_kunjungan)){
-        //     return $this->response([
-        //         'status' => false,
-        //         'message' => 'ID Kunjungan tidak boleh kosong'
-        //     ], 400);
-        // }
+        $resultkunjungan        = $this->md->kunjungan($episodeid);
+        $resultradiologi        = $this->md->radiologi($episodeid);
+        $resultlaboratoriumhd   = $this->md->laboratoriumhd($episodeid);
+        $resultkeluhanutama     = $this->md->keluhanutama($episodeid);
+        $resultgejala           = $this->md->gejala($episodeid);
+        $resultpemeriksaanfisik = $this->md->pemeriksaanfisik($episodeid);
 
-        $dataklinis = $this->md->riwayatpenyakitdahulu($id_kunjungan);
+        $item = preg_match_all('/([a-zA-Z ]+)\s*(?:\(\+\)|\+)/i', $resultgejala->RESULT, $matches);
+        $rawhighlight = array_map(function($item){return trim($item);}, $matches[1]);
+        $highlight    = implode(', ', array_map(function($item){return ucfirst(strtolower(trim($item))) . ' (+)';}, $matches[1]));
 
-        if(empty($dataklinis)){
-            $datatext = "Tidak dicatat";
-        } else {
+        $textpemeriksaanfisik = $resultpemeriksaanfisik->TEXT_DATA;
+        
+        $kunjungan['pasienid']  = $resultkunjungan->PASIEN_ID;
+        $kunjungan['episodeid'] = $resultkunjungan->EPISODE_ID;
 
-            $rows = [];
+        $sourcedata['riwayat']['keluhanutama']['raw']            = [];
+        $sourcedata['riwayat']['keluhanutama']['text']           = ltrim($resultkeluhanutama->KELUHAN, "\n");
+        $sourcedata['diagnosis']['indikasiranap']['raw']         = [];
+        $sourcedata['diagnosis']['indikasiranap']['text']        = ltrim($resultkeluhanutama->INDIKASIRANAP, "\n");
+        $sourcedata['riwayat']['gejala']['raw']                  = $rawhighlight;
+        $sourcedata['riwayat']['gejala']['text']                 = $highlight;
+        $sourcedata['pemeriksaanfisik']['ttv']['raw']            = [];
+        $sourcedata['pemeriksaanfisik']['ttv']['text']           = $this->ambilTTV($textpemeriksaanfisik);
+        $sourcedata['pemeriksaanfisik']['statuslokalis']['raw']  = [];
+        $sourcedata['pemeriksaanfisik']['statuslokalis']['text'] = $this->ambilStatusLokalis($textpemeriksaanfisik);
 
-            foreach($dataklinis as $row){
 
-                // Karena result_array() → pakai []
-                $value = isset($row['RESULTSOAP']) ? $row['RESULTSOAP'] : '';
+        if($resultkunjungan->PULANG_ID==="P01" || $resultkunjungan->PULANG_ID===null){
+            $sourcedata['kontrolulang']['raw']  = [];
+            $sourcedata['kontrolulang']['text'] = "Kontrol ulang ke " . ($resultkunjungan->POLIKLINIK ?? '-');
+            $sourcedata['segeradibawa']['raw']  = [];
+            $sourcedata['segeradibawa']['text'] = "Dibawa kembali ke fasilitas kesehatan apabila terjadi perburukan kondisi";
 
-                $value = strip_tags($value);
-                $value = trim($value);
+            $resultobat = $this->md->obat($episodeid);
 
-                if(!empty($value)){
-                    $rows[] = $value;
+            $sourcedata['penunjang']['obat']['perawatan']['raw'] = [];
+            $sourcedata['penunjang']['obat']['pulang']['raw']    = [];
+
+            foreach ($resultobat as $a) {
+                $item             = [];
+                $item['obatid']   = $a['OBAT_ID'];
+                $item['namaobat'] = $a['NAMA_OBAT'];
+
+                if ($a['JENIS_RESEP'] == "1") {
+                    $sourcedata['penunjang']['obat']['perawatan']['raw'][] = $item;
+                } else {
+                    $sourcedata['penunjang']['obat']['pulang']['raw'][] = $item;
                 }
             }
 
-            $datatext = empty($rows) ? "Tidak dicatat" : "- " . implode("\n- ", $rows);
+            $perawatan_text = array_map(function($item) {return "- {$item['namaobat']}";}, $sourcedata['penunjang']['obat']['perawatan']['raw']);
+            $pulang_text    = array_map(function($item) {return "- {$item['namaobat']}";}, $sourcedata['penunjang']['obat']['pulang']['raw']);
+
+
+            $sourcedata['penunjang']['obat']['perawatan']['text'] = implode("\n", $perawatan_text);
+            $sourcedata['penunjang']['obat']['pulang']['text'] = implode("\n", $pulang_text);
+
+        }else{
+            $sourcedata['kontrolulang']['raw']                    = [];
+            $sourcedata['kontrolulang']['text']                   = "-";
+            $sourcedata['segeradibawa']['raw']                    = [];
+            $sourcedata['segeradibawa']['text']                   = "-";
+            $sourcedata['penunjang']['obat']['perawatan']['raw']  = [];
+            $sourcedata['penunjang']['obat']['pulang']['raw']     = [];
+            $sourcedata['penunjang']['obat']['pulang']['text']    = "-";
+            $sourcedata['penunjang']['obat']['perawatan']['text'] = "-";
         }
 
-        $prompt = "
-                    TUGAS:
-                    Ubah DATA KLINIS menjadi narasi Riwayat Penyakit Dahulu.
+        if(!empty($resultradiologi)){
+            foreach ($resultradiologi as $row) {
+                $resultrad[] = [
+                    'namapemeriksaan' => $row['NAMAPEMERIKSAAN'],
+                    'result'          => $row['RESULT'],
+                    'createddate'     => $row['CREATEDDATE']
+                ];
+            }
+            $sourcedata['penunjang']['radiologi']['raw']  = $resultrad;
+            $sourcedata['penunjang']['radiologi']['text'] = implode("\n\n", array_map(function($item){return $item['createddate'] . " " . $item['namapemeriksaan'] . "\n" . "Conclusion :\n" . $item['result'];}, $resultrad));
 
-                    ATURAN WAJIB:
-                    - Gunakan HANYA teks yang ada di DATA KLINIS.
-                    - DILARANG menambahkan judul apa pun.
-                    - DILARANG membuat bullet, daftar, simbol *, atau tanda -.
-                    - DILARANG mengulang kalimat yang sama.
-                    - DILARANG membuat interpretasi seperti 'memiliki riwayat (+)'.
-                    - DILARANG menambahkan kalimat pembuka atau penutup.
-                    - Jangan membuat kesimpulan tambahan.
-                    - Jika DATA KLINIS kosong tulis tepat: Tidak dicatat.
+        }else{
+            $sourcedata['penunjang']['radiologi']['raw']  = [];
+            $sourcedata['penunjang']['radiologi']['text'] = "-";
+        }
+        
+        if(!empty($resultlaboratoriumhd)){
+            foreach ($resultlaboratoriumhd as $row) {
+                $resultlab['order']['sampelid']    = $row['SAMPEL_ID'];
+                $resultlab['order']['registerid']  = $row['REGISTRASI_ID'];
+                $resultlab['order']['createddate'] = $row['CREATEDDATE'];
 
-                    FORMAT:
-                    - Satu paragraf saja.
-                    - Tanpa baris baru.
-                    - Tanpa simbol atau tanda daftar.
-                    - Bahasa Indonesia medis formal.
+                $sourcedata['penunjang']['laboratorium']['raw'][]  = $resultlab;
+            }
+        }else{
 
-                    DATA KLINIS:
-                    {$datatext}
-                    ";
+        }
+        
+        $body['status']                = true;
+        $body['code']                  = 200;
+        $body['message']               = "success";
+        $body['transaksi']             = $kunjungan;
+        $body['sourcedata'][]          = $sourcedata;
+        $body['aigenerated'][]         = $aigenerated;
+        $body['metadata']['timestamp'] = date('Y-m-d H:i:s');
 
-        // return var_dump($prompt);
+        $this->response($body, 200);
+    }
 
-        $payload = [
-            "model" => "llama3:8b",
-            "prompt" => $prompt,
-            "stream" => false,
-            "options" => [
-                "temperature" => 0,
-                "top_p" => 0.9,
-                "repeat_penalty" => 1.1
-            ]
+    function cleanText($text) {
+        $text = str_replace("\r", "", $text); // hilangkan CR
+        $text = preg_replace('/(\n\s*){2,}/', "\n", $text); // rapikan newline
+        return trim($text);
+    }
+
+    function ambilTTV($text, $startList = [], $endList = []) {
+
+        $text = $this->cleanText($text);
+
+        // START keyword
+        $startList = !empty($startList) ? $startList : [
+            'Kes:',
+            'Kesadaran:',
+            'KU:',
+            'TTV saat di IGD'
         ];
 
-        $ch = curl_init("http://localhost:11434/api/generate");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        // curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+        // END keyword
+        $endList = !empty($endList) ? $endList : [
+            'Mata',
+            'Status Generalis',
+            'Kepala'
+        ];
 
-        $response = curl_exec($ch);
+        // cari start
+        $startPos = false;
 
-        if(curl_errno($ch)){
-            return $this->response([
-                'status' => false,
-                'message' => 'Gagal menghubungi AI Server: ' . curl_error($ch)
-            ], 500);
+        foreach ($startList as $start) {
+            $pos = stripos($text, $start);
+            if ($pos !== false) {
+                $startPos = $pos; // ⬅️ mulai dari label, bukan setelahnya
+                break;
+            }
         }
 
-        curl_close($ch);
-
-        $result = json_decode($response, true);
-
-        if(!isset($result['response'])){
-            return $this->response([
-                'status' => false,
-                'message' => 'Response AI tidak valid'
-            ], 500);
+        // fallback
+        if ($startPos === false) {
+            $startPos = 0;
         }
 
-        return $this->response([
-            'status' => true,
-            'resume' => trim($result['response'])
-        ], 200);
+        // cari end
+        $endPos = strlen($text);
+        foreach ($endList as $end) {
+            $pos = stripos($text, $end);
+            if ($pos !== false && $pos > $startPos && $pos < $endPos) {
+                $endPos = $pos;
+            }
+        }
+
+        $ttv = substr($text, $startPos, $endPos - $startPos);
+
+        return $this->cleanText($ttv);
     }
+
+    function ambilStatusLokalis($text, $startList = [], $endList = []) {
+
+        $text = $this->cleanText($text);
+
+        // START dari Mata (sesuai data real)
+        $startList = !empty($startList) ? $startList : [
+            'Mata',
+            'Status Generalis'
+        ];
+
+        // END → sebelum penunjang / lab
+        $endList   = !empty($endList)   ? $endList   : [
+            'Hasil lab',
+            'Hasil laboratorium',
+            'Lab',
+            'HEMATOLOGI',
+            'KIMIA',
+            'LAB',
+            'ELEKTROLIT',
+            'HEMATOLOGI',
+            'Pemeriksaan Penunjang'
+        ];
+
+        // START
+        $startPos = false;
+        foreach ($startList as $start) {
+            $pos = stripos($text, $start);
+            if ($pos !== false) {
+                $startPos = $pos;
+                break;
+            }
+        }
+
+        if ($startPos === false) return '';
+
+        // END
+        $endPos = strlen($text);
+        foreach ($endList as $end) {
+            $pos = stripos($text, $end);
+            if ($pos !== false && $pos > $startPos && $pos < $endPos) {
+                $endPos = $pos;
+            }
+        }
+
+        $status = substr($text, $startPos, $endPos - $startPos);
+
+        return $this->cleanText($status);
+    }
+
+    private function getOriginalPosition($originalText, $normalizedText, $normalizedPos) {
+        // untuk kasus kamu sebenarnya tidak perlu mapping kompleks
+        // cukup kembalikan posisi asli berdasarkan normalized string length
+
+        return strlen(substr($originalText, 0, $normalizedPos));
+    }
+
+
+
+
+    
 }
