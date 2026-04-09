@@ -22,8 +22,6 @@ $(document).on("click", ".btn-apply", function (e) {
     waktutungguranap(startDate, endDate);
 });
 
-waktutungguranap(startDate, endDate);
-
 $(document).on("keyup", "#fieldsearch", function () {
     let keyword = $(this).val().toLowerCase();
     $("#resultrawdatawaktutungguranap tr").each(function () {

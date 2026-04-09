@@ -151,6 +151,7 @@ function resumemedis(episodeid){
 
             setAuto('keluhanutama_db', result['sourcedata'][0]['riwayat']['keluhanutama']['text']);
             setAuto('gejalapenyerta_db', result['sourcedata'][0]['riwayat']['gejala']['text']);
+            setAuto('penyakitsekarang1_db', result['sourcedata'][0]['riwayat']['sekarang']['text']);
             setAuto('indikasiranap_db', result['sourcedata'][0]['diagnosis']['indikasiranap']['text']);
             setAuto('ttv_db', result['sourcedata'][0]['pemeriksaanfisik']['ttv']['text']);
             setAuto('lokalis_db', result['sourcedata'][0]['pemeriksaanfisik']['statuslokalis']['text']);
@@ -159,6 +160,7 @@ function resumemedis(episodeid){
             setAuto('obatperawatan_db', result['sourcedata'][0]['penunjang']['obat']['perawatan']['text']);
             setAuto('obatpulang_db', result['sourcedata'][0]['penunjang']['obat']['pulang']['text']);
             setAuto('rad_db', result['sourcedata'][0]['penunjang']['radiologi']['text']);
+            setAuto('lab_db', result['sourcedata'][0]['penunjang']['laboratorium']['text']);
         },
         complete: function () {
             Swal.close();

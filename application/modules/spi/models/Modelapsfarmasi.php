@@ -104,9 +104,9 @@
                             AND K.AKTIFASI  = '1'
 
                         WHERE A.LOKASI_ID = '001'
-                        AND A.AKTIF = '1'
-                        AND A.STATUS_EPISODE <> '99'
-                        AND A.POLI_ID = 'KLINI0000000001'
+                        AND   A.AKTIF = '1'
+                        AND   A.STATUS_EPISODE <> '99'
+                        AND   A.POLI_ID = 'KLINI0000000001'
                         AND   A.TGL_MASUK >= TO_DATE('01-01-" . $periode . "','DD-MM-YYYY')
                         AND   A.TGL_MASUK <  TO_DATE('01-01-" . ($periode+1) . "','DD-MM-YYYY')
                         AND B.OBAT IS NOT NULL

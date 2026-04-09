@@ -1,14 +1,5 @@
 const chartInstances = {};
 
-function destroyAllCharts() {
-    Object.keys(chartInstances).forEach(key => {
-        if (chartInstances[key]) {
-            chartInstances[key].destroy();
-            chartInstances[key] = null;
-        }
-    });
-}
-
 function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori', valueField = 'qty', colorLabel = '#ffffff') {
     // Hapus chart lama jika sudah ada
     if (chartInstances[name]) {

@@ -17,29 +17,34 @@ class ResumeMedisAI extends REST_Controller {
         $sourcedata  = [];
         $aigenerated = [];
         $kunjungan   = [];
+        $norm        = "";
 
         $resultkunjungan        = $this->md->kunjungan($episodeid);
         $resultradiologi        = $this->md->radiologi($episodeid);
         $resultlaboratoriumhd   = $this->md->laboratoriumhd($episodeid);
         $resultkeluhanutama     = $this->md->keluhanutama($episodeid);
         $resultgejala           = $this->md->gejala($episodeid);
-        $resultpemeriksaanfisik = $this->md->pemeriksaanfisik($episodeid);
 
         $item = preg_match_all('/([a-zA-Z ]+)\s*(?:\(\+\)|\+)/i', $resultgejala->RESULT, $matches);
         $rawhighlight = array_map(function($item){return trim($item);}, $matches[1]);
         $highlight    = implode(', ', array_map(function($item){return ucfirst(strtolower(trim($item))) . ' (+)';}, $matches[1]));
 
-        $textpemeriksaanfisik = $resultpemeriksaanfisik->TEXT_DATA;
+        $textpemeriksaanfisik = $resultkeluhanutama->TEXT_DATA;
+        $norm                 = $resultkunjungan->MRPASIEN;
         
         $kunjungan['pasienid']  = $resultkunjungan->PASIEN_ID;
         $kunjungan['episodeid'] = $resultkunjungan->EPISODE_ID;
 
-        $sourcedata['riwayat']['keluhanutama']['raw']            = [];
-        $sourcedata['riwayat']['keluhanutama']['text']           = ltrim($resultkeluhanutama->KELUHAN, "\n");
+        $sourcedata['riwayat']['keluhanutama']['raw']  = [];
+        $sourcedata['riwayat']['keluhanutama']['text'] = ltrim($resultkeluhanutama->KELUHAN, "\n");
+        $sourcedata['riwayat']['gejala']['raw']        = $rawhighlight;
+        $sourcedata['riwayat']['gejala']['text']       = $highlight;
+        $sourcedata['riwayat']['sekarang']['raw']      = [];
+        $sourcedata['riwayat']['sekarang']['text']     = ltrim($resultkeluhanutama->RIWAYATSEKARANG, "\n");
+
         $sourcedata['diagnosis']['indikasiranap']['raw']         = [];
         $sourcedata['diagnosis']['indikasiranap']['text']        = ltrim($resultkeluhanutama->INDIKASIRANAP, "\n");
-        $sourcedata['riwayat']['gejala']['raw']                  = $rawhighlight;
-        $sourcedata['riwayat']['gejala']['text']                 = $highlight;
+        
         $sourcedata['pemeriksaanfisik']['ttv']['raw']            = [];
         $sourcedata['pemeriksaanfisik']['ttv']['text']           = $this->ambilTTV($textpemeriksaanfisik);
         $sourcedata['pemeriksaanfisik']['statuslokalis']['raw']  = [];
@@ -104,15 +109,79 @@ class ResumeMedisAI extends REST_Controller {
         }
         
         if(!empty($resultlaboratoriumhd)){
-            foreach ($resultlaboratoriumhd as $row) {
-                $resultlab['order']['sampelid']    = $row['SAMPEL_ID'];
-                $resultlab['order']['registerid']  = $row['REGISTRASI_ID'];
-                $resultlab['order']['createddate'] = $row['CREATEDDATE'];
+            $resultlab = [];
 
-                $sourcedata['penunjang']['laboratorium']['raw'][]  = $resultlab;
+            foreach ($resultlaboratoriumhd as $i => $row) {
+
+                $resultlab[$i] = [
+                    'sampelid'    => $row['SAMPEL_ID'] ?? '',
+                    'registerid'  => $row['REGISTRASI_ID'] ?? '',
+                    'createddate' => $row['CREATEDDATE'] ?? '',
+                    'hasil'       => []
+                ];
+
+                $resultlaboratoriumdt = $this->md->laboratoriumdt($row['SAMPEL_ID'], $norm);
+
+                foreach ($resultlaboratoriumdt as $rowdetail) {
+                    $resultlab[$i]['hasil'][] = [
+                        'namates' => $rowdetail['NAMA_TES'] ?? '',
+                        'unit'    => $rowdetail['UNITS'] ?? '',
+                        'result'  => $rowdetail['RESULT_VALUE'] ?? '',
+                        'flag'    => $rowdetail['RESULT_FLAG'] ?? ''
+                    ];
+                }
             }
-        }else{
 
+            $sourcedata['penunjang']['laboratorium']['raw'] = $resultlab;
+            $sourcedata['penunjang']['laboratorium']['text'] = implode("\n\n", array_map(function($item){
+
+                $hasil = implode("\n", (function($list){
+
+                    $output = [];
+                    $isFirstHeader = true;
+
+                    foreach ($list as $h) {
+
+                        $nama   = $h['namates'] ?? '-';
+                        $unit   = $h['unit'] ?? '';
+                        $result = $h['result'] ?? '';
+
+                        // ambil indent asli
+                        preg_match('/^\s*/', $nama, $match);
+                        $indent = $match[0];
+
+                        $nama_bersih = trim($nama);
+
+                        // HEADER (tidak ada result)
+                        if (empty($result)) {
+
+                            if ($isFirstHeader) {
+                                $output[] = $indent . $nama_bersih . " :";
+                                $isFirstHeader = false;
+                            } else {
+                                $output[] = "\n" . $indent . $nama_bersih . " :";
+                            }
+
+                            continue;
+                        }
+
+                        // DATA
+                        $unit_text = !empty($unit) ? " " . $unit : "";
+                        $output[] = $indent . $nama_bersih . " : " . $result . $unit_text;
+                    }
+
+                    return $output;
+
+                })($item['hasil'] ?? []));
+
+                return ($item['createddate'] ?? '-') .
+                    "\nNo Sampel : " . ($item['sampelid'] ?? '-') .
+                    "\n===RESULT===\n" . $hasil;
+
+            }, $resultlab));
+        }else{
+            $sourcedata['penunjang']['laboratorium']['raw'][] = [];
+            $sourcedata['penunjang']['laboratorium']['text']  = "-";
         }
         
         $body['status']                = true;
@@ -126,48 +195,44 @@ class ResumeMedisAI extends REST_Controller {
         $this->response($body, 200);
     }
 
-    function cleanText($text) {
-        $text = str_replace("\r", "", $text); // hilangkan CR
-        $text = preg_replace('/(\n\s*){2,}/', "\n", $text); // rapikan newline
-        return trim($text);
+    function normalizeText($text) {
+        $text = str_replace("\r", "", $text);
+        $text = preg_replace('/[ \t]+/', ' ', $text); // rapikan spasi
+        return $text;
     }
 
     function ambilTTV($text, $startList = [], $endList = []) {
 
-        $text = $this->cleanText($text);
+        $text = $this->normalizeText($text);
 
-        // START keyword
         $startList = !empty($startList) ? $startList : [
-            'Kes:',
-            'Kesadaran:',
-            'KU:',
-            'TTV saat di IGD'
+            'KU',
+            'Kesadaran',
+            'GCS',
+            'Tekanan darah'
         ];
 
-        // END keyword
         $endList = !empty($endList) ? $endList : [
-            'Mata',
+            '20.30',
             'Status Generalis',
-            'Kepala'
+            'Kepala',
+            'Thorax',
+            '.HEMATOLOGI'
         ];
 
-        // cari start
+        // START
         $startPos = false;
-
         foreach ($startList as $start) {
             $pos = stripos($text, $start);
             if ($pos !== false) {
-                $startPos = $pos; // ⬅️ mulai dari label, bukan setelahnya
+                $startPos = $pos;
                 break;
             }
         }
 
-        // fallback
-        if ($startPos === false) {
-            $startPos = 0;
-        }
+        if ($startPos === false) return '';
 
-        // cari end
+        // END
         $endPos = strlen($text);
         foreach ($endList as $end) {
             $pos = stripos($text, $end);
@@ -178,30 +243,31 @@ class ResumeMedisAI extends REST_Controller {
 
         $ttv = substr($text, $startPos, $endPos - $startPos);
 
-        return $this->cleanText($ttv);
+        return trim($ttv);
     }
 
     function ambilStatusLokalis($text, $startList = [], $endList = []) {
 
-        $text = $this->cleanText($text);
+        $text = $this->normalizeText($text);
 
-        // START dari Mata (sesuai data real)
         $startList = !empty($startList) ? $startList : [
-            'Mata',
-            'Status Generalis'
+            'Status Generalis',
+            'Kepala',
+            'Mata'
         ];
 
-        // END → sebelum penunjang / lab
-        $endList   = !empty($endList)   ? $endList   : [
-            'Hasil lab',
-            'Hasil laboratorium',
-            'Lab',
+        $endList = !empty($endList) ? $endList : [
+            'HASIL RADIOLOGI',
+            'HASIL LABORATORIUM',
             'HEMATOLOGI',
-            'KIMIA',
-            'LAB',
+            'KIMIA DARAH',
             'ELEKTROLIT',
-            'HEMATOLOGI',
-            'Pemeriksaan Penunjang'
+            'Pemeriksaan Penunjang',
+            'GDS',
+            'Lab',
+            '.URINALISA',
+            'Pemeriksaan',
+            'Hasil'
         ];
 
         // START
@@ -227,15 +293,124 @@ class ResumeMedisAI extends REST_Controller {
 
         $status = substr($text, $startPos, $endPos - $startPos);
 
-        return $this->cleanText($status);
+        return trim($status);
     }
 
-    private function getOriginalPosition($originalText, $normalizedText, $normalizedPos) {
-        // untuk kasus kamu sebenarnya tidak perlu mapping kompleks
-        // cukup kembalikan posisi asli berdasarkan normalized string length
+    // function cleanText($text) {
+    //     $text = str_replace("\r", "", $text); // hilangkan CR
+        
+    //     // rapikan newline berlebih di tengah jadi max 1
+    //     $text = preg_replace('/(\n\s*){2,}/', "\n", $text);
+        
+    //     // hapus newline di awal
+    //     $text = preg_replace('/^\n+/', '', $text);
+        
+    //     // hapus newline di akhir
+    //     $text = preg_replace('/\n+$/', '', $text);
 
-        return strlen(substr($originalText, 0, $normalizedPos));
-    }
+    //     return trim($text);
+    // }
+
+    // function ambilTTV($text, $startList = [], $endList = []) {
+
+
+    //     // START keyword
+    //     $startList = !empty($startList) ? $startList : [
+    //         'Kes:',
+    //         'Kesadaran:',
+    //         'KU:',
+    //         'TTV saat di IGD'
+    //     ];
+
+    //     // END keyword
+    //     $endList = !empty($endList) ? $endList : [
+    //         'Mata',
+    //         'Status Generalis',
+    //         'Kepala'
+    //     ];
+
+    //     // cari start
+    //     $startPos = false;
+
+    //     foreach ($startList as $start) {
+    //         $pos = stripos($text, $start);
+    //         if ($pos !== false) {
+    //             $startPos = $pos; // ⬅️ mulai dari label, bukan setelahnya
+    //             break;
+    //         }
+    //     }
+
+    //     // fallback
+    //     if ($startPos === false) {
+    //         $startPos = 0;
+    //     }
+
+    //     // cari end
+    //     $endPos = strlen($text);
+    //     foreach ($endList as $end) {
+    //         $pos = stripos($text, $end);
+    //         if ($pos !== false && $pos > $startPos && $pos < $endPos) {
+    //             $endPos = $pos;
+    //         }
+    //     }
+
+    //     $ttv = substr($text, $startPos, $endPos - $startPos);
+
+    // }
+
+    // function ambilStatusLokalis($text, $startList = [], $endList = []) {
+
+
+    //     // START dari Mata (sesuai data real)
+    //     $startList = !empty($startList) ? $startList : [
+    //         'Mata',
+    //         'Status Generalis'
+    //     ];
+
+    //     // END → sebelum penunjang / lab
+    //     $endList   = !empty($endList)   ? $endList   : [
+    //         'Hasil lab',
+    //         'Hasil laboratorium',
+    //         'Lab',
+    //         'HEMATOLOGI',
+    //         'KIMIA',
+    //         'LAB',
+    //         'ELEKTROLIT',
+    //         'HEMATOLOGI',
+    //         'Pemeriksaan Penunjang'
+    //     ];
+
+    //     // START
+    //     $startPos = false;
+    //     foreach ($startList as $start) {
+    //         $pos = stripos($text, $start);
+    //         if ($pos !== false) {
+    //             $startPos = $pos;
+    //             break;
+    //         }
+    //     }
+
+    //     if ($startPos === false) return '';
+
+    //     // END
+    //     $endPos = strlen($text);
+    //     foreach ($endList as $end) {
+    //         $pos = stripos($text, $end);
+    //         if ($pos !== false && $pos > $startPos && $pos < $endPos) {
+    //             $endPos = $pos;
+    //         }
+    //     }
+
+    //     $status = substr($text, $startPos, $endPos - $startPos);
+
+    // }
+
+    // private function getOriginalPosition($originalText, $normalizedText, $normalizedPos) {
+    //     // untuk kasus kamu sebenarnya tidak perlu mapping kompleks
+    //     // cukup kembalikan posisi asli berdasarkan normalized string length
+
+    //     return strlen(substr($originalText, 0, $normalizedPos));
+    // }
 
 
 

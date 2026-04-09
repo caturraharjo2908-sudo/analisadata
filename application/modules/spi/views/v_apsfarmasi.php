@@ -99,6 +99,32 @@
 					</div>
 				</div>
 			</div>
+			<div class="col-xl-6">
+				<div class="card card-flush">
+                    <div class="card-header pt-5">
+						<h3 class="card-title align-items-start flex-column">
+                            <span class="card-label fw-bolder fs-3 mb-1">Penjualan BMHP</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan daftar BMHP dengan jumlah penjualan</span>
+                        </h3>
+					</div>
+					<div class="card-body p-0">
+						<div class="card-rounded-bottom" id="grafikbmhp"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-6">
+				<div class="card card-flush">
+                    <div class="card-header pt-5">
+						<h3 class="card-title align-items-start flex-column">
+                            <span class="card-label fw-bolder fs-3 mb-1">Jumlah Kunjungan Per Pasien</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan jumlah kunjungan per pasien</span>
+                        </h3>
+					</div>
+					<div class="card-body p-0">
+						<div class="card-rounded-bottom" id="grafikpasien"></div>
+					</div>
+				</div>
+			</div>
         </div>
     </div>
     <div class="tab-pane fade" id="indikatormutu" role="tabpanel">

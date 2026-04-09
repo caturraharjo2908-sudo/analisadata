@@ -65,7 +65,7 @@
             <h1 class="text-info">Pemeriksaaan Penunjang</h1>
             <div class="mb-5">
                 <label class="d-flex align-items-center fs-5 fw-bold mb-2">Laboratorium :</label>
-                <textarea class="form-control"></textarea>
+                <textarea class="form-control" id="lab_db"></textarea>
             </div>
             <div class="mb-5">
                 <label class="d-flex align-items-center fs-5 fw-bold mb-2">Pencitraan Diagnostik :</label>

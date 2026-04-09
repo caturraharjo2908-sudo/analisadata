@@ -29,12 +29,26 @@ function spmigd(){
             const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
             const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
-            const dataMapIGD      = {};
-            const dataMapTransfer = {};
+            const dataMapIGD         = {};
+            const dataMapTransfer    = {};
+            const dataMapIGDRaw      = {};
+            const dataMapTransferRaw = {};
 
             result.forEach(item => {
-                dataMapIGD[item.PERIODE]      = parseFloat(item.RATA_MENIT_IGD_SPRI || 0);
-                dataMapTransfer[item.PERIODE] = parseFloat(item.RATA_MENIT_RANAP_TRANSFER || 0);
+                dataMapIGD[item.PERIODE]      = parseFloat(item.RATA_IGD_SPRI || 0);
+                dataMapTransfer[item.PERIODE] = parseFloat(item.RATA_RANAP_TRANSFER || 0);
+
+                dataMapIGDRaw[item.PERIODE] = {
+                    cepat: parseFloat(item.IGD_SPRI_LT_360 || 0),
+                    lambat: parseFloat(item.IGD_SPRI_GE_360 || 0),
+                    invalid: parseFloat(item.IGD_SPRI_INVALID || 0)
+                };
+
+                dataMapTransferRaw[item.PERIODE] = {
+                    cepat: parseFloat(item.RANAP_LT_60 || 0),
+                    lambat: parseFloat(item.RANAP_GE_60 || 0),
+                    invalid: parseFloat(item.RANAP_INVALID || 0)
+                };
             });
 
             // ===== Chart IGD → SPRI =====
@@ -55,8 +69,58 @@ function spmigd(){
                 };
             });
 
-            renderchartarea("grafikspmspri",chartDataIGD,"Periode Pelayanan","Jumlah Kunjungan",["IGD - SPRI"],["avgValue"],null,"",null,"Target SLA 6 Jam (360 Menit)",360);
-            renderchartarea("grafiktransfer",chartDataTransfer,"Periode Pelayanan","Jumlah Kunjungan",["RANAP - TRANSFER"],["avgValue"],null,"",null,"Target SLA 1 Jam (60 Menit)",60);
+            const chartIGDRaw = bulanLengkap.map((b, index) => {
+                const periodeDB = `${tahun}-${b}`;
+                const val = dataMapIGDRaw[periodeDB] || {};
+
+                return {
+                    periode: namaBulan[index],
+                    cepat: val.cepat || 0,
+                    lambat: val.lambat || 0,
+                    invalid: val.invalid || 0
+                };
+            });
+
+            const chartTransferRaw = bulanLengkap.map((b, index) => {
+                const periodeDB = `${tahun}-${b}`;
+                const val = dataMapTransferRaw[periodeDB] || {};
+
+                return {
+                    periode: namaBulan[index],
+                    cepat: val.cepat || 0,
+                    lambat: val.lambat || 0,
+                    invalid: val.invalid || 0
+                };
+            });
+
+            renderchartarea("grafikspmspri",chartDataIGD,"Periode Pelayanan","Waktu Tunggu (Menit)",["IGD - SPRI"],["avgValue"],null,"",null,"Target SLA 6 Jam (360 Menit)",360);
+            renderchartarea("grafiktransfer",chartDataTransfer,"Periode Pelayanan","Waktu Tunggu (Menit)",["RANAP - TRANSFER"],["avgValue"],null,"",null,"Target SLA 1 Jam (60 Menit)",60);
+
+            renderchartbar(
+                "grafikspmspriraw",
+                chartIGDRaw,
+                [
+                    { name: "<= 60 Menit", field: "cepat" },
+                    { name: "> 60 Menit", field: "lambat" },
+                    { name: "Invalid", field: "invalid" }
+                ],
+                "Periode Tanggal Pulang Rawat Inap",
+                "Persentase",
+                true
+            );
+
+            renderchartbar(
+                "grafiktransferraw",
+                chartTransferRaw,
+                [
+                    { name: "<= 60 Menit", field: "cepat" },
+                    { name: "> 60 Menit", field: "lambat" },
+                    { name: "Invalid", field: "invalid" }
+                ],
+                "Periode Tanggal Pulang Rawat Inap",
+                "Persentase",
+                true
+            );
         },
         complete: function () {
             Swal.close();

@@ -47,8 +47,27 @@
 					</div>
 				</div>
 				<div class="card card-flush">
+					<div class="card-header pt-5" id="">
+						<h3 class="card-title align-items-start flex-column">
+							<span class="card-label fw-bolder fs-3 mb-1">Rata - Rata Waktu Tunggu Registrasi IGD - SPRI</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan rata - rata waktu tunggu pasien dari proses registrasi hingga spri</span>
+						</h3>
+					</div>
 					<div class="card-body p-8">
 						<div class="card-rounded-bottom" id="grafikspmspri"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-12">
+				<div class="card card-flush">
+					<div class="card-header pt-5" id="">
+						<h3 class="card-title align-items-start flex-column">
+							<span class="card-label fw-bolder fs-3 mb-1">Jumlah Data Waktu Tunggu Registrasi IGD (SPRI)</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan jumlah data dan durasi waktu tunggu pasien dari proses registrasi hingga spri</span>
+						</h3>
+					</div>
+					<div class="card-body p-8">
+						<div class="card-rounded-bottom" id="grafikspmspriraw"></div>
 					</div>
 				</div>
 			</div>
@@ -75,8 +94,27 @@
 					</div>
 				</div>
 				<div class="card card-flush">
+					<div class="card-header pt-5" id="">
+						<h3 class="card-title align-items-start flex-column">
+							<span class="card-label fw-bolder fs-3 mb-1">Rata - Rata Waktu Tunggu Registrasi Rawat Inap - Transfer Ruangan</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Monitoring waktu tunggu pasien rawat inap dari registrasi ke ruang perawatan</span>
+						</h3>
+					</div>
 					<div class="card-body p-8">
 						<div class="card-rounded-bottom" id="grafiktransfer"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-12">
+				<div class="card card-flush">
+					<div class="card-header pt-5" id="">
+						<h3 class="card-title align-items-start flex-column">
+							<span class="card-label fw-bolder fs-3 mb-1">Jumlah Data Waktu Tunggu Registrasi Rawat Inap (Transfer Ruangan)</span>
+							<span class="text-muted mt-1 fw-bold fs-7">Menampilkan jumlah data dan durasi waktu tunggu pasien dari proses registrasi hingga ditempatkan di ruang perawatan</span>
+						</h3>
+					</div>
+					<div class="card-body p-8">
+						<div class="card-rounded-bottom" id="grafiktransferraw"></div>
 					</div>
 				</div>
 			</div>

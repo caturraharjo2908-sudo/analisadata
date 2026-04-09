@@ -101,9 +101,8 @@
                             COUNT(*) AS TOTAL_KASUS,
 
                             /* ========================= */
-                            /* IGD → SPRI (MENIT)        */
+                            /* IGD → SPRI (RATA)         */
                             /* ========================= */
-
                             ROUND(
                                 AVG(
                                     CASE 
@@ -113,12 +112,37 @@
                                         THEN (BUAT_SPRI - MASUK_IGD) * 24 * 60
                                     END
                                 ), 2
-                            ) AS RATA_MENIT_IGD_SPRI,
+                            ) AS RATA_IGD_SPRI,
 
                             /* ========================= */
-                            /* RANAP → TRANSFER (MENIT) */
+                            /* IGD → SPRI (DISTRIBUSI)   */
                             /* ========================= */
+                            SUM(CASE 
+                                WHEN MASUK_IGD IS NOT NULL 
+                                AND BUAT_SPRI IS NOT NULL 
+                                AND BUAT_SPRI >= MASUK_IGD
+                                AND (BUAT_SPRI - MASUK_IGD) * 24 * 60 < 360
+                                THEN 1 ELSE 0 END
+                            ) AS IGD_SPRI_LT_360,
 
+                            SUM(CASE 
+                                WHEN MASUK_IGD IS NOT NULL 
+                                AND BUAT_SPRI IS NOT NULL 
+                                AND BUAT_SPRI >= MASUK_IGD
+                                AND (BUAT_SPRI - MASUK_IGD) * 24 * 60 >= 360
+                                THEN 1 ELSE 0 END
+                            ) AS IGD_SPRI_GE_360,
+
+                            SUM(CASE 
+                                WHEN MASUK_IGD IS NULL 
+                                OR BUAT_SPRI IS NULL 
+                                OR BUAT_SPRI < MASUK_IGD
+                                THEN 1 ELSE 0 END
+                            ) AS IGD_SPRI_INVALID,
+
+                            /* ========================= */
+                            /* RANAP → TRANSFER (RATA)   */
+                            /* ========================= */
                             ROUND(
                                 AVG(
                                     CASE 
@@ -128,7 +152,33 @@
                                         THEN (BUAT_TRANSFER - MASUK_RANAP) * 24 * 60
                                     END
                                 ), 2
-                            ) AS RATA_MENIT_RANAP_TRANSFER
+                            ) AS RATA_RANAP_TRANSFER,
+
+                            /* ========================= */
+                            /* RANAP → TRANSFER (DIST)   */
+                            /* ========================= */
+                            SUM(CASE 
+                                WHEN MASUK_RANAP IS NOT NULL 
+                                AND BUAT_TRANSFER IS NOT NULL 
+                                AND BUAT_TRANSFER >= MASUK_RANAP
+                                AND (BUAT_TRANSFER - MASUK_RANAP) * 24 * 60 < 60
+                                THEN 1 ELSE 0 END
+                            ) AS RANAP_LT_60,
+
+                            SUM(CASE 
+                                WHEN MASUK_RANAP IS NOT NULL 
+                                AND BUAT_TRANSFER IS NOT NULL 
+                                AND BUAT_TRANSFER >= MASUK_RANAP
+                                AND (BUAT_TRANSFER - MASUK_RANAP) * 24 * 60 >= 60
+                                THEN 1 ELSE 0 END
+                            ) AS RANAP_GE_60,
+
+                            SUM(CASE 
+                                WHEN MASUK_RANAP IS NULL 
+                                OR BUAT_TRANSFER IS NULL 
+                                OR BUAT_TRANSFER < MASUK_RANAP
+                                THEN 1 ELSE 0 END
+                            ) AS RANAP_INVALID
 
                         FROM DATA
 

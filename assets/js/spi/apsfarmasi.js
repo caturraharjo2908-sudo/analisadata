@@ -43,6 +43,8 @@ function rawdataapsfarmasi(){
             const topObat             = getTopObat(result, 20);
             const topObatNarkotik     = getTopObat(result, 20,'N');
             const topObatPsikotropika = getTopObat(result, 20,'P');
+            const topBMHP             = getTopObat(result, 20,'ALKES0000000000');
+            const topPasien           = getTopPasien(result, 20);
             const dataChartKunjungan  = aggregateFlexible(
                                             result,
                                             "TGLMASUK",
@@ -72,10 +74,23 @@ function rawdataapsfarmasi(){
                 qty     : item.qty
             }));
 
+            const dataChartbmhp = topBMHP.map(item => ({
+                kategori: item.nama,
+                qty     : item.qty
+            }));
+
+            const dataChartpasien = topPasien.map(item => ({
+                kategori: item.nama,
+                qty     : item.qty
+            }));
+
             renderBarHorizontal('grafikgolonganobat', 'QTY Obat', dataChartGolobat, 'kategori', 'qty', true);
             renderBarHorizontal('grafikobat', 'QTY Obat', dataChartObat, 'kategori', 'qty', true);
             renderBarHorizontal('grafikobatnarkotik', 'QTY Obat', dataChartObatNarkotik, 'kategori', 'qty', true);
             renderBarHorizontal('grafikobatpsikotropika', 'QTY Obat', dataChartObatPsikotropika, 'kategori', 'qty', true);
+            renderBarHorizontal('grafikbmhp', 'QTY BMHP', dataChartbmhp, 'kategori', 'qty', true);
+            renderBarHorizontal('grafikpasien', 'QTY BMHP', dataChartpasien, 'kategori', 'qty', true);
+
             renderchartarea("grafikpembelianobat",dataChartKunjungan,"Periode Pelayanan","Pendapatan Farmasi (Rp)",["Pendapatan","Transaksi"],["value_2","value_1"],1,"Jumlah Kunjungan","value_2","Rata-rata Pendapatan");
             
             if(data.responCode === "00"){
@@ -236,4 +251,26 @@ function getTopObat(result, limit = 20, filterGolObat = null) {
         .slice(0, limit);
 
     return sorted;
+}
+
+function getTopPasien(result, limit = 20) {
+    const map = {};
+
+    result.forEach(row => {
+        let mr   = (row.MRPAS || "").trim();
+        let nama = (row.NAMAPAS || "").trim();
+
+        let label = (mr + " - " + nama).trim();
+        if (!label) return;
+
+        let jumlah = 1;
+
+        if (!map[label]) map[label] = 0;
+        map[label] += jumlah;
+    });
+
+    return Object.entries(map)
+        .map(([nama, qty]) => ({ nama, qty }))
+        .sort((a, b) => b.qty - a.qty)
+        .slice(0, limit);
 }
