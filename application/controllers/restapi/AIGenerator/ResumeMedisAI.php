@@ -29,6 +29,35 @@ class ResumeMedisAI extends REST_Controller {
         $rawhighlight = array_map(function($item){return trim($item);}, $matches[1]);
         $highlight    = implode(', ', array_map(function($item){return ucfirst(strtolower(trim($item))) . ' (+)';}, $matches[1]));
 
+        $textriwayatsekarang = ltrim($resultkeluhanutama->RIWAYATSEKARANG, "\n");
+
+        // 🔥 hapus bagian negatif (-) dan kata "disangkal"
+        $textriwayatsekarang = preg_replace('/\b[^,.\n]*\(-\)[^,.\n]*[,.]?\s*/i', '', $textriwayatsekarang);
+        $textriwayatsekarang = preg_replace('/\b[^,.\n]*disangkal[^,.\n]*[,.]?\s*/i', '', $textriwayatsekarang);
+
+        // 🔥 rapikan teks
+        $textriwayatsekarang = preg_replace('/\s+,/', ',', $textriwayatsekarang);
+        $textriwayatsekarang = preg_replace('/,+/', ',', $textriwayatsekarang);
+        $textriwayatsekarang = preg_replace('/\s{2,}/', ' ', $textriwayatsekarang);
+
+        // 🔥 pecah jadi array berdasarkan koma / enter
+        $listRiwayatSekarang = preg_split('/[,\\n]/', $textriwayatsekarang);
+
+        $rawriwayatsekarang = [];
+
+        foreach ($listRiwayatSekarang as $riwayatItem) {
+            $riwayatItem = trim($riwayatItem);
+            if (!$riwayatItem) continue;
+
+            // 🔥 bersihkan tanda (+)
+            $cleanRiwayat = trim(preg_replace('/\(\+\)/', '', $riwayatItem));
+
+            if ($cleanRiwayat) {
+                $rawriwayatsekarang[] = strtolower($cleanRiwayat);
+            }
+        }
+
+
         $textpemeriksaanfisik = $resultkeluhanutama->TEXT_DATA;
         $norm                 = $resultkunjungan->MRPASIEN;
         
@@ -39,8 +68,8 @@ class ResumeMedisAI extends REST_Controller {
         $sourcedata['riwayat']['keluhanutama']['text'] = ltrim($resultkeluhanutama->KELUHAN, "\n");
         $sourcedata['riwayat']['gejala']['raw']        = $rawhighlight;
         $sourcedata['riwayat']['gejala']['text']       = $highlight;
-        $sourcedata['riwayat']['sekarang']['raw']      = [];
-        $sourcedata['riwayat']['sekarang']['text']     = ltrim($resultkeluhanutama->RIWAYATSEKARANG, "\n");
+        $sourcedata['riwayat']['sekarang']['raw']      = $rawriwayatsekarang;
+        $sourcedata['riwayat']['sekarang']['text']     = $textriwayatsekarang;
 
         $sourcedata['diagnosis']['indikasiranap']['raw']         = [];
         $sourcedata['diagnosis']['indikasiranap']['text']        = ltrim($resultkeluhanutama->INDIKASIRANAP, "\n");
