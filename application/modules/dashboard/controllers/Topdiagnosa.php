@@ -26,7 +26,7 @@
 		}
         
 		public function datarjgeriatri(){
-			$periode = "2025";
+			$periode  = $this->input->post("selectperiode");
 			$result  = $this->md->datarjgeriatri($periode);
 
 			if(!empty($result)){
@@ -44,8 +44,44 @@
         }
 
 		public function datarj(){
-			$periode = "2025";
+			$periode  = $this->input->post("selectperiode");
 			$result  = $this->md->datarj($periode);
+
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
+		public function dataigd(){
+			$periode  = $this->input->post("selectperiode");
+			$result  = $this->md->dataigd($periode);
+
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
+		public function datari(){
+			$periode  = $this->input->post("selectperiode");
+			$result  = $this->md->datari($periode);
 
 			if(!empty($result)){
 				$json["responCode"]   = "00";

@@ -31,16 +31,27 @@ class ResumeMedisAI extends REST_Controller {
 
         $textriwayatsekarang = ltrim($resultkeluhanutama->RIWAYATSEKARANG, "\n");
 
-        // 🔥 hapus bagian negatif (-) dan kata "disangkal"
+        // 🔥 hapus negatif & tidak relevan
         $textriwayatsekarang = preg_replace('/\b[^,.\n]*\(-\)[^,.\n]*[,.]?\s*/i', '', $textriwayatsekarang);
         $textriwayatsekarang = preg_replace('/\b[^,.\n]*disangkal[^,.\n]*[,.]?\s*/i', '', $textriwayatsekarang);
 
-        // 🔥 rapikan teks
-        $textriwayatsekarang = preg_replace('/\s+,/', ',', $textriwayatsekarang);
-        $textriwayatsekarang = preg_replace('/,+/', ',', $textriwayatsekarang);
-        $textriwayatsekarang = preg_replace('/\s{2,}/', ' ', $textriwayatsekarang);
+        // 🔥 khusus "normal" → lebih selektif
+        $textriwayatsekarang = preg_replace('/\b(dalam batas normal|bab dan bak normal|normal)\b[,.]?\s*/i', '', $textriwayatsekarang);
 
-        // 🔥 pecah jadi array berdasarkan koma / enter
+        // 🔥 rapikan teks
+        // hapus koma berulang
+        $textriwayatsekarang = preg_replace('/,+/', ',', $textriwayatsekarang);
+
+        // hapus koma di awal
+        $textriwayatsekarang = preg_replace('/^,\s*/', '', $textriwayatsekarang);
+
+        // hapus koma di akhir
+        $textriwayatsekarang = preg_replace('/,\s*$/', '', $textriwayatsekarang);
+
+        // trim final
+        $textriwayatsekarang = trim($textriwayatsekarang);
+
+        // 🔥 pecah jadi array
         $listRiwayatSekarang = preg_split('/[,\\n]/', $textriwayatsekarang);
 
         $rawriwayatsekarang = [];
@@ -58,6 +69,38 @@ class ResumeMedisAI extends REST_Controller {
         }
 
 
+        $textriwayatdahulu = ltrim($resultkeluhanutama->RIWAYATDAHULU, "\n");
+
+        // 🔥 pecah per koma / enter
+        $listRiwayatDahulu = preg_split('/[,\\n]/', $textriwayatdahulu);
+
+        $rawriwayatdahulu = [];
+        $textList = [];
+
+        foreach ($listRiwayatDahulu as $riwayatDahuluItem) {
+            $riwayatDahuluItem = trim($riwayatDahuluItem);
+            if (!$riwayatDahuluItem) continue;
+
+            // 🔥 hanya ambil yang ada (+) atau +
+            if (
+                stripos($riwayatDahuluItem, '(+)') === false &&
+                stripos($riwayatDahuluItem, '+') === false
+            ) continue;
+
+            // 🔥 bersihkan tanda (+)
+            $cleanRiwayat = trim(preg_replace('/\(\+\)|\+/', '', $riwayatDahuluItem));
+
+            if ($cleanRiwayat) {
+                $rawriwayatdahulu[] = strtolower($cleanRiwayat);
+                $textList[] = $cleanRiwayat . ' (+)';
+            }
+        }
+
+        // 🔥 gabungkan text
+        $textriwayatdahulu = implode(', ', $textList);
+        
+
+
         $textpemeriksaanfisik = $resultkeluhanutama->TEXT_DATA;
         $norm                 = $resultkunjungan->MRPASIEN;
         
@@ -70,6 +113,8 @@ class ResumeMedisAI extends REST_Controller {
         $sourcedata['riwayat']['gejala']['text']       = $highlight;
         $sourcedata['riwayat']['sekarang']['raw']      = $rawriwayatsekarang;
         $sourcedata['riwayat']['sekarang']['text']     = $textriwayatsekarang;
+        $sourcedata['riwayat']['dahulu']['raw']        = $rawriwayatdahulu;
+        $sourcedata['riwayat']['dahulu']['text']       = $textriwayatdahulu;
 
         $sourcedata['diagnosis']['indikasiranap']['raw']         = [];
         $sourcedata['diagnosis']['indikasiranap']['text']        = ltrim($resultkeluhanutama->INDIKASIRANAP, "\n");

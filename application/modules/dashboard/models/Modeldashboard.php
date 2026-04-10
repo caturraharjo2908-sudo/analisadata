@@ -313,6 +313,48 @@
             return $recordset;
         }
 
+        function top10poli($periode){
+            $query = "
+                        SELECT 
+                            A.POLI_ID,
+                            COUNT(*) AS TOTAL,
+                            NVL(P.KETERANGAN, 'TIDAK DIKETAHUI') AS KETERANGAN
+                        FROM SR01_KEU_EPISODE A
+                        LEFT JOIN SR01_MED_POLI_MS P
+                            ON P.POLI_ID = A.POLI_ID
+                        WHERE A.LOKASI_ID = '001'
+                        AND A.AKTIF = '1'
+                        AND A.JENIS_EPISODE = 'O'
+                        AND A.STATUS_EPISODE <> '99'
+                        AND TO_CHAR(A.TGL_MASUK,'YYYY')='".$periode."'
+                        AND (
+                                A.POLI_ID IN (
+                                    'POLIFISIO','POLIFISOKUP','POLIFISWICARA',
+                                    'HEMOD0000000000','CAPD0000000001'
+                                )
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM SR01_MED_PRWT_TR T
+                                    WHERE T.LOKASI_ID = A.LOKASI_ID
+                                    AND T.AKTIF = '1'
+                                    AND T.DONE_STATUS = '01'
+                                    AND T.STATUS = '1'
+                                    AND T.PASIEN_ID = A.PASIEN_ID
+                                    AND T.EPISODE_ID = A.EPISODE_ID
+                                )
+                            )
+                        GROUP BY 
+                            A.POLI_ID,
+                            NVL(P.KETERANGAN, 'TIDAK DIKETAHUI')
+                        ORDER BY TOTAL DESC
+                        FETCH FIRST 20 ROWS ONLY
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
         function datakunjunganriprovider($periode){
             $query = "
                         SELECT
@@ -337,6 +379,127 @@
                                 WHEN A.REKANAN_ID = 'JASARAHARJA' THEN 'JASA RAHARJA'
                                 WHEN A.REKANAN_ID = 'BPJSTK' THEN 'BPJS TENAGA KERJA'
                                 ELSE 'LAIN-LAIN'
+                            END
+                        ORDER BY TOTAL DESC
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function pendidikanigd($periode){
+            $query = "
+                        SELECT 
+                            CASE 
+                                WHEN G.KETERANGAN IS NULL THEN 'TIDAK DIKETAHUI'
+                                ELSE G.KETERANGAN
+                            END AS PENDIDIKAN,
+                            COUNT(*) AS TOTAL
+                        FROM SR01_KEU_EPISODE A
+                        LEFT JOIN SR01_GEN_PASIEN_MS P 
+                            ON P.PASIEN_ID = A.PASIEN_ID
+                        LEFT JOIN SR01_GEN_GLOBAL_MS G
+                            ON G.GLOBAL_ID = P.PENDIDIKAN_ID
+                        AND G.JENIS_ID = 'SPEND'
+                        WHERE A.LOKASI_ID = '001'
+                        AND A.AKTIF = '1'
+                        AND A.STATUS_EPISODE <> '99'
+                        AND TO_CHAR(A.TGL_MASUK,'YYYY')='".$periode."'
+                        AND (
+                                (A.JENIS_EPISODE = 'O' AND A.POLI_ID = 'UGD01')
+                                OR 
+                                (A.JENIS_EPISODE = 'I' AND EXISTS (
+                                    SELECT 1
+                                    FROM SR01_PASIEN_IGD B
+                                    WHERE B.PASIEN_ID = A.PASIEN_ID
+                                    AND B.EPISODE_ID = A.EPISODE_ID
+                                ))
+                            )
+                        GROUP BY 
+                            CASE 
+                                WHEN G.KETERANGAN IS NULL THEN 'TIDAK DIKETAHUI'
+                                ELSE G.KETERANGAN
+                            END
+                        ORDER BY TOTAL DESC
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function pendidikanrj($periode){
+            $query = "
+                        SELECT 
+                            CASE 
+                                WHEN G.KETERANGAN IS NULL THEN 'TIDAK DIKETAHUI'
+                                ELSE G.KETERANGAN
+                            END AS PENDIDIKAN,
+                            COUNT(*) AS TOTAL
+                        FROM SR01_KEU_EPISODE A
+                        LEFT JOIN SR01_GEN_PASIEN_MS P 
+                            ON P.PASIEN_ID = A.PASIEN_ID
+                        LEFT JOIN SR01_GEN_GLOBAL_MS G
+                            ON G.GLOBAL_ID = P.PENDIDIKAN_ID
+                        AND G.JENIS_ID = 'SPEND'
+                        WHERE A.LOKASI_ID = '001'
+                        AND A.AKTIF = '1'
+                        AND A.JENIS_EPISODE = 'O'
+                        AND A.STATUS_EPISODE <> '99'
+                        AND TO_CHAR(A.TGL_MASUK,'YYYY')='".$periode."'
+                        AND (
+                            A.POLI_ID IN (
+                                'POLIFISIO','POLIFISOKUP','POLIFISWICARA',
+                                'HEMOD0000000000','CAPD0000000001'
+                            )
+                            OR EXISTS (
+                                SELECT 1
+                                FROM SR01_MED_PRWT_TR T
+                                WHERE T.LOKASI_ID = '001'
+                                AND T.AKTIF = '1'
+                                AND T.DONE_STATUS = '01'
+                                AND T.STATUS = '1'
+                                AND T.PASIEN_ID = A.PASIEN_ID
+                                AND T.EPISODE_ID = A.EPISODE_ID
+                            )
+                        )
+                        GROUP BY 
+                            CASE 
+                                WHEN G.KETERANGAN IS NULL THEN 'TIDAK DIKETAHUI'
+                                ELSE G.KETERANGAN
+                            END
+                        ORDER BY TOTAL DESC
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function pendidikanri($periode){
+            $query = "
+                        SELECT 
+                            CASE 
+                                WHEN G.KETERANGAN IS NULL THEN 'TIDAK DIKETAHUI'
+                                ELSE G.KETERANGAN
+                            END AS PENDIDIKAN,
+                            COUNT(*) AS TOTAL
+                        FROM SR01_KEU_EPISODE A
+                        LEFT JOIN SR01_GEN_PASIEN_MS P 
+                            ON P.PASIEN_ID = A.PASIEN_ID
+                        LEFT JOIN SR01_GEN_GLOBAL_MS G
+                            ON G.GLOBAL_ID = P.PENDIDIKAN_ID
+                        AND G.JENIS_ID = 'SPEND'
+                        WHERE A.LOKASI_ID = '001'
+                        AND A.AKTIF = '1'
+                        AND A.JENIS_EPISODE = 'I'
+                        AND A.STATUS_EPISODE <> '99'
+                        AND TO_CHAR(A.TGL_MASUK,'YYYY')='".$periode."'
+                        GROUP BY 
+                            CASE 
+                                WHEN G.KETERANGAN IS NULL THEN 'TIDAK DIKETAHUI'
+                                ELSE G.KETERANGAN
                             END
                         ORDER BY TOTAL DESC
             ";

@@ -89,7 +89,7 @@ function rawdataapsfarmasi(){
             renderBarHorizontal('grafikobatnarkotik', 'QTY Obat', dataChartObatNarkotik, 'kategori', 'qty', true);
             renderBarHorizontal('grafikobatpsikotropika', 'QTY Obat', dataChartObatPsikotropika, 'kategori', 'qty', true);
             renderBarHorizontal('grafikbmhp', 'QTY BMHP', dataChartbmhp, 'kategori', 'qty', true);
-            renderBarHorizontal('grafikpasien', 'QTY BMHP', dataChartpasien, 'kategori', 'qty', true);
+            renderBarHorizontal('grafikpasien', 'Jumlah Kunjungan', dataChartpasien, 'kategori', 'qty', true);
 
             renderchartarea("grafikpembelianobat",dataChartKunjungan,"Periode Pelayanan","Pendapatan Farmasi (Rp)",["Pendapatan","Transaksi"],["value_2","value_1"],1,"Jumlah Kunjungan","value_2","Rata-rata Pendapatan");
             

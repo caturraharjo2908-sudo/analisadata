@@ -46,7 +46,7 @@
         function keluhanutama($episodeid){
             $query =
                     "
-                        SELECT A.S KELUHAN, A.A INDIKASIRANAP, A.O TEXT_DATA, A.S2 RIWAYATSEKARANG, TO_CHAR(A.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS')CREATEDDATE
+                        SELECT A.S KELUHAN, A.A INDIKASIRANAP, A.O TEXT_DATA, A.S2 RIWAYATSEKARANG, S3 RIWAYATDAHULU, TO_CHAR(A.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS')CREATEDDATE
                         FROM WEB_CO_DIAGNOSA_DT A
                         WHERE A.EPISODE_ID = '".$episodeid."'
                         AND   A.FLAG_HAPUS = '1'

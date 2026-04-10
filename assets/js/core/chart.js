@@ -1,5 +1,14 @@
 const chartInstances = {};
 
+function destroyAllCharts() {
+    Object.keys(chartInstances).forEach(key => {
+        if (chartInstances[key]) {
+            chartInstances[key].destroy();
+            chartInstances[key] = null;
+        }
+    });
+}
+
 function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori', valueField = 'qty', colorLabel = '#ffffff') {
     // Hapus chart lama jika sudah ada
     if (chartInstances[name]) {
@@ -52,7 +61,7 @@ function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori',
             offsetX: 10,
             formatter: function(val, opts) {
                 const label = opts.w.globals.labels[opts.dataPointIndex];
-                return `${label}: ${val.toLocaleString('id-ID')}`;
+                return `${label} : ${val.toLocaleString('id-ID')}`;
             },
             style: {
                 colors: [colorLabel],
@@ -63,10 +72,8 @@ function renderBarHorizontal(name, nameseries, data, categoryField = 'kategori',
         tooltip: {
             y: {
                 formatter: function(val, opts) {
-                    const kategori = data[opts.dataPointIndex][categoryField];
                     const value = data[opts.dataPointIndex][valueField];
-                    // return `${kategori}: ${value.toLocaleString('id-ID')}`;
-                    return 'Qty : '+ value.toLocaleString('id-ID');
+                    return nameseries+' : '+ value.toLocaleString('id-ID');
                 },
                 title: { formatter: () => '' }
             }

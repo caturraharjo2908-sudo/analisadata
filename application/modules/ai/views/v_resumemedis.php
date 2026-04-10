@@ -53,6 +53,10 @@
                 <textarea class="form-control mb-5" id="penyakitsekarang1_db"></textarea>
                 <textarea class="form-control"></textarea>
             </div>
+            <div class="mb-5">
+                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Riwayat Penyakit Dahulu :</label>
+                <textarea class="form-control" id="penyakitdahulu_db"></textarea>
+            </div>
             <h1 class="text-info">Pemeriksaan Fisik</h1>
             <div class="mb-5">
                 <label class="d-flex align-items-center fs-5 fw-bold mb-2">Tanda-tanda Vital :</label>

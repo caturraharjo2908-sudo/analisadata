@@ -152,6 +152,7 @@ function resumemedis(episodeid){
             setAuto('keluhanutama_db', result['sourcedata'][0]['riwayat']['keluhanutama']['text']);
             setAuto('gejalapenyerta_db', result['sourcedata'][0]['riwayat']['gejala']['text']);
             setAuto('penyakitsekarang1_db', result['sourcedata'][0]['riwayat']['sekarang']['text']);
+            setAuto('penyakitdahulu_db', result['sourcedata'][0]['riwayat']['dahulu']['text']);
             setAuto('indikasiranap_db', result['sourcedata'][0]['diagnosis']['indikasiranap']['text']);
             setAuto('ttv_db', result['sourcedata'][0]['pemeriksaanfisik']['ttv']['text']);
             setAuto('lokalis_db', result['sourcedata'][0]['pemeriksaanfisik']['statuslokalis']['text']);
