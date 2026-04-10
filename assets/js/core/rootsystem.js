@@ -51,6 +51,42 @@ function exportTableToExcel(tableID, filename = ''){
     table.append(removedRows);
 }
 
+function exportToExcel(data, sheetName, fileName, config = {}) {
+
+    if (!data.length) {
+        Swal.fire('Info', 'Data belum tersedia', 'warning');
+        return;
+    }
+
+    // 🔥 ambil periode langsung di dalam function
+    let periode = $("select[name='selectperiode']").val() || 'ALL';
+
+    const finalFileName = fileName.includes('.xlsx') ? fileName.replace('.xlsx', `_${periode}.xlsx`) : `${fileName}_${periode}.xlsx`;
+
+    const dataExport = data.map((item, index) => ({
+        No: index + 1,
+        Keterangan:
+            item.KETERANGAN ||
+            item.LABEL ||
+            item.PENDIDIKAN ||
+            item.DESCRIPTION ||
+            config.keterangan?.(item) ||
+            '-',
+        Total:
+            parseInt(item.TOTAL) ||
+            parseInt(item.JUMLAH) ||
+            config.total?.(item) ||
+            0
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataExport);
+    const workbook  = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    XLSX.writeFile(workbook, finalFileName);
+}
+
+
 function setCountdownSLA(startTime, elementId, slaJam = 24) {
 
     const el = document.getElementById(elementId);

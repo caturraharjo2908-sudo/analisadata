@@ -14,66 +14,31 @@ $('#selectperiode').on('change', function () {
     datari();
 });
 
+
 $("#btnDownloadExcelIGD").on("click", function () {
-    if (!globalDataTopDiagnosaIGD.length) {
-        Swal.fire('Info', 'Data belum tersedia', 'warning');
-        return;
-    }
-
-    const dataExport = globalDataTopDiagnosaIGD.map((item, index) => ({
-        No        : index + 1,
-        Diagnosa  : item.DESCRIPTION,
-        Jumlah    : item.JUMLAH
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataExport);
-    const workbook  = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Top Diagnosa IGD");
-
-    XLSX.writeFile(workbook, "Top_Diagnosa_IGD.xlsx");
+    exportToExcel(
+        globalDataTopDiagnosaIGD,
+        "Top Diagnosa IGD",
+        "Top_Diagnosa_IGD.xlsx"
+    );
 });
-
 
 $("#btnDownloadExcelRJ").on("click", function () {
-    if (!globalDataTopDiagnosaRJ.length) {
-        Swal.fire('Info', 'Data belum tersedia', 'warning');
-        return;
-    }
-
-    const dataExport = globalDataTopDiagnosaRJ.map((item, index) => ({
-        No        : index + 1,
-        Diagnosa  : item.DESCRIPTION,
-        Jumlah    : item.JUMLAH
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataExport);
-    const workbook  = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Top Diagnosa Rawat Jalan");
-
-    XLSX.writeFile(workbook, "Top_Diagnosa_Rawat_Jalan.xlsx");
+    exportToExcel(
+        globalDataTopDiagnosaRJ,
+        "Top Diagnosa Rawat Jalan",
+        "Top_Diagnosa_Rawat_Jalan.xlsx"
+    );
 });
 
-$("#btnDownloadExcelKunjungan").on("click", function () {
-    if (!globalDataTopDiagnosaRI.length) {
-        Swal.fire('Info', 'Data belum tersedia', 'warning');
-        return;
-    }
-
-    const dataExport = globalDataTopDiagnosaRI.map((item, index) => ({
-        No        : index + 1,
-        Diagnosa  : item.DESCRIPTION,
-        Jumlah    : item.JUMLAH
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataExport);
-    const workbook  = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Top Diagnosa Rawat Inap");
-
-    XLSX.writeFile(workbook, "Top_Diagnosa_Rawat_Inap.xlsx");
+$("#btnDownloadExcelRI").on("click", function () {
+    exportToExcel(
+        globalDataTopDiagnosaRI,
+        "Top Diagnosa Rawat Inap",
+        "Top_Diagnosa_Rawat_Inap.xlsx"
+    );
 });
+
 
 function datarjgeriatri(){
     let selectperiode   = $("select[name='selectperiode']").val();

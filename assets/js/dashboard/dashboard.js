@@ -109,7 +109,13 @@ pendidikanrj();
 pendidikanri();
 top10poli();
 
+function getPeriodeFileName(defaultValue = 'ALL') {
+    return $("select[name='selectperiode']").val() || defaultValue;
+}
+
 $("#btnDownloadExcelKunjungan").on("click", function () {
+
+    const periode = $("select[name='selectperiode']").val() || 'ALL';
 
     if (
         !globalDataKunjunganIGD.length &&
@@ -122,141 +128,64 @@ $("#btnDownloadExcelKunjungan").on("click", function () {
 
     const workbook = XLSX.utils.book_new();
 
-    // 🔥 IGD & RI
-    function buildSheetKunjungan(data, sheetName) {
+    function buildSheet(data, sheetName, field) {
         if (!data.length) return;
 
         const dataExport = data.map((item, index) => ({
             No        : index + 1,
             Bulan     : item.BULAN,
-            Kunjungan : parseInt(item.TOTAL_KUNJUNGAN) || 0
+            Kunjungan : parseInt(item[field]) || 0
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(dataExport);
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     }
 
-    // 🔥 RAWAT JALAN EXECUTIVE
-    function buildSheetRJExec(data, sheetName) {
-        if (!data.length) return;
+    buildSheet(globalDataKunjunganIGD, "IGD", "TOTAL_KUNJUNGAN");
+    buildSheet(globalDataKunjunganRJ, "RJ Executive", "KUNJUNGAN_EXECUTIVE");
+    buildSheet(globalDataKunjunganRJ, "RJ Non Executive", "KUNJUNGAN_NON_EXECUTIVE");
+    buildSheet(globalDataKunjunganRI, "Rawat Inap", "TOTAL_KUNJUNGAN");
 
-        const dataExport = data.map((item, index) => ({
-            No        : index + 1,
-            Bulan     : item.BULAN,
-            Kunjungan : parseInt(item.KUNJUNGAN_EXECUTIVE) || 0
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(dataExport);
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    }
-
-    // 🔥 RAWAT JALAN NON EXECUTIVE
-    function buildSheetRJNonExec(data, sheetName) {
-        if (!data.length) return;
-
-        const dataExport = data.map((item, index) => ({
-            No        : index + 1,
-            Bulan     : item.BULAN,
-            Kunjungan : parseInt(item.KUNJUNGAN_NON_EXECUTIVE) || 0
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(dataExport);
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    }
-
-    // 🔥 IGD
-    buildSheetKunjungan(globalDataKunjunganIGD, "IGD");
-
-    // 🔥 RJ EXECUTIVE
-    buildSheetRJExec(globalDataKunjunganRJ, "RJ Executive");
-
-    // 🔥 RJ NON EXECUTIVE
-    buildSheetRJNonExec(globalDataKunjunganRJ, "RJ Non Executive");
-
-    // 🔥 RI
-    buildSheetKunjungan(globalDataKunjunganRI, "Rawat Inap");
-
-    // 🔥 Download
-
-    XLSX.writeFile(workbook, "Kunjungan_Pasien.xlsx");
+    XLSX.writeFile(workbook, `Kunjungan_Pasien_${periode}.xlsx`);
 });
 
 $("#btnDownloadExcelProviderIGD").on("click", function () {
-    exportProviderToExcel(
-        globalDataProviderIGD,
-        "Provider IGD",
-        "Provider_IGD.xlsx"
-    );
+    exportToExcel(globalDataProviderIGD, "Provider IGD", "Provider_IGD.xlsx");
 });
 
 $("#btnDownloadExcelProviderRJ").on("click", function () {
-    exportProviderToExcel(
-        globalDataProviderRJ,
-        "Provider Rawat Jalan",
-        "Provider_Rawat_Jalan.xlsx"
-    );
+    exportToExcel(globalDataProviderRJ, "Provider Rawat Jalan", "Provider_Rawat_Jalan.xlsx");
 });
 
 $("#btnDownloadExcelProviderRI").on("click", function () {
-    exportProviderToExcel(
-        globalDataProviderRI,
-        "Provider Rawat Inap",
-        "Provider_Rawat_Inap.xlsx"
-    );
+    exportToExcel(globalDataProviderRI, "Provider Rawat Inap", "Provider_Rawat_Inap.xlsx");
 });
 
 $("#btnDownloadExcelPendidikanIGD").on("click", function () {
-    exportProviderToExcel(
-        globalDataPendidikanIGD,
-        "Pendidikan IGD",
-        "Pendidikan_IGD.xlsx"
-    );
+    exportToExcel(globalDataPendidikanIGD, "Pendidikan IGD", "Pendidikan_IGD.xlsx");
 });
 
 $("#btnDownloadExcelPendidikanRJ").on("click", function () {
-    exportProviderToExcel(
-        globalDataPendidikanRJ,
-        "Pendidikan Rawat Jalan",
-        "Pendidikan_Rawat_Jalan.xlsx"
-    );
+    exportToExcel(globalDataPendidikanRJ, "Pendidikan Rawat Jalan", "Pendidikan_Rawat_Jalan.xlsx");
 });
 
 $("#btnDownloadExcelPendidikanRI").on("click", function () {
-    exportProviderToExcel(
-        globalDataPendidikanRI,
-        "Pendidikan Rawat Inap",
-        "Pendidikan_Rawat_Inap.xlsx"
-    );
+    exportToExcel(globalDataPendidikanRI, "Pendidikan Rawat Inap", "Pendidikan_Rawat_Inap.xlsx");
 });
 
 $("#btnDownloadExcelPoli").on("click", function () {
-    exportProviderToExcel(
-        globalDataPoli,
-        "Poliklinik",
-        "Poliklinik.xlsx"
-    );
+    exportToExcel(globalDataPoli, "Poliklinik", "Poliklinik.xlsx");
 });
 
-// 🔥 FUNCTION UNIVERSAL
-function exportProviderToExcel(data, sheetName, fileName) {
+$("#btnDownloadExcelPoli").on("click", function () {
+    const periode = getPeriodeFileName();
 
-    if (!data.length) {
-        Swal.fire('Info', 'Data belum tersedia', 'warning');
-        return;
-    }
-
-    const dataExport = data.map((item, index) => ({
-        No        : index + 1,
-        Keterangan: item.LABEL || item.PENDIDIKAN || item.KETERANGAN || '-',
-        Total     : parseInt(item.TOTAL) || 0
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataExport);
-    const workbook  = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    XLSX.writeFile(workbook, fileName);
-}
+    exportToExcel(
+        globalDataPoli,
+        "Poliklinik",
+        `Poliklinik_${periode}.xlsx`
+    );
+});
 
 $('#selectperiode').on('change', function () {
     destroyAllCharts();
