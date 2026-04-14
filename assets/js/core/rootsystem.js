@@ -43,8 +43,6 @@ function exportTableToExcel(tableID, filename = '') {
     // HAPUS button / dropdown kalau masih ada
     $table.find("button, .dropdown-menu").remove();
 
-    console.log("ROW:", $table.find("tbody tr").length);
-
     $table.table2excel({
         exclude: ".excludeThisClass",
         name: "Worksheet Name",

@@ -53,7 +53,6 @@ function resumemedis(){
             $('#pendingresumelebih').html('Pending Resume > 48 Jam : 0 Px');
         },
         success:function(data){
-
             let totalResume       = 0;
             let resumekurang48jam = 0;
             let resumelebih48jam  = 0;
@@ -61,12 +60,14 @@ function resumemedis(){
             let htmlDokter        = "";
             let noDokter          = 1;
 
-            const result = data.responResult || [];
-
             let tableBulanan = {"01":{}, "02":{}, "03":{}, "04":{}, "05":{}, "06":{},"07":{}, "08":{}, "09":{}, "10":{}, "11":{}, "12":{}};
             let groupDokter  = {};
 
+            const result = data.responResult || [];
+
             if(data.responCode==="00"){    
+
+                
 
                 // const chartDataBulanan = aggregateBulanResume(result,"TGL_KELUAR");
 
@@ -91,7 +92,7 @@ function resumemedis(){
                                             30
                                         );
 
-                // const chartDataGlobal  = aggregateResumeGlobal(result);
+                const chartDataGlobal  = aggregateResumeGlobal(result);
 
                 renderchartbar(
                     "grafikresumemedis",
@@ -118,7 +119,7 @@ function resumemedis(){
                     true
                 );
 
-                // renderchartpie("grafikresumemedisglobal",chartDataGlobal);
+                renderchartpie("grafikresumemedisglobal",chartDataGlobal);
 
                 // =========================
                 // 🔥 PROCESS DATA
@@ -348,3 +349,33 @@ function resumemedis(){
         }
     });
 };
+
+function aggregateResumeGlobal(data) {
+    let kurang48 = 0;
+    let lebih48  = 0;
+
+    data.forEach(item => {
+
+        if(item.TRANSCORESUME !== null && item.TRANSCORESUME !== ""){
+            
+            if(parseInt(item.DURASI) > 2){
+                lebih48++;
+            } else {
+                kurang48++;
+            }
+
+        }
+
+    });
+
+    return [
+        {
+            LABEL: "= 48 Jam",
+            TOTAL: kurang48
+        },
+        {
+            LABEL: "> 48 Jam",
+            TOTAL: lebih48
+        }
+    ];
+}
