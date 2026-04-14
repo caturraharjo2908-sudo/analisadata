@@ -293,14 +293,14 @@
 									<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
 								</div>
 								<div class="menu-item px-3">
-									<a href="#" class="menu-link px-3" onclick="exportTableToExcel('tablerawdatapendingresume', 'Laporan Resume Medis Rawat Inap')">Download Excel</a>
+									<a href="#" class="menu-link px-3" onclick="exportTableToExcel('tablerawdatapendingresumedetail', 'Laporan Resume Medis Rawat Inap')">Download Excel</a>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="card-body">
 						<div class="table-responsive mh-610px">
-							<table class="table align-middle table-row-dashed fs-8 gy-2" id="tablerawdatapendingresume">
+							<table class="table align-middle table-row-dashed fs-8 gy-2" id="tablerawdatapendingresumedetail">
 								<thead class="align-middle">
 									<tr class="fw-bolder text-muted bg-light">
 										<th class="ps-4 rounded-start">#</th>

@@ -31,24 +31,26 @@ function openSejarah(pasienId) {
   }
 }
 
-function exportTableToExcel(tableID, filename = ''){
-    let table = $("#" + tableID);
+function exportTableToExcel(tableID, filename = '') {
 
-    // simpan baris yang disembunyikan
-    let hiddenRows = table.find("tr:hidden");
+    let $table = $("#" + tableID).clone();
 
-    // detach agar tidak ikut diexport
-    let removedRows = hiddenRows.detach();
-
-    $("#"+tableID).table2excel({
-        exclude       : ".excludeThisClass",
-        name          : "Worksheet Name",
-        filename      : filename + ".xls",
-        preserveColors: false
+    // HAPUS kolom ACTION (biasanya kolom terakhir)
+    $table.find("tr").each(function () {
+        $(this).find("td:last, th:last").remove();
     });
 
-    // kembalikan baris yang disembunyikan
-    table.append(removedRows);
+    // HAPUS button / dropdown kalau masih ada
+    $table.find("button, .dropdown-menu").remove();
+
+    console.log("ROW:", $table.find("tbody tr").length);
+
+    $table.table2excel({
+        exclude: ".excludeThisClass",
+        name: "Worksheet Name",
+        filename: filename + ".xls",
+        preserveColors: false
+    });
 }
 
 function exportToExcel(data, sheetName, fileName, config = {}) {
@@ -68,6 +70,7 @@ function exportToExcel(data, sheetName, fileName, config = {}) {
         Keterangan:
             item.KETERANGAN ||
             item.LABEL ||
+            item.PROVIDER ||
             item.PENDIDIKAN ||
             item.DESCRIPTION ||
             config.keterangan?.(item) ||
@@ -85,7 +88,6 @@ function exportToExcel(data, sheetName, fileName, config = {}) {
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     XLSX.writeFile(workbook, finalFileName);
 }
-
 
 function setCountdownSLA(startTime, elementId, slaJam = 24) {
 

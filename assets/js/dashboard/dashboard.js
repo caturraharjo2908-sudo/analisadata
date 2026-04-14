@@ -95,19 +95,39 @@ let globalDataPendidikanRJ  = [];
 let globalDataPendidikanRI  = [];
 let globalDataPoli          = [];
 
-destroyAllCharts();
-demografiumur();
-pasientransit();
-datakunjunganrj();
-datakunjunganri();
-datakunjunganigd();
-datakunjunganigdprovider();
-datakunjunganrjprovider();
-datakunjunganriprovider();
-pendidikanigd();
-pendidikanrj();
-pendidikanri();
-top10poli();
+let globalDataFrm = [];
+let globalDataLab = [];
+let globalDataRad = [];
+
+
+loaddata();
+
+$('#selectperiode').on('change', function () {
+    loaddata();
+});
+
+function loaddata(){
+    destroyAllCharts();
+
+    datakunjunganrj();
+    datakunjunganri();
+    datakunjunganigd();
+    datakunjunganigdprovider();
+    datakunjunganrjprovider();
+    datakunjunganriprovider();
+
+    pendidikanigd();
+    pendidikanrj();
+    pendidikanri();
+
+    top10poli();
+
+    demografiumur();
+
+    datapemeriksaanfarmasi();
+    datapemeriksaanlab();
+    datapemeriksaanrad();
+};
 
 function getPeriodeFileName(defaultValue = 'ALL') {
     return $("select[name='selectperiode']").val() || defaultValue;
@@ -149,6 +169,42 @@ $("#btnDownloadExcelKunjungan").on("click", function () {
     XLSX.writeFile(workbook, `Kunjungan_Pasien_${periode}.xlsx`);
 });
 
+$("#btnDownloadExcelPenunjang").on("click", function () {
+
+    const periode = $("select[name='selectperiode']").val() || 'ALL';
+
+    if (
+        !globalDataFrm.length &&
+        !globalDataRad.length &&
+        !globalDataLab.length
+    ) {
+        Swal.fire('Info', 'Data belum tersedia', 'warning');
+        return;
+    }
+
+    const workbook = XLSX.utils.book_new();
+
+    function buildSheet(data, sheetName, field) {
+        if (!data.length) return;
+
+        const dataExport = data.map((item, index) => ({
+            No        : index + 1,
+            Bulan     : item.BULAN,
+            Kunjungan : parseInt(item[field]) || 0
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataExport);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    }
+
+    buildSheet(globalDataFrm, "FARMASI", "TOTAL");
+    buildSheet(globalDataLab, "LABORATORIUM", "TOTAL");
+    buildSheet(globalDataRad, "RADIOLOGI", "TOTAL");
+
+
+    XLSX.writeFile(workbook, `Pemeriksaan_Penunjang_${periode}.xlsx`);
+});
+
 $("#btnDownloadExcelProviderIGD").on("click", function () {
     exportToExcel(globalDataProviderIGD, "Provider IGD", "Provider_IGD.xlsx");
 });
@@ -185,23 +241,6 @@ $("#btnDownloadExcelPoli").on("click", function () {
         "Poliklinik",
         `Poliklinik_${periode}.xlsx`
     );
-});
-
-$('#selectperiode').on('change', function () {
-    destroyAllCharts();
-
-    datakunjunganrj();
-    datakunjunganri();
-    datakunjunganigd();
-    datakunjunganigdprovider();
-    datakunjunganrjprovider();
-    datakunjunganriprovider();
-
-    pendidikanigd();
-    pendidikanrj();
-    pendidikanri();
-
-    top10poli();
 });
 
 function pasientransit(){
@@ -487,6 +526,201 @@ function datakunjunganri(){
             }));
 
             renderchartarea("grafikkunjunganri",chartDataKunjungan,"Periode Pelayanan","Jumlah Kunjungan",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Kunjungan",null);
+        },
+
+        complete: function () {
+            Swal.close();
+        },
+
+        error: function () {
+            Swal.fire({
+                icon : 'error',
+                title: 'System Error',
+                text : 'Failed to retrieve inpatient visit data.'
+            });
+        }
+    });
+};
+
+function datapemeriksaanfarmasi(){
+    let selectperiode = $("select[name='selectperiode']").val();
+
+    $.ajax({
+        url      : url + "index.php/dashboard/dashboard/datapemeriksaanfarmasi",
+        type     : "POST",
+        dataType : "JSON",
+        data     : { selectperiode: selectperiode },
+
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Processing',
+                html : 'Please wait while the system displays the requested data.',
+                allowOutsideClick: false,
+                allowEscapeKey   : false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+        },
+
+        success: function (response) {
+
+            if (response.responCode !== "00") {
+                Swal.fire({
+                    icon : 'warning',
+                    title: 'No Data Available',
+                    text : 'No outpatient visit data found.'
+                });
+                return;
+            }
+
+            const result       = response.responResult || [];
+            const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+            const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+
+            const dataMapKunjungan = {};
+
+            result.forEach(item => {
+                dataMapKunjungan[item.BULAN] = parseInt(item.TOTAL_KUNJUNGAN);
+            });
+
+            globalDataFrm = result;
+
+            const chartDataKunjungan = bulanLengkap.map((b, index) => ({
+                periode   : namaBulan[index],
+                totalValue: dataMapKunjungan[b] ?? 0
+            }));
+
+            renderchartarea("grafikpemeriksaanfrm",chartDataKunjungan,"Periode Pelayanan","Jumlah Validasi",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Validasi",null);
+        },
+
+        complete: function () {
+            Swal.close();
+        },
+
+        error: function () {
+            Swal.fire({
+                icon : 'error',
+                title: 'System Error',
+                text : 'Failed to retrieve inpatient visit data.'
+            });
+        }
+    });
+};
+
+function datapemeriksaanlab(){
+    let selectperiode = $("select[name='selectperiode']").val();
+
+    $.ajax({
+        url      : url + "index.php/dashboard/dashboard/datapemeriksaanlab",
+        type     : "POST",
+        dataType : "JSON",
+        data     : { selectperiode: selectperiode },
+
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Processing',
+                html : 'Please wait while the system displays the requested data.',
+                allowOutsideClick: false,
+                allowEscapeKey   : false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+        },
+
+        success: function (response) {
+
+            if (response.responCode !== "00") {
+                Swal.fire({
+                    icon : 'warning',
+                    title: 'No Data Available',
+                    text : 'No outpatient visit data found.'
+                });
+                return;
+            }
+
+            const result       = response.responResult || [];
+            const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+            const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+
+            const dataMapKunjungan = {};
+
+            result.forEach(item => {
+                dataMapKunjungan[item.BULAN] = parseInt(item.TOTAL_KUNJUNGAN);
+            });
+
+            globalDataLab = result;
+
+            const chartDataKunjungan = bulanLengkap.map((b, index) => ({
+                periode   : namaBulan[index],
+                totalValue: dataMapKunjungan[b] ?? 0
+            }));
+
+            renderchartarea("grafikpemeriksaanlab",chartDataKunjungan,"Periode Pelayanan","Jumlah Hasil",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Pemeriksaan",null);
+        },
+
+        complete: function () {
+            Swal.close();
+        },
+
+        error: function () {
+            Swal.fire({
+                icon : 'error',
+                title: 'System Error',
+                text : 'Failed to retrieve inpatient visit data.'
+            });
+        }
+    });
+};
+
+function datapemeriksaanrad(){
+    let selectperiode = $("select[name='selectperiode']").val();
+
+    $.ajax({
+        url      : url + "index.php/dashboard/dashboard/datapemeriksaanrad",
+        type     : "POST",
+        dataType : "JSON",
+        data     : { selectperiode: selectperiode },
+
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Processing',
+                html : 'Please wait while the system displays the requested data.',
+                allowOutsideClick: false,
+                allowEscapeKey   : false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+        },
+
+        success: function (response) {
+
+            if (response.responCode !== "00") {
+                Swal.fire({
+                    icon : 'warning',
+                    title: 'No Data Available',
+                    text : 'No outpatient visit data found.'
+                });
+                return;
+            }
+
+            const result       = response.responResult || [];
+            const bulanLengkap = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+            const namaBulan    = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+
+            const dataMapKunjungan = {};
+
+            result.forEach(item => {
+                dataMapKunjungan[item.BULAN] = parseInt(item.TOTAL_KUNJUNGAN);
+            });
+
+            globalDataRad = result;
+
+            const chartDataKunjungan = bulanLengkap.map((b, index) => ({
+                periode   : namaBulan[index],
+                totalValue: dataMapKunjungan[b] ?? 0
+            }));
+
+            renderchartarea("grafikpemeriksaanrad",chartDataKunjungan,"Periode Pelayanan","Jumlah Hasil",["Transaksi"],["totalValue"],null,"","totalValue","Rata-rata Pemeriksaan",null);
         },
 
         complete: function () {

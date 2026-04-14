@@ -282,7 +282,7 @@ function renderchartpie(name, data) {
     let series = [];
 
     data.forEach(item => {
-        labels.push(item.LABEL);
+        labels.push(item.LABEL || item.PROVIDER);
         series.push(parseInt(item.TOTAL) || 0);
     });
 

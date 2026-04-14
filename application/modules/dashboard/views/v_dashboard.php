@@ -103,6 +103,125 @@
     </div>
     <div class="col-xl-3">
     </div> -->
+	
+	<div class="col-xl-12">
+		<div class="card card-flush">
+			<div class="card-header pt-5">
+				<h3 class="card-title align-items-start flex-column">
+					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Pasien</span>
+					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
+				</h3>
+				<div class="card-toolbar m-0">
+					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800 active" data-bs-toggle="tab" role="tab" href="#tabigd">IGD</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabrj">Rawat Jalan</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabexecutive">Poli Executive</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabri">Rawat Inap</a>
+						</li>
+					</ul>
+					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+						<span class="svg-icon svg-icon-3 svg-icon-primary">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
+								<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+									<rect x="5" y="5" width="5" height="5" rx="1" fill="#000000" />
+									<rect x="14" y="5" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
+									<rect x="5" y="14" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
+									<rect x="14" y="14" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
+								</g>
+							</svg>
+						</span>
+					</button>
+					<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px py-3" data-kt-menu="true">
+						<div class="menu-item px-3">
+							<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
+						</div>
+						<div class="menu-item px-3">
+							<a href="#" class="menu-link px-3" id="btnDownloadExcelKunjungan">Download Excel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-body pt-0">
+				<div class="tab-content">
+					<div id="tabigd" class="card-body p-0 tab-pane fade show active" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganigd"></div>
+					</div>
+					<div id="tabrj" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganrj"></div>
+					</div>
+					<div id="tabexecutive" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganexecutive"></div>
+					</div>
+					<div id="tabri" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikkunjunganri"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>   
+	<div class="col-xl-12">
+		<div class="card card-flush">
+			<div class="card-header pt-5">
+				<h3 class="card-title align-items-start flex-column">
+					<span class="card-label fw-bolder fs-3 mb-1">Pemeriksaan Penunjang</span>
+					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
+				</h3>
+				<div class="card-toolbar m-0">
+					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800 active" data-bs-toggle="tab" role="tab" href="#tabfrm">Farmasi</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tablab">Laboratorium</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabrad">Radiologi</a>
+						</li>
+					</ul>
+					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+						<span class="svg-icon svg-icon-3 svg-icon-primary">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
+								<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+									<rect x="5" y="5" width="5" height="5" rx="1" fill="#000000" />
+									<rect x="14" y="5" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
+									<rect x="5" y="14" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
+									<rect x="14" y="14" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
+								</g>
+							</svg>
+						</span>
+					</button>
+					<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px py-3" data-kt-menu="true">
+						<div class="menu-item px-3">
+							<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
+						</div>
+						<div class="menu-item px-3">
+							<a href="#" class="menu-link px-3" id="btnDownloadExcelPenunjang">Download Excel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-body pt-0">
+				<div class="tab-content">
+					<div id="tabfrm" class="card-body p-0 tab-pane fade show active" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikpemeriksaanfrm"></div>
+					</div>
+					<div id="tablab" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikpemeriksaanlab"></div>
+					</div>
+					<div id="tabrad" class="card-body p-0 tab-pane fade" role="tabpanel">
+						<div class="card-rounded-bottom" id="grafikpemeriksaanrad"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>  
 	<div class="col-xl-4">
 		<div class="card card-flush">
 			<div class="card-header pt-5">
@@ -208,68 +327,6 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-xl-12">
-		<div class="card card-flush">
-			<div class="card-header pt-5">
-				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Pasien</span>
-					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Tanggal Masuk</span>
-				</h3>
-				<div class="card-toolbar m-0">
-					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800 active" data-bs-toggle="tab" role="tab" href="#tabigd">IGD</a>
-						</li>
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabrj">Rawat Jalan</a>
-						</li>
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabexecutive">Poli Executive</a>
-						</li>
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabri">Rawat Inap</a>
-						</li>
-					</ul>
-					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
-						<span class="svg-icon svg-icon-3 svg-icon-primary">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
-								<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-									<rect x="5" y="5" width="5" height="5" rx="1" fill="#000000" />
-									<rect x="14" y="5" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
-									<rect x="5" y="14" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
-									<rect x="14" y="14" width="5" height="5" rx="1" fill="#000000" opacity="0.3" />
-								</g>
-							</svg>
-						</span>
-					</button>
-					<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px py-3" data-kt-menu="true">
-						<div class="menu-item px-3">
-							<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
-						</div>
-						<div class="menu-item px-3">
-							<a href="#" class="menu-link px-3" id="btnDownloadExcelKunjungan">Download Excel</a>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="card-body pt-0">
-				<div class="tab-content">
-					<div id="tabigd" class="card-body p-0 tab-pane fade show active" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkunjunganigd"></div>
-					</div>
-					<div id="tabrj" class="card-body p-0 tab-pane fade" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkunjunganrj"></div>
-					</div>
-					<div id="tabexecutive" class="card-body p-0 tab-pane fade" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkunjunganexecutive"></div>
-					</div>
-					<div id="tabri" class="card-body p-0 tab-pane fade" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkunjunganri"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>   
 	<div class="col-xl-4">
 		<div class="card card-flush">
 			<div class="card-header pt-5">

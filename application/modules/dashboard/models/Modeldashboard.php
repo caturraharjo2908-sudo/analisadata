@@ -82,6 +82,61 @@
             return $recordset;
         }
 
+        function datapemeriksaanfarmasi($periode){
+            $query = "
+                SELECT TO_CHAR(A.TANGGAL,'MM') AS BULAN,
+                    COUNT(*) AS TOTAL_KUNJUNGAN
+                FROM SR01_WORKLIST_FRM A
+                WHERE A.LOKASI_ID='001'
+                AND   A.AKTIF='1'
+                AND   A.TRANS_VALID_ID IS NOT NULL
+                AND TO_CHAR(A.TANGGAL,'YYYY')='".$periode."'
+                GROUP BY TO_CHAR(A.TANGGAL,'MM')
+                ORDER BY BULAN
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function datapemeriksaanlab($periode){
+            $query = "
+                SELECT TO_CHAR(A.TANGGAL,'MM') AS BULAN,
+                    COUNT(*) AS TOTAL_KUNJUNGAN
+                FROM SR01_WORKLIST_LAB A
+                WHERE A.LOKASI_ID='001'
+                AND   A.AKTIF='1'
+                AND   A.STATUS='1'
+                AND TO_CHAR(A.TANGGAL,'YYYY')='".$periode."'
+                GROUP BY TO_CHAR(A.TANGGAL,'MM')
+                ORDER BY BULAN
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function datapemeriksaanrad($periode){
+            $query = "
+                SELECT TO_CHAR(A.CREATED_DATE,'MM') AS BULAN,
+                    COUNT(*) AS TOTAL_KUNJUNGAN
+                FROM SR01_WORKLIST_RAD_DT A
+                WHERE A.LOKASI_ID='001'
+                AND   A.AKTIF='1'
+                AND   A.TRANS_CO IN (SELECT TRANS_CO FROM SR01_WORKLIST_RAD WHERE LOKASI_ID='001' AND AKTIF='1' AND STATUS='1' AND EPISODE_ID=A.EPISODE_ID AND TRANS_CO=A.TRANS_CO)
+                AND TO_CHAR(A.CREATED_DATE,'YYYY')='".$periode."'
+                GROUP BY TO_CHAR(A.CREATED_DATE,'MM')
+                ORDER BY BULAN
+            ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+
         function demografiumur(){
             $query =
                     "

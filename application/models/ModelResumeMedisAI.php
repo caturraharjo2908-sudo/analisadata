@@ -105,13 +105,29 @@
         function radiologi($episodeid){
             $query =
                     "
-                        SELECT TO_CHAR(A.RADIOLOG_DATETIME_END,'DD.MM.YYYY HH24:MI:SS')CREATEDDATE,
-                        REGEXP_SUBSTR(
-                            DBMS_LOB.SUBSTR(A.EXPERTISE_TEXT_CONCLUSION, 4000, 1),
-                            'KESAN\s*:?\s*(.*)',
-                            1, 1, 'i', 1
-                        ) AS RESULT,
-                        (SELECT NAMA_PEMERIKSAAN FROM RAD_MANAGER.RIS_IN WHERE ID=A.ID)NAMAPEMERIKSAAN
+                        SELECT 
+                            TO_CHAR(A.RADIOLOG_DATETIME_END,'DD.MM.YYYY HH24:MI:SS') AS CREATEDDATE,
+
+                            CASE 
+                                -- ? Jika ada KESAN
+                                WHEN REGEXP_LIKE(DBMS_LOB.SUBSTR(A.EXPERTISE_TEXT_CONCLUSION, 4000, 1), 'KESAN', 'i') 
+                                THEN REGEXP_SUBSTR(
+                                        DBMS_LOB.SUBSTR(A.EXPERTISE_TEXT_CONCLUSION, 4000, 1),
+                                        'KESAN\s*:?\s*(.*)',
+                                        1, 1, 'i', 1
+                                    )
+
+                                -- ? Jika tidak ada ? ambil SEMUA bullet
+                                ELSE REGEXP_SUBSTR(
+                                        DBMS_LOB.SUBSTR(A.EXPERTISE_TEXT_CONCLUSION, 4000, 1),
+                                        '(-\s*.*(' || CHR(10) || '-\s*.*)*)',
+                                        1, 1
+                                    )
+                            END AS RESULT,
+
+                            (SELECT NAMA_PEMERIKSAAN 
+                            FROM RAD_MANAGER.RIS_IN 
+                            WHERE ID = A.ID) AS NAMAPEMERIKSAAN
 
                         FROM RAD_MANAGER.RIS_OUT A
                         WHERE A.NO_REGISTER = '".$episodeid."'

@@ -33,6 +33,7 @@ function spmigd(){
             const dataMapTransfer    = {};
             const dataMapIGDRaw      = {};
             const dataMapTransferRaw = {};
+            
 
             result.forEach(item => {
                 dataMapIGD[item.PERIODE]      = parseFloat(item.RATA_IGD_SPRI || 0);

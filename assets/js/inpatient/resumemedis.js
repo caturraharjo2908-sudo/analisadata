@@ -68,16 +68,37 @@ function resumemedis(){
 
             if(data.responCode==="00"){    
 
-                const chartDataBulanan = aggregateBulanResume(result,"TGL_KELUAR");
-                const chartDataHarian  = aggregateHarianResumeLAST30(result,"TGL_KELUAR");
-                const chartDataGlobal  = aggregateResumeGlobal(result);
+                // const chartDataBulanan = aggregateBulanResume(result,"TGL_KELUAR");
+
+                const chartDataBulanan  = aggregateFlexible(
+                                            result,
+                                            "TGLKELUAR",
+                                            [
+                                                { key: "value_1", type: "sum", field: "STATUSKURANG", round: 0 },
+                                                { key: "value_2", type: "sum", field: "STATUSLEBIH", round: 0 }
+                                            ],
+                                            "MM"
+                                        );
+
+                const chartDataHarian  = aggregateFlexible(
+                                            result,
+                                            "TGLKELUAR",
+                                            [
+                                                { key: "value_1", type: "sum", field: "STATUSKURANG", round: 0 },
+                                                { key: "value_2", type: "sum", field: "STATUSLEBIH", round: 0 }
+                                            ],
+                                            "DD.MM.YYYY",
+                                            30
+                                        );
+
+                // const chartDataGlobal  = aggregateResumeGlobal(result);
 
                 renderchartbar(
                     "grafikresumemedis",
                     chartDataBulanan,
                     [
-                        { name: "Resume > 48 Jam", field: "lebih48" },
-                        { name: "Resume <= 48 Jam", field: "kurang48" }
+                        { name: "Resume <= 48 Jam", field: "value_1" },
+                        { name: "Resume > 48 Jam", field: "value_2" }
                     ],
                     "Periode Tanggal Pulang Rawat Inap",
                     "Persentase",
@@ -88,15 +109,16 @@ function resumemedis(){
                     "grafikresumemedisharian",
                     chartDataHarian,
                     [
-                        { name: "Resume > 48 Jam", field: "lebih48" },
-                        { name: "Resume <= 48 Jam", field: "kurang48" }
+                        { name: "Resume <= 48 Jam", field: "value_1" },
+                        { name: "Resume > 48 Jam", field: "value_2" }
+                        
                     ],
                     "Tanggal Pulang Rawat Inap",
                     "Persentase",
                     true
                 );
 
-                renderchartpie("grafikresumemedisglobal",chartDataGlobal);
+                // renderchartpie("grafikresumemedisglobal",chartDataGlobal);
 
                 // =========================
                 // 🔥 PROCESS DATA
@@ -115,11 +137,11 @@ function resumemedis(){
 
                     if(!tableBulanan[bulan][tanggal]){
                         tableBulanan[bulan][tanggal] = {
-                            total:0,
-                            selesai:0,
-                            belum:0,
-                            indikatorsudah:0,
-                            indikatorbelum:0
+                            total         : 0,
+                            selesai       : 0,
+                            belum         : 0,
+                            indikatorsudah: 0,
+                            indikatorbelum: 0
                         };
                     }
 
