@@ -9,6 +9,7 @@ function loaddata(){
 
     dataoperasielektif();
     datajampulangpasien();
+    datajampulangharian();
 };
 
 function dataoperasielektif(){
@@ -114,17 +115,85 @@ function datajampulangpasien(){
             const dataMapKunjungan = {};
 
             result.forEach(item => {
-                dataMapKunjungan[item.PERIODE] = item.PERSENTASI;
+                dataMapKunjungan[item.PERIODE] = {
+                    persentasi : item.PERSENTASI ?? 0,
+                    totalBiaya : item.TOTAL_BIAYA ?? 0
+                };
             });
 
 
             const chartDataKunjungan = bulanLengkap.map((b, index) => ({
-                periode   : namaBulan[index],
-                totalValue: dataMapKunjungan[b] ?? 0
+                periode     : namaBulan[index],
+                totalValue  : dataMapKunjungan[b]?.persentasi ?? 0,
+                totalBiaya  : dataMapKunjungan[b]?.totalBiaya ?? 0
             }));
 
 
-            renderchartarea("grafikkpipasienpulang",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang Di Bawah Pukul 12:00",["Presentasi"],["totalValue"],null,"","totalValue","Rata-rata Pulang Di Bawah Pukul 12:00",null);
+            renderchartarea("grafikkpipasienpulang",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang Di Bawah Pukul 12:00",["Presentasi","Biaya"],["totalValue","totalBiaya"],true,"Biaya Gizi","totalValue","Rata-rata Pulang Di Bawah Pukul 12:00",null);
+        },
+
+        complete: function () {
+            Swal.close();
+        },
+
+        error: function () {
+            Swal.fire({
+                icon : 'error',
+                title: 'System Error',
+                text : 'Failed to retrieve emergency visit data.'
+            });
+        }
+    });
+};
+
+function datajampulangharian(){
+    let selectperiode = $("select[name='selectperiode']").val();
+
+    $.ajax({
+        url      : url + "index.php/dashboard/kpi/datajampulangharian",
+        type     : "POST",
+        dataType : "JSON",
+        data     : { selectperiode: selectperiode },
+
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Processing',
+                html : 'Please wait while the system displays the requested data.',
+                allowOutsideClick: false,
+                allowEscapeKey   : false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+        },
+
+        success: function (response) {
+
+            if (response.responCode !== "00") {
+                Swal.fire({
+                    icon : 'warning',
+                    title: 'No Data Available',
+                    text : 'No outpatient visit data found.'
+                });
+                return;
+            }
+
+            const result       = response.responResult || [];
+
+            const dataMapKunjungan = {};
+
+            result.forEach(item => {
+                dataMapKunjungan[item.PERIODE] = item.PERSENTASI;
+            });
+
+
+            const chartDataKunjungan = result.map(item => ({
+                periode   : item.PERIODE,
+                totalValue: item.PERSENTASI ?? 0,
+                totalBiaya: item.TOTAL_BIAYA ?? 0
+            }));
+
+
+            renderchartarea("grafikkpipasienpulangharian",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang < Pukul 12:00",["Presentasi","Biaya"],["totalValue","totalBiaya"],true,"Biaya Gizi","totalValue","Rata-rata Pulang Di Bawah Pukul 12:00",null);
         },
 
         complete: function () {

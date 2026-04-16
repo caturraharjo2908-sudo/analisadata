@@ -136,7 +136,7 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
         finalLabel = avgLabel; // label bebas (misal: "SLA")
     } else if (avgValue !== null) {
         finalAnnotation = avgValue;
-        finalLabel = `${avgLabel} (${avgValue.toFixed(1)})`;
+        finalLabel = `${avgLabel} (${Math.round(avgValue).toLocaleString()})`;
     }
 
     const options = {
@@ -154,18 +154,18 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
                 title: { text: titleY },
                 min: 0,
                 forceNiceScale: true,
-                labels: { formatter: val => Number(val).toFixed(2) }
+                labels: { formatter: val => val.toLocaleString() }
             },
             {
                 opposite: true,
                 title: { text: rightAxisLabel },
-                labels: { formatter: val => Number(val).toFixed(2) }
+                labels: { formatter: val => val.toLocaleString() }
             }
         ] : {
             title: { text: titleY },
             min: 0,
             forceNiceScale: true,
-            labels: { formatter: val => Number(val).toFixed(2) }
+            labels: { formatter: val => val.toLocaleString() }
         },
         stroke: { curve: 'smooth', width: 3 },
         markers: { size: 4 },
@@ -173,8 +173,8 @@ function renderchartarea(name, data, titleX, titleY, seriesName, fieldName, righ
             type: 'gradient',
             gradient: { shadeIntensity: 1, opacityFrom: 0.75, opacityTo: 0.25, stops: [0, 100] }
         },
-        dataLabels: { enabled: true, formatter: val => Number(val).toFixed(2) },
-        tooltip: { y: { formatter: val => Number(val).toFixed(2) } },
+        dataLabels: { enabled: true, formatter: val => val.toLocaleString() },
+        tooltip: { y: { formatter: val => val.toLocaleString() } },
         grid: { strokeDashArray: 4 },
         legend: { position: 'top' },
 

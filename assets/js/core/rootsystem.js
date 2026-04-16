@@ -31,22 +31,61 @@ function openSejarah(pasienId) {
   }
 }
 
-function exportTableToExcel(tableID, filename = '') {
+function exportTableToExcel(tableID, options = {}) {
+
+    // 🔥 Handle format lama (string filename)
+    if (typeof options === 'string') {
+        options = { filename: options };
+    }
+
+    const {
+        filename = 'export',
+        excludeColumns = [],
+        excludeClass = '.excludeThisClass',
+        removeLastColumn = false
+    } = options;
 
     let $table = $("#" + tableID).clone();
 
-    // HAPUS kolom ACTION (biasanya kolom terakhir)
-    $table.find("tr").each(function () {
-        $(this).find("td:last, th:last").remove();
-    });
+    if ($("#" + tableID).length === 0) {
+        console.error("Table tidak ditemukan:", tableID);
+        return;
+    }
 
-    // HAPUS button / dropdown kalau masih ada
-    $table.find("button, .dropdown-menu").remove();
+    // 🔹 Hapus kolom berdasarkan index
+    if (excludeColumns.length > 0) {
+        $table.find("tr").each(function () {
+            $(this).find("th, td").each(function (i) {
+                if (excludeColumns.includes(i)) {
+                    $(this).remove();
+                }
+            });
+        });
+    }
 
+    // 🔹 Hapus berdasarkan class
+    if (excludeClass) {
+        $table.find(excludeClass).remove();
+    }
+
+    // 🔹 Optional hapus kolom terakhir
+    if (removeLastColumn) {
+        $table.find("tr").each(function () {
+            $(this).find("td:last, th:last").remove();
+        });
+    }
+
+    // 🔹 Bersihkan elemen UI
+    $table.find("button, .dropdown-menu, .no-export").remove();
+
+    // 🔹 Sanitasi nama file (biar aman)
+    const safeFilename = filename.replace(/[\\/:*?"<>|]/g, '_');
+
+    // 🔹 Export
     $table.table2excel({
-        exclude: ".excludeThisClass",
-        name: "Worksheet Name",
-        filename: filename + ".xls",
+        exclude: excludeClass,
+        name: "Worksheet",
+        filename: safeFilename + ".xls",
         preserveColors: false
     });
 }

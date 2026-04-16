@@ -1,10 +1,10 @@
 <div class="row gy-5 g-xl-8 mb-xl-8">
-    <div class="col-xl-12">
+    <div class="col-xl-8">
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Pembatalan Operasi Elektif</span>
-					<span class="text-muted mt-1 fw-bold fs-7">SLA ≤ 3% Pembatalan Operasi Elektif</span>
+					<span class="card-label fw-bolder fs-3 mb-1">Rata-rata lama konsultasi</span>
+					<span class="text-muted mt-1 fw-bold fs-7">Berdasarkan Dokter Spesialis</span>
 				</h3>
 				<div class="card-toolbar m-0">
 					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
@@ -24,33 +24,24 @@
 							<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
 						</div>
 						<div class="menu-item px-3">
-							<a href="#" class="menu-link px-3" id="btnDownloadExcelProviderIGD">Download Excel</a>
+							<a href="#" class="menu-link px-3" id="btnDownloadExcelPendidikanIGD">Download Excel</a>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="card-body pt-0">
-				<div class="card-rounded-bottom" id="grafikkpioperasi"></div>
+				<div class="card-rounded-bottom" id="grafiklamakonsultasi"></div>
 			</div>
 		</div>
 	</div>
-
-	<div class="col-xl-12">
+    <div class="col-xl-6">
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Realisasi Pasien Pulang H-1</span>
-					<span class="text-muted mt-1 fw-bold fs-7">SLA ≥ 90% Pasien Pulang Di Bawah Jam 12:00</span>
+					<span class="card-label fw-bolder fs-3 mb-1">Peak Load Poliklinik Per Dokter</span>
+					<span class="text-muted mt-1 fw-bold fs-7">Dokter paling sibuk di jam tertentu</span>
 				</h3>
 				<div class="card-toolbar m-0">
-					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800 active" data-bs-toggle="tab" role="tab" href="#tabpulangbulan">Mountly</a>
-						</li>
-						<li class="nav-item" role="presentation">
-							<a class="nav-link justify-content-center text-active-gray-800" data-bs-toggle="tab" role="tab" href="#tabpulangharian">Daily</a>
-						</li>
-					</ul>
 					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
 						<span class="svg-icon svg-icon-3 svg-icon-primary">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24">
@@ -68,20 +59,13 @@
 							<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
 						</div>
 						<div class="menu-item px-3">
-							<a href="#" class="menu-link px-3" id="btnDownloadExcelProviderIGD">Download Excel</a>
+							<a href="#" class="menu-link px-3" id="btnDownloadExcelPendidikanIGD">Download Excel</a>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="card-body pt-0">
-				<div class="tab-content">
-					<div id="tabpulangbulan" class="card-body p-0 tab-pane fade show active" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkpipasienpulang"></div>
-					</div>
-					<div id="tabpulangharian" class="card-body p-0 tab-pane fade" role="tabpanel">
-						<div class="card-rounded-bottom" id="grafikkpipasienpulangharian"></div>
-					</div>
-				</div>
+				<div class="card-rounded-bottom" id="grafikpeakloaddokter"></div>
 			</div>
 		</div>
 	</div>

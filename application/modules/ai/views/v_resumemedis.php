@@ -39,74 +39,323 @@
         </div>
         
         <div style="max-height: 80vh; overflow-y: auto;">
+
             <h1 class="text-info">Ringkasan Riwayat Penyakit</h1>
+
+            <!-- ================= TEMPLATE BLOCK ================= -->
+            <!-- Keluhan Utama -->
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Keluhan Utama :</label>
-                <textarea class="form-control" id="keluhanutama_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Keluhan Utama</label>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="keluhanutama_soap" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="keluhanutama_ai" rows="4" readonly></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="keluhanutama_final" rows="4"></textarea>
+                    </div>
+                </div>
             </div>
+
+            <!-- Gejala Penyerta -->
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Gejala Penyerta :</label>
-                <textarea class="form-control" id="gejalapenyerta_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Gejala Penyerta</label>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="gejala_soap" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="gejala_ai" rows="4" readonly></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="gejala_final" rows="4"></textarea>
+                    </div>
+                </div>
             </div>
+
+            <!-- Riwayat Penyakit Sekarang -->
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Riwayat Penyakit Sekarang :</label>
-                <textarea class="form-control mb-5" id="penyakitsekarang1_db"></textarea>
-                <textarea class="form-control"></textarea>
+                <label class="fs-5 fw-bold mb-3">Riwayat Penyakit Sekarang</label>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="rps_soap" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="rps_ai" rows="4" readonly></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="rps_final" rows="4"></textarea>
+                    </div>
+                </div>
             </div>
+
+            <!-- Riwayat Penyakit Dahulu -->
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Riwayat Penyakit Dahulu :</label>
-                <textarea class="form-control" id="penyakitdahulu_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Riwayat Penyakit Dahulu</label>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="rpd_soap" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="rpd_ai" rows="4" readonly></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="rpd_final" rows="4"></textarea>
+                    </div>
+                </div>
             </div>
+
             <h1 class="text-info">Pemeriksaan Fisik</h1>
+
+            <!-- TTV -->
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Tanda-tanda Vital :</label>
-                <textarea class="form-control" id="ttv_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Tanda-Tanda Vital (TTV)</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="ttv_soap" rows="4" placeholder="Input dari SOAP..."></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="ttv_ai" rows="4" placeholder="Hasil AI..." readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="ttv_final" rows="4" placeholder="Final dokter..."></textarea>
+                    </div>
+
+                </div>
             </div>
+
+            <!-- Lokalis -->
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Status Lokalis :</label>
-                <textarea class="form-control" id="lokalis_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Status Lokalis</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="lokalis_soap" rows="4" placeholder="Input dari SOAP..."></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="lokalis_ai" rows="4" placeholder="Hasil AI..." readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="lokalis_final" rows="4" placeholder="Final dokter..."></textarea>
+                    </div>
+
+                </div>
             </div>
-            <h1 class="text-info">Pemeriksaaan Penunjang</h1>
+
+            <h1 class="text-info">Pemeriksaan Penunjang</h1>
+
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Laboratorium :</label>
-                <textarea class="form-control" id="lab_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Obat Selama Dirawat</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="obatperawatan_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="obatperawatan_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="obatperawatan_final" rows="4"></textarea>
+                    </div>
+
+                </div>
             </div>
+
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Pencitraan Diagnostik :</label>
-                <textarea class="form-control" id="rad_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Obat Pulang</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="obatpulang_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="obatpulang_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="obatpulang_final" rows="4"></textarea>
+                    </div>
+
+                </div>
             </div>
+
+            <!-- Lab -->
+            <div class="mb-5">
+                <label class="fs-5 fw-bold mb-3">Laboratorium</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="lab_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="lab_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="lab_final" rows="4"></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Radiologi -->
+            <div class="mb-5">
+                <label class="fs-5 fw-bold mb-3">Pencitraan Diagnostik</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="rad_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="rad_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="rad_final" rows="4"></textarea>
+                    </div>
+
+                </div>
+            </div>
+
             <h1 class="text-info">Diagnosis</h1>
+
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Indikasi Rawat :</label>
-                <textarea class="form-control" id="indikasiranap_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Indikasi Rawat</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="indikasiranap_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="indikasiranap_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="indikasiranap_final" rows="4"></textarea>
+                    </div>
+
+                </div>
             </div>
-            <h1 class="text-info">Tindakan Medis</h1>
-            <h1 class="text-info">Terapi Medika Mentosa</h1>
-            <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Obat Selama dirawat :</label>
-                <textarea class="form-control" id="obatperawatan_db"></textarea>
-            </div>
-            <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Obat Pulang :</label>
-                <textarea class="form-control" id="obatpulang_db"></textarea>
-            </div>
+
             <h1 class="text-info">Tindak Lanjut</h1>
+
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Kontrol Ulang :</label>
-                <textarea class="form-control" id="kontrol_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Kontrol Ulang</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="kontrol_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="kontrol_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="kontrol_final" rows="4"></textarea>
+                    </div>
+
+                </div>
             </div>
+
             <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Segera Bawa ke RS Bila :</label>
-                <textarea class="form-control" id="segera_db"></textarea>
+                <label class="fs-5 fw-bold mb-3">Segera Bawa ke RS Bila</label>
+                <div class="row">
+
+                    <!-- SOAP -->
+                    <div class="col-md-4">
+                        <label>SOAP</label>
+                        <textarea class="form-control" id="segera_soap" rows="4"></textarea>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="col-md-4">
+                        <label>AI</label>
+                        <textarea class="form-control" id="segera_ai" rows="4" readonly></textarea>
+                    </div>
+
+                    <!-- FINAL -->
+                    <div class="col-md-4">
+                        <label>Final Resume</label>
+                        <textarea class="form-control" id="segera_final" rows="4"></textarea>
+                    </div>
+
+                </div>
             </div>
-            <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Severity :</label>
-                <textarea class="form-control"></textarea>
-            </div>
-            <div class="mb-5">
-                <label class="d-flex align-items-center fs-5 fw-bold mb-2">Lain - lain :</label>
-                <textarea class="form-control"></textarea>
-            </div>
+
         </div>
         
     </div>

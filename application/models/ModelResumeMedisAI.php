@@ -62,26 +62,6 @@
             return $recordset;
         }
 
-        // function pemeriksaanfisik($episodeid){
-        //     $query =
-        //             "
-        //                 SELECT DBMS_LOB.SUBSTR(A.O, 4000, 1) AS TEXT_DATA
-        //                 FROM WEB_CO_DIAGNOSA_DT A
-        //                 WHERE A.EPISODE_ID = '".$episodeid."'
-        //                 AND   A.FLAG_HAPUS = '1'
-        //                 AND   A.SHOW_ITEM = '1'
-        //                 AND   A.POLI_ID = 'UGD01'
-        //                 AND   A.O IS NOT NULL
-        //                 AND   A.CREATED_BY LIKE 'DR%'
-        //                 ORDER BY A.CREATED_DATE DESC
-        //                 FETCH FIRST 1 ROW ONLY
-        //             ";
-
-        //     $recordset = $this->db->query($query);
-        //     $recordset = $recordset->row();
-        //     return $recordset;
-        // }
-
         function gejala($episodeid){
             $query =
                     "
@@ -238,6 +218,20 @@
 
             $recordset = $this->db->query($query);
             $recordset = $recordset->result_array();
+            return $recordset;
+        }
+
+        function resumefinal($episodeid){
+            $query =
+                    "
+                        SELECT A.*
+                        FROM WEB_CO_RESUME_RANAP A
+                        WHERE A.SHOW_ITEM='1'
+                        AND   A.EPISODE_ID='".$episodeid."'
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
             return $recordset;
         }
     }

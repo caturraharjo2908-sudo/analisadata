@@ -1,9 +1,5 @@
 <?php
 	defined('BASEPATH') OR exit('No direct script access allowed');
-    require 'vendor/autoload.php';
-    use Restserver\Libraries\REST_Controller;
-    require APPPATH . '/libraries/REST_Controller.php';
-
 	class Kpi extends CI_Controller {
 
 		public function __construct(){
@@ -29,9 +25,9 @@
             return $data;
 		}
 
-        public function dataoperasielektif(){
+        public function datalamakonsultasi(){
             $periode = $this->input->post("selectperiode");
-            $result  = $this->md->dataoperasielektif($periode);
+            $result  = $this->md->datalamakonsultasi($periode);
             
 			if(!empty($result)){
 				$json["responCode"]   = "00";
@@ -47,9 +43,9 @@
             echo json_encode($json);
         }
 
-        public function datajampulangpasien(){
+        public function datapeakdokter(){
             $periode = $this->input->post("selectperiode");
-            $result  = $this->md->datajampulangpasien($periode);
+            $result  = $this->md->datapeakdokter($periode);
             
 			if(!empty($result)){
 				$json["responCode"]   = "00";
@@ -64,24 +60,5 @@
 
             echo json_encode($json);
         }
-
-        public function datajampulangharian(){
-            $result  = $this->md->datajampulangharian();
-            
-			if(!empty($result)){
-				$json["responCode"]   = "00";
-				$json["responHead"]   = "success";
-				$json["responDesc"]   = "Data Di Temukan";
-				$json['responResult'] = $result;
-            }else{
-                $json["responCode"] = "01";
-                $json["responHead"] = "info";
-                $json["responDesc"] = "Data Tidak Di Temukan";
-            }
-
-            echo json_encode($json);
-        }
-
-        
 	}
 ?>

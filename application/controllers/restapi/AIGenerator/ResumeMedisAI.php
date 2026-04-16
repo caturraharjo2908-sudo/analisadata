@@ -16,14 +16,16 @@ class ResumeMedisAI extends REST_Controller {
         $body        = [];
         $sourcedata  = [];
         $aigenerated = [];
+        $finalresume = [];
         $kunjungan   = [];
         $norm        = "";
 
-        $resultkunjungan        = $this->md->kunjungan($episodeid);
-        $resultradiologi        = $this->md->radiologi($episodeid);
-        $resultlaboratoriumhd   = $this->md->laboratoriumhd($episodeid);
-        $resultkeluhanutama     = $this->md->keluhanutama($episodeid);
-        $resultgejala           = $this->md->gejala($episodeid);
+        $resultkunjungan      = $this->md->kunjungan($episodeid);
+        $resultradiologi      = $this->md->radiologi($episodeid);
+        $resultlaboratoriumhd = $this->md->laboratoriumhd($episodeid);
+        $resultkeluhanutama   = $this->md->keluhanutama($episodeid);
+        $resultgejala         = $this->md->gejala($episodeid);
+        $resultresumefinal    = $this->md->resumefinal($episodeid);
 
         $item = preg_match_all('/([a-zA-Z ]+)\s*(?:\(\+\)|\+)/i', $resultgejala->RESULT, $matches);
         $rawhighlight = array_map(function($item){return trim($item);}, $matches[1]);
@@ -257,13 +259,18 @@ class ResumeMedisAI extends REST_Controller {
             $sourcedata['penunjang']['laboratorium']['raw'][] = [];
             $sourcedata['penunjang']['laboratorium']['text']  = "-";
         }
-        
+
+        $finalresume['riwayat']['keluhanutama']['text']=$resultresumefinal->KELUHAN ?? '';
+        $finalresume['riwayat']['gejala']['text']=$resultresumefinal->GEJALA  ?? '';
+        $finalresume['riwayat']['sekarang']['text']=$resultresumefinal->RIWAYATPS  ?? '';
+
         $body['status']                = true;
         $body['code']                  = 200;
         $body['message']               = "success";
         $body['transaksi']             = $kunjungan;
         $body['sourcedata'][]          = $sourcedata;
         $body['aigenerated'][]         = $aigenerated;
+        $body['finalresume'][]         = $finalresume;
         $body['metadata']['timestamp'] = date('Y-m-d H:i:s');
 
         $this->response($body, 200);
