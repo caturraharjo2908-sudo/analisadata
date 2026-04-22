@@ -10,7 +10,7 @@
 			<div class="d-flex flex-column pe-0 pe-sm-10">
 				<h5 class="mb-1">Pembatalan Operasi Elektif</h5>
 				<span>
-					SLA ≤ 3% Pembatalan Operasi Elektif di hari H
+					Pembatalan kasus operasi elektif yang sudah terjadwal, namun batal dilakukan operasi pada hari H
 				</span>
 			</div>
 		</div>
@@ -18,7 +18,7 @@
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
 					<span class="card-label fw-bolder fs-3 mb-1">Pembatalan Operasi Elektif</span>
-					<span class="text-muted mt-1 fw-bold fs-7">SLA ≤ 3% Pembatalan Operasi Elektif</span>
+					<span class="text-muted mt-1 fw-bold fs-7">≤ 3% Pembatalan Operasi Elektif</span>
 				</h3>
 				<div class="card-toolbar m-0">
 					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
@@ -117,17 +117,25 @@
 				</svg>
 			</span>
 			<div class="d-flex flex-column pe-0 pe-sm-10">
-				<h5 class="mb-1">Realisasi Pasien Pulang H-1</h5>
+				<h5 class="mb-1">Persentase Pasien Pulang</h5>
 				<span>
-					SLA ≥ 90% Pasien Pulang Di Bawah Jam 12:00, Esklusi Pasien VIP, Meninggal dan Pulang Atas Permintaan Sendiri
+					Pasien yang direncanakan pulang pada H-1 ( pulang sebelum pukul ≤ 12,00 waktu setempat di hari berikutnya) Target: ≥90%
+					<ul>
+						<li>Esklusi</li>
+						<ul>
+							<li>Pasien VIP</li>
+							<li>Meninggal</li>
+							<li>Pulang Atas Permintaan Sendiri</li>
+						</ul>
+					</ul>
 				</span>
 			</div>
 		</div>
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Realisasi Pasien Pulang H-1</span>
-					<span class="text-muted mt-1 fw-bold fs-7">SLA ≥ 90% Pasien Pulang Di Bawah Jam 12:00</span>
+					<span class="card-label fw-bolder fs-3 mb-1">Persentase Pasien Pulang</span>
+					<span class="text-muted mt-1 fw-bold fs-7">≥ 90% Pasien Pulang Di Bawah Jam 12:00</span>
 				</h3>
 				<div class="card-toolbar m-0">
 					<ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bolder" role="tablist">

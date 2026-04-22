@@ -132,7 +132,7 @@ function datajampulangpasien(){
             }));
 
 
-            renderchartarea("grafikkpipasienpulang",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang Di Bawah Pukul 12:00",["Presentasi","Biaya"],["totalValue","totalBiaya"],true,"Biaya Gizi","totalValue","Rata-rata Pulang Di Bawah Pukul 12:00",null);
+            renderchartarea("grafikkpipasienpulang",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang < Pukul 12:00",["Presentasi","Biaya"],["totalValue","totalBiaya"],true,"Biaya Gizi","totalValue","Rata-rata Pulang < Pukul 12:00",null);
         },
 
         complete: function () {
@@ -196,7 +196,7 @@ function datajampulangharian(){
             }));
 
 
-            renderchartarea("grafikkpipasienpulangharian",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang < Pukul 12:00",["Presentasi","Biaya"],["totalValue","totalBiaya"],true,"Biaya Gizi","totalValue","Rata-rata Pulang Di Bawah Pukul 12:00",null);
+            renderchartarea("grafikkpipasienpulangharian",chartDataKunjungan,"Periode Pelayanan","Presentasi Pulang < Pukul 12:00",["Presentasi","Biaya"],["totalValue","totalBiaya"],true,"Biaya Gizi","totalValue","Rata-rata Pulang < Pukul 12:00",null);
         },
 
         complete: function () {
