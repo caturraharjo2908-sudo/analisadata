@@ -55,7 +55,8 @@
 										<th>Okt</th>
 										<th>Nov</th>
                                         <th>Des</th>
-										<th class="pe-4 rounded-end text-end">Total</th>
+										<th>Total</th>
+										<th class="pe-4 rounded-end text-end">Last Updated</th>
 									</tr>
 								</thead>
 								<tbody class="text-gray-600 fw-bold" id="resultdatatransaksi"></tbody>
@@ -122,7 +123,8 @@
 										<th>Okt</th>
 										<th>Nov</th>
                                         <th>Des</th>
-										<th class="pe-4 rounded-end text-end">Total</th>
+                                        <th>Total</th>
+										<th class="pe-4 rounded-end text-end">Last Updated</th>
 									</tr>
 								</thead>
 								<tbody class="text-gray-600 fw-bold" id="resultdatatransaksidepo"></tbody>

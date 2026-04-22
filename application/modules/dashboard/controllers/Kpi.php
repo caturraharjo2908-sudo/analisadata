@@ -65,6 +65,42 @@
             echo json_encode($json);
         }
 
+        public function dataheatmap(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->dataheatmap($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
+        public function registranaptoranap(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->registranaptoranap($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
         public function datajampulangharian(){
             $result  = $this->md->datajampulangharian();
             
@@ -82,6 +118,22 @@
             echo json_encode($json);
         }
 
+        public function dataheatmapharian(){
+            $result  = $this->md->dataheatmapharian();
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
         
 	}
 ?>
