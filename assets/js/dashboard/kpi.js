@@ -568,8 +568,8 @@ function datarawatjalan(){
 
             result.forEach(item => {
                 dataMap[item.BULAN] = {
-                    val1: item.RJ_SELESAI_120_MENIT_PERSENTASE,
-                    val2: item.AVG_RJ_SELESAI,
+                    val1: item.SELESAI_RJ_120_PRESENTASI,
+                    val2: item.AVG_SELESAI_RJ_120_MENIT,
                 };
             });
 
@@ -581,7 +581,7 @@ function datarawatjalan(){
             }));
 
 
-            renderchartarea("grafikkpirj",chartData,"Periode Pelayanan","% Selesai Rawat Jalan ≤ 10 Menit",["Presentasi","Avg Menit"],["Value1","Value2"],true,"Avg Waktu Tunggu Masuk Ranap","Value1","Rata-rata Selesai Rawat Jalan",null);
+            renderchartarea("grafikkpirj",chartData,"Periode Pelayanan","% Selesai Rawat Jalan ≤ 120 Menit",["Presentasi","Avg Menit"],["Value1","Value2"],true,"Avg Waktu Tunggu Masuk Ranap","Value1","Rata-rata Selesai Rawat Jalan",null);
         },
 
         complete: function () {
