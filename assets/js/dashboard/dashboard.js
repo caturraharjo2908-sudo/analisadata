@@ -41,6 +41,8 @@ function loaddata(){
     datapemeriksaanfarmasi();
     datapemeriksaanlab();
     datapemeriksaanrad();
+
+    pasientransit();
 };
 
 function getPeriodeFileName(defaultValue = 'ALL') {

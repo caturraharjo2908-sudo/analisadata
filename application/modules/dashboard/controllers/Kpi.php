@@ -29,45 +29,27 @@
             return $data;
 		}
 
+        public function datawaktutunggurajal(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->datawaktutunggurajal($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
         public function dataoperasielektif(){
             $periode = $this->input->post("selectperiode");
             $result  = $this->md->dataoperasielektif($periode);
-            
-			if(!empty($result)){
-				$json["responCode"]   = "00";
-				$json["responHead"]   = "success";
-				$json["responDesc"]   = "Data Di Temukan";
-				$json['responResult'] = $result;
-            }else{
-                $json["responCode"] = "01";
-                $json["responHead"] = "info";
-                $json["responDesc"] = "Data Tidak Di Temukan";
-            }
-
-            echo json_encode($json);
-        }
-
-        public function datajampulangpasien(){
-            $periode = $this->input->post("selectperiode");
-            $result  = $this->md->datajampulangpasien($periode);
-            
-			if(!empty($result)){
-				$json["responCode"]   = "00";
-				$json["responHead"]   = "success";
-				$json["responDesc"]   = "Data Di Temukan";
-				$json['responResult'] = $result;
-            }else{
-                $json["responCode"] = "01";
-                $json["responHead"] = "info";
-                $json["responDesc"] = "Data Tidak Di Temukan";
-            }
-
-            echo json_encode($json);
-        }
-
-        public function dataheatmap(){
-            $periode = $this->input->post("selectperiode");
-            $result  = $this->md->dataheatmap($periode);
             
 			if(!empty($result)){
 				$json["responCode"]   = "00";
@@ -100,6 +82,78 @@
 
             echo json_encode($json);
         }
+        
+        public function datakeluarigd(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->datakeluarigd($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
+        public function datarawatjalan(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->datarawatjalan($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
+        public function datajampulangpasienbln(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->datajampulangpasienbln($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
+
+        public function datajampulangpasienblnruangan(){
+            $periode = $this->input->post("selectperiode");
+            $result  = $this->md->datajampulangpasienblnruangan($periode);
+            
+			if(!empty($result)){
+				$json["responCode"]   = "00";
+				$json["responHead"]   = "success";
+				$json["responDesc"]   = "Data Di Temukan";
+				$json['responResult'] = $result;
+            }else{
+                $json["responCode"] = "01";
+                $json["responHead"] = "info";
+                $json["responDesc"] = "Data Tidak Di Temukan";
+            }
+
+            echo json_encode($json);
+        }
 
         public function datajampulangharian(){
             $result  = $this->md->datajampulangharian();
@@ -118,8 +172,8 @@
             echo json_encode($json);
         }
 
-        public function dataheatmapharian(){
-            $result  = $this->md->dataheatmapharian();
+        public function datajampulangpasienharianruangan(){
+            $result  = $this->md->datajampulangpasienharianruangan();
             
 			if(!empty($result)){
 				$json["responCode"]   = "00";
@@ -134,6 +188,8 @@
 
             echo json_encode($json);
         }
+
+        
         
 	}
 ?>

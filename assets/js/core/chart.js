@@ -440,3 +440,81 @@ function renderPyramidChart(name, data = [], titleY = "Kategori", seriesConfig =
     chartInstances[name] = new ApexCharts(el, options);
     chartInstances[name].render();
 }
+
+
+function renderTreemapChart(
+    name,
+    data = [],
+    labelField = "LABEL",
+    valueField = "VALUE1"
+) {
+
+    // destroy chart lama
+    if (chartInstances[name] && typeof chartInstances[name].destroy === "function") {
+        chartInstances[name].destroy();
+        chartInstances[name] = null;
+    }
+
+    const el = document.querySelector(`#${name}`);
+    if (!el) return;
+
+    // kalau data kosong
+    if (!data.length) {
+        el.innerHTML = "<div class='text-center text-muted'>No data available</div>";
+        return;
+    }
+
+    const total = data.reduce((a, b) => a + (b[valueField] ?? 0), 0);
+
+    const series = [{
+        data: data.map(item => ({
+            x: item[labelField] || "Unknown",
+            y: item[valueField] ?? 0
+        }))
+    }];
+
+    const formatNumber = (val) => (val ?? 0).toLocaleString('id-ID');
+
+    const options = {
+        chart: {
+            type: 'treemap',
+            height: 350,
+            toolbar: { show: false }
+        },
+
+        series: series,
+
+        dataLabels: {
+            enabled: true,
+            style: {
+                fontSize: '10px'
+            },
+            formatter: function (text, op) {
+                const val = op.value || 0;
+                return `${text}\n : ${formatNumber(val)}`;
+            }
+        },
+
+        plotOptions: {
+            treemap: {
+                distributed: false,
+                enableShades: false
+            }
+        },
+
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return formatNumber(val) + " pasien";
+                }
+            }
+        }
+    };
+
+    // clear container
+    el.innerHTML = "";
+
+    // render
+    chartInstances[name] = new ApexCharts(el, options);
+    chartInstances[name].render();
+}
