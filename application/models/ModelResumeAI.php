@@ -1,5 +1,41 @@
 <?php
-    class ModelResumeMedisAI extends CI_Model{
+    class ModelResumeAI extends CI_Model{
+
+        function listrresume(){
+            $query =
+                    "
+                        SELECT A.PASIEN_ID, EPISODE_ID, TO_CHAR(TGL_KELUAR,'DD.MM.YYYY HH24:MI:SS')TGLKELUAR, DOKTER_ID
+                        FROM SR01_KEU_EPISODE A
+                        WHERE A.LOKASI_ID='001'
+                        AND   A.AKTIF='1'
+                        AND   A.JENIS_EPISODE='I'
+                        AND   A.STATUS_EPISODE='55'
+                        AND   A.TGL_KELUAR IS NOT NULL
+                        AND   A.TGL_KELUAR >= TRUNC(SYSDATE)
+                        AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
+                        AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP_AI WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
+                        ORDER BY TGL_KELUAR DESC
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function diagnosa($episodeid){
+            $query =
+                    "
+                        SELECT A.ICD10, DIAGNOSA
+                        FROM WEB_CO_DIAGNOSA_MS A
+                        WHERE A.LOKASI_ID='001'
+                        AND   A.SHOW_ITEM='1'
+                        AND   A.EPISODE_ID='".$episodeid."'
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result_array();
+            return $recordset;
+        }
 
         function kunjungan($episodeid){
             $query =
@@ -7,9 +43,10 @@
                         SELECT X.*,
                             (SELECT KETERANGAN FROM SR01_MED_POLI_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND POLI_ID=X.POLIID)POLIKLINIK
                         FROM(
-                            SELECT A.PASIEN_ID, EPISODE_ID, PULANG_ID,
+                            SELECT A.PASIEN_ID, EPISODE_ID, PULANG_ID, DOKTER_ID, STATUS_EPISODE, RUANGRWT_ID,
                                 GETPIDINT(A.PASIEN_ID)MRPASIEN,
-                                TO_CHAR(A.TGL_MASUK,'DD.MM.YYYY')TGLMASUK, TO_CHAR(A.TGL_KELUAR,'DD.MM.YYYY')TGLKELUAR,
+                                SR01_GET_SUFFIX(A.PASIEN_ID)NAMAPSIEN,
+                                TO_CHAR(A.TGL_MASUK,'DD.MM.YYYY')TGLMASUK, TO_CHAR(A.TGL_KELUAR,'DD.MM.YYYY HH24:MI:SS')TGLKELUAR,
                                 (SELECT KETERANGAN  FROM SR01_MED_MSKKLR_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND KATEGORI_ID='MP' AND MSKKLR_ID=A.PULANG_ID)CARAPULANG,
                                 (SELECT NAMA        FROM SR01_MED_DOKTER_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND DOKTER_ID=A.DOKTER_ID)NAMADOKTER,
                                 (SELECT DEF_POLI_ID FROM SR01_MED_DOKTER_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND DOKTER_ID=A.DOKTER_ID)POLIID
@@ -20,6 +57,25 @@
                             AND   A.JENIS_EPISODE='I'
                             AND   A.EPISODE_ID='".$episodeid."'
                         )X
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutama($episodeid){
+            $query =
+                    "
+                        SELECT A.S, A.A, A.O, A.S2, A.S3
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.POLI_ID='UGD01'
+                        AND   A.CREATED_BY LIKE 'DR%'
+                        ORDER BY A.CREATED_DATE DESC
+                        FETCH FIRST 1 ROW ONLY
                     ";
 
             $recordset = $this->db->query($query);
@@ -40,45 +96,6 @@
 
             $recordset = $this->db->query($query);
             $recordset = $recordset->result_array();
-            return $recordset;
-        }
-
-        function keluhanutama($episodeid){
-            $query =
-                    "
-                        SELECT A.S KELUHAN, A.A INDIKASIRANAP, A.O TEXT_DATA, A.S2 RIWAYATSEKARANG, S3 RIWAYATDAHULU, TO_CHAR(A.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS')CREATEDDATE
-                        FROM WEB_CO_DIAGNOSA_DT A
-                        WHERE A.EPISODE_ID = '".$episodeid."'
-                        AND   A.FLAG_HAPUS = '1'
-                        AND   A.SHOW_ITEM = '1'
-                        AND   A.POLI_ID='UGD01'
-                        AND   A.CREATED_BY LIKE 'DR%'
-                        ORDER BY A.CREATED_DATE DESC
-                        FETCH FIRST 1 ROW ONLY
-                    ";
-
-            $recordset = $this->db->query($query);
-            $recordset = $recordset->row();
-            return $recordset;
-        }
-
-        function gejala($episodeid){
-            $query =
-                    "
-                        SELECT A.S2 RESULT, TO_CHAR(A.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS')CREATEDDATE
-                        FROM WEB_CO_DIAGNOSA_DT A
-                        WHERE A.EPISODE_ID = '".$episodeid."'
-                        AND   A.FLAG_HAPUS = '1'
-                        AND   A.SHOW_ITEM = '1'
-                        AND   A.POLI_ID='UGD01'
-                        AND   A.S2 IS NOT NULL
-                        AND   A.CREATED_BY LIKE 'DR%'
-                        ORDER BY A.CREATED_DATE DESC
-                        FETCH FIRST 1 ROW ONLY
-                    ";
-
-            $recordset = $this->db->query($query);
-            $recordset = $recordset->row();
             return $recordset;
         }
 
@@ -221,18 +238,10 @@
             return $recordset;
         }
 
-        function resumefinal($episodeid){
-            $query =
-                    "
-                        SELECT A.*
-                        FROM WEB_CO_RESUME_RANAP A
-                        WHERE A.SHOW_ITEM='1'
-                        AND   A.EPISODE_ID='".$episodeid."'
-                    ";
-
-            $recordset = $this->db->query($query);
-            $recordset = $recordset->row();
-            return $recordset;
+        function insertresume($data){           
+            $sql =   $this->db->insert("WEB_CO_RESUME_RANAP_AI",$data);
+            return $sql;
         }
+
     }
 ?>

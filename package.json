@@ -4,7 +4,8 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"RujukanBPJS": "node nodejs/RujukanBPJS.js"
+		"RujukanBPJS": "node nodejs/RujukanBPJS.js",
+		"ResumeAI"   : "node nodejs/ResumeAI.js"
 	},
 	"dependencies": {
 		"chalk": "^5.3.0",

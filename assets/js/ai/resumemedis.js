@@ -100,11 +100,11 @@ function resumemedis(episodeid){
             }
 
             setAuto('keluhanutama_ai', result['sourcedata'][0]['riwayat']['keluhanutama']['text']);
-            setAuto('keluhanutama_final', result['finalresume'][0]['riwayat']['keluhanutama']['text']);
+            // setAuto('keluhanutama_final', result['finalresume'][0]['riwayat']['keluhanutama']['text']);
             setAuto('gejala_ai', result['sourcedata'][0]['riwayat']['gejala']['text']);
-            setAuto('gejala_final', result['finalresume'][0]['riwayat']['gejala']['text']);
+            // setAuto('gejala_final', result['finalresume'][0]['riwayat']['gejala']['text']);
             setAuto('rps_ai', result['sourcedata'][0]['riwayat']['sekarang']['text']);
-            setAuto('rps_final', result['finalresume'][0]['riwayat']['sekarang']['text']);
+            // setAuto('rps_final', result['finalresume'][0]['riwayat']['sekarang']['text']);
             setAuto('rpd_ai', result['sourcedata'][0]['riwayat']['dahulu']['text']);
             setAuto('indikasiranap_ai', result['sourcedata'][0]['diagnosis']['indikasiranap']['text']);
             setAuto('ttv_ai', result['sourcedata'][0]['pemeriksaanfisik']['ttv']['text']);

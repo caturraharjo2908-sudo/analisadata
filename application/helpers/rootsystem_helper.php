@@ -74,6 +74,11 @@
         echo color('cyan').str_pad("TANGGAL", 15).str_pad("NOMOR KARTU", 25).str_pad("NOMOR SEP", 25).str_pad("NOMOR RUJUKAN", 25)."MESSAGE".PHP_EOL;
     }
 
+    function headerlogresume(){
+        echo PHP_EOL;
+        echo color('cyan').str_pad("PASIEN ID", 15).str_pad("EPISODE ID", 25).str_pad("TGL KELUAR", 25).str_pad("DOKTER ID", 25)."MESSAGE".PHP_EOL;
+    }
+
 
     function formatlog($tanggal, $nokartu, $nosep, $norujukan, $message, $colortanggal = 'cyan', $colornokartu = 'cyan', $colornosep = 'cyan', $colornorujukan = 'cyan' , $colorMessage = 'white') {
         $tanggalWidth   = 15;

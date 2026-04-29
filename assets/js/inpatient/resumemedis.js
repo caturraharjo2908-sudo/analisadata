@@ -149,7 +149,7 @@ function resumemedis(){
                     tableBulanan[bulan][tanggal].total++;
 
                     let durasi     = parseInt(item.DURASI) || 0;
-                    let adaResume  = item.TRANSCORESUME !== null && item.TRANSCORESUME !== "";
+                    let adaResume  = item.CREATEDDATERESUME !== null && item.CREATEDDATERESUME !== "";
 
                     // =========================
                     // 🔥 RULE FINAL
@@ -356,7 +356,7 @@ function aggregateResumeGlobal(data) {
 
     data.forEach(item => {
 
-        if(item.TRANSCORESUME !== null && item.TRANSCORESUME !== ""){
+        if(item.CREATEDDATERESUME !== null && item.CREATEDDATERESUME !== ""){
             
             if(parseInt(item.DURASI) > 2){
                 lebih48++;

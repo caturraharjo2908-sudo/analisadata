@@ -36,8 +36,7 @@
                                         ORDER BY CREATED_DATE
                                     ) RN
                                 FROM WEB_CO_RESUME_RANAP
-                                WHERE TRANS_CO IS NOT NULL
-                                AND SHOW_ITEM <> '0'
+                                WHERE SHOW_ITEM <> '0'
                             )
                             WHERE RN = 1
                         ),
