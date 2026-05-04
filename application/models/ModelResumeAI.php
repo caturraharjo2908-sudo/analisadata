@@ -11,29 +11,16 @@
                         AND   A.JENIS_EPISODE='I'
                         AND   A.STATUS_EPISODE='55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        AND   A.TGL_KELUAR >= TRUNC(SYSDATE)
-                        AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
-                        AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP_AI WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
+                        AND   A.TGL_KELUAR >= TO_DATE('01-01-' || TO_CHAR(SYSDATE, 'YYYY'), 'DD-MM-YYYY')
+                        AND   A.EPISODE_ID IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP WHERE LOKASI_ID='001' AND SHOW_ITEM='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
+                        AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP_AI WHERE LOKASI_ID='001' AND SHOW_ITEM='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
+                        AND   A.EPISODE_ID IN (SELECT EPISODE_ID FROM WEB_CO_DIAGNOSA_DT WHERE FLAG_HAPUS = '1' AND SHOW_ITEM = '1' AND POLI_ID='UGD01' AND CREATED_BY LIKE 'DR%' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
                         ORDER BY TGL_KELUAR DESC
+                        FETCH FIRST 10 ROW ONLY
                     ";
 
             $recordset = $this->db->query($query);
             $recordset = $recordset->result();
-            return $recordset;
-        }
-
-        function diagnosa($episodeid){
-            $query =
-                    "
-                        SELECT A.ICD10, DIAGNOSA
-                        FROM WEB_CO_DIAGNOSA_MS A
-                        WHERE A.LOKASI_ID='001'
-                        AND   A.SHOW_ITEM='1'
-                        AND   A.EPISODE_ID='".$episodeid."'
-                    ";
-
-            $recordset = $this->db->query($query);
-            $recordset = $recordset->result_array();
             return $recordset;
         }
 
@@ -61,6 +48,21 @@
 
             $recordset = $this->db->query($query);
             $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function diagnosa($episodeid){
+            $query =
+                    "
+                        SELECT A.ICD10, DIAGNOSA
+                        FROM WEB_CO_DIAGNOSA_MS A
+                        WHERE A.LOKASI_ID='001'
+                        AND   A.SHOW_ITEM='1'
+                        AND   A.EPISODE_ID='".$episodeid."'
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result_array();
             return $recordset;
         }
 

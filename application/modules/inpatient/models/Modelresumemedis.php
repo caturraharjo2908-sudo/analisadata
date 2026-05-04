@@ -63,10 +63,10 @@
                                 ========================= */
                                 GREATEST(
                                     CASE
-                                        WHEN RS.TRANS_CO IS NULL THEN
+                                        WHEN RS.EPISODE_ID IS NULL THEN
                                             SR01_HITUNG_UMURDLMHARI(A.TGL_KELUAR, TRUNC(SYSDATE))+1
                                         ELSE
-                                            SR01_HITUNG_UMURDLMHARI(A.TGL_KELUAR, TRUNC(RS.CREATED_DATE))
+                                            SR01_HITUNG_UMURDLMHARI(A.TGL_KELUAR, TRUNC(A.TGL_KELUAR))
                                     END
                                 ,0) AS DURASI,
 

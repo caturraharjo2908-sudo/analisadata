@@ -48,6 +48,16 @@ class ResumeAI extends REST_Controller {
         $resultlaboratoriumhd = $this->md->laboratoriumhd($episodeid);
         $resultdiagnosa       = $this->md->diagnosa($episodeid);
 
+        if (empty($resultkeluhanutama)) {
+
+            $body['status']  = false;
+            $body['code']    = 404;
+            $body['message'] = "Source Data Tidak Tersedia";
+            $body['metadata']['timestamp'] = date('Y-m-d H:i:s');
+
+            return $this->response($body, 404);
+        }
+
         $sourcedata['riwayat']['keluhanutama']           = $this->keluhanutama($resultkeluhanutama);
         $sourcedata['riwayat']['gejala']                 = $this->gejala($resultkeluhanutama);
         $sourcedata['riwayat']['sekarang']               = $this->sekarang($resultkeluhanutama);
@@ -236,7 +246,59 @@ class ResumeAI extends REST_Controller {
     public function sekarang($result){
         $body = [];
 
-        $text = trim($result->S2); // hapus spasi + \n di awal & akhir
+        $text = trim($result->S2);
+
+        $lines = preg_split('/\n+/', $text);
+
+        $cleaned = [];
+
+        foreach ($lines as $line) {
+
+            $lower = strtolower(trim($line));
+
+            // =========================
+            // 🔥 SKIP SEMUA RIWAYAT BLOCK
+            // =========================
+            if (
+                strpos($lower, 'riwayat sosial') !== false ||
+                strpos($lower, 'riwayat nikah') !== false ||
+                strpos($lower, 'riwayat obstetri') !== false ||
+                strpos($lower, 'riwayat kb') !== false ||
+                strpos($lower, 'riwayat menstruasi') !== false ||
+                strpos($lower, 'rpd') !== false ||
+                strpos($lower, 'rpk') !== false ||
+                strpos($lower, 'rpo') !== false
+            ) {
+                continue;
+            }
+
+            // =========================
+            // 🔥 SKIP DETAIL SOSIAL & ADMIN
+            // =========================
+            if (
+                preg_match('/\b(irt|suami|istri|karyawan|pekerjaan|pendidikan|sma|smk|stm|merokok|minum alkohol|alkohol)\b/i', $lower)
+            ) {
+                continue;
+            }
+
+            // =========================
+            // 🔥 SKIP OBSTETRI DETAIL (1. 2. 3. 4. Hamil ini)
+            // =========================
+            if (preg_match('/^\d+\./', $lower)) {
+                continue;
+            }
+
+            if (preg_match('/\b(hamil ini|abortus|spontan|bbl|aterm|dikuret)\b/i', $lower)) {
+                continue;
+            }
+
+            // =========================
+            // KEEP ONLY CURRENT CONDITION
+            // =========================
+            $cleaned[] = $line;
+        }
+
+        $text = implode("\n", $cleaned);
 
         $body['text'] = $text;
         $body['len']  = mb_strlen($text);
@@ -259,7 +321,7 @@ class ResumeAI extends REST_Controller {
     public function keluhanutama($result){
         $body = [];
 
-        $text = trim($result->S); // hapus spasi + \n di awal & akhir
+        $text = trim($result->S);
 
         $body['text'] = $text;
         $body['len']  = mb_strlen($text);
@@ -378,7 +440,8 @@ class ResumeAI extends REST_Controller {
             // SYMBOL DETECTION
             // =========================
             if (preg_match('/\(\+\)|\+/', $lower)) $positive = true;
-            if (preg_match('/\(-\)|-/', $lower)) $negative = true;
+            // if (preg_match('/\(-\)|-/', $lower)) $negative = true;
+            if (preg_match('/\(-\)/', $lower)) $negative = true;
 
             // =========================
             // KEYWORD DETECTION
@@ -449,6 +512,8 @@ class ResumeAI extends REST_Controller {
 
         // titik → koma
         $text = preg_replace('/\.\s*/', ',', $text);
+
+        $text = preg_replace('/\s*-\s*/', ',', $text);
 
         // "dan" → koma
         $text = preg_replace('/\s+dan\s+/i', ',', $text);
@@ -750,36 +815,31 @@ class ResumeAI extends REST_Controller {
         // =========================
         $defaults = [
 
-            // START trigger
             "startKeywords" => [
                 'riw', 'riwayat', 'h/o', 'history',
                 'ckd', 'dm', 'hipertensi',
                 'dx', 'tx'
             ],
 
-            // STOP trigger
             "stopKeywords" => [
                 'poli', 'waktu', 'usg'
             ],
 
-            // negative filter
             "negativeKeywords" => [
-                'disangkal'
+                'disangkal',
+                'tidak diketahui'
             ],
 
-            // negative symbols
             "negativeSymbols" => [
                 '(-)', '-/-'
             ],
 
-            // header control
             "headers" => [
                 'dx' => 'Dx:',
-                'tx' => 'Tx:'
+                'tx' => 'Tx:'  
             ]
         ];
 
-        // merge config
         $cfg = array_merge($defaults, $config);
 
         $lines = preg_split('/\n+/', $text);
@@ -788,6 +848,16 @@ class ResumeAI extends REST_Controller {
         $formatted = [];
 
         $inHistoryBlock = false;
+
+        $skipSocialBlock = false;
+        $skipPernikahan  = false;
+
+        // =========================
+        // 🔥 OBSTETRI STATE
+        // =========================
+        $obstetriMode = false;
+        $currentObstetri = null;
+        $obstetriList = [];
 
         $seenHeaders = array_fill_keys(array_keys($cfg['headers']), false);
 
@@ -799,7 +869,50 @@ class ResumeAI extends REST_Controller {
             $lower = strtolower($line);
 
             // =========================
-            // START BLOCK
+            // 🔥 SKIP RIWAYAT PERNIKAHAN FULL BLOCK
+            // =========================
+            if (strpos($lower, 'riwayat pernikahan') !== false) {
+                $skipPernikahan = true;
+                continue;
+            }
+
+            if ($skipPernikahan) {
+                if (preg_match('/^riwayat\s+/i', $lower) && strpos($lower, 'riwayat pernikahan') === false) {
+                    $skipPernikahan = false;
+                } else {
+                    continue;
+                }
+            }
+
+            // =========================
+            // 🔥 SKIP RPK TOTAL
+            // =========================
+            if (strpos($lower, 'rpk') !== false) {
+                continue;
+            }
+
+            // =========================
+            // 🔥 RPD CLEAN (FIRST SENTENCE ONLY)
+            // =========================
+            if (strpos($lower, 'rpd') !== false) {
+                $parts = preg_split('/\.\s*/', $line);
+                $line = $parts[0];
+            }
+
+            // =========================
+            // 🔥 SKIP RIWAYAT SOSIAL BLOCK
+            // =========================
+            if (strpos($lower, 'riwayat sosial') !== false) {
+                $skipSocialBlock = true;
+                continue;
+            }
+
+            if ($skipSocialBlock) {
+                continue;
+            }
+
+            // =========================
+            // START DETECTION
             // =========================
             foreach ($cfg['startKeywords'] as $kw) {
                 if (strpos($lower, $kw) !== false) {
@@ -808,13 +921,12 @@ class ResumeAI extends REST_Controller {
                 }
             }
 
-            // tambahan simbol trigger
             if (strpos($line, '+') !== false || strpos($line, '?') !== false) {
                 $inHistoryBlock = true;
             }
 
             // =========================
-            // STOP BLOCK
+            // STOP DETECTION
             // =========================
             foreach ($cfg['stopKeywords'] as $kw) {
                 if (strpos($lower, $kw) !== false) {
@@ -828,18 +940,71 @@ class ResumeAI extends REST_Controller {
             // =========================
             // SPLIT PER ITEM
             // =========================
-            $chunks = preg_split('/,/', $line);
+            $line = preg_replace('/\s*,\s*/', ' | ', $line);
+            $chunks = explode(' | ', $line);
 
             foreach ($chunks as $chunk) {
 
                 $chunk = trim($chunk);
+                $chunk = preg_replace('/\x{00A0}/u', '', $chunk);
+                $chunk = preg_replace('/\s+/', ' ', $chunk);
+
                 if ($chunk === '') continue;
 
-                $chunk = preg_replace('/\s+/', ' ', $chunk);
                 $lowerChunk = strtolower($chunk);
 
                 // =========================
-                // REMOVE NEGATIVE (KEYWORD)
+                // 🔥 EXCLUDE SOCIAL DETAIL
+                // =========================
+                if (preg_match('/\b(pasien|suami|karyawan|pendidikan|sma|stm|bekerja)\b/i', $lowerChunk)) {
+                    continue;
+                }
+
+                // =========================
+                // 🔥 EXCLUDE LIFESTYLE
+                // =========================
+                if (preg_match('/\b(merokok|minum alkohol|alkohol)\b/i', $lowerChunk)) {
+                    continue;
+                }
+
+                // =========================
+                // 🔥 OBSTETRI DETECTOR
+                // =========================
+                if (preg_match('/riwayat obstetri/i', $chunk)) {
+
+                    $obstetriMode = true;
+                    $currentObstetri = $chunk;
+
+                    $raw[] = $chunk;
+                    $formatted[] = $chunk;
+
+                    continue;
+                }
+
+                // =========================
+                // 🔥 OBSTETRI GROUPING FIX
+                // =========================
+                if ($obstetriMode) {
+
+                    if (preg_match('/^\d+\./', $chunk)) {
+
+                        if ($currentObstetri !== null) {
+                            $obstetriList[] = $currentObstetri;
+                        }
+
+                        $currentObstetri = $chunk;
+                        continue;
+                    }
+
+                    if ($currentObstetri !== null) {
+                        $currentObstetri .= ', ' . $chunk;
+                    }
+
+                    continue;
+                }
+
+                // =========================
+                // NEGATIVE FILTER
                 // =========================
                 $isNegative = false;
 
@@ -850,9 +1015,6 @@ class ResumeAI extends REST_Controller {
                     }
                 }
 
-                // =========================
-                // REMOVE NEGATIVE (SYMBOL)
-                // =========================
                 foreach ($cfg['negativeSymbols'] as $sym) {
                     if (strpos($chunk, $sym) !== false) {
                         $isNegative = true;
@@ -860,7 +1022,6 @@ class ResumeAI extends REST_Controller {
                     }
                 }
 
-                // trailing "-"
                 if (preg_match('/-\s*$/', $chunk)) {
                     $isNegative = true;
                 }
@@ -868,7 +1029,7 @@ class ResumeAI extends REST_Controller {
                 if ($isNegative) continue;
 
                 // =========================
-                // HANDLE HEADER (Dx / Tx)
+                // HEADER HANDLING
                 // =========================
                 foreach ($cfg['headers'] as $key => $label) {
 
@@ -886,10 +1047,10 @@ class ResumeAI extends REST_Controller {
                 }
 
                 // =========================
-                // CLEAN PREFIX
+                // FINAL CLEAN
                 // =========================
-                $chunk = preg_replace('/^(riw\.?|riwayat|h\/o|history)\s*[:\-]*/i', '', $chunk);
                 $chunk = trim($chunk);
+                
 
                 if ($chunk === '') continue;
 
@@ -899,7 +1060,22 @@ class ResumeAI extends REST_Controller {
         }
 
         // =========================
-        // FINAL
+        // FLUSH OBSTETRI LAST ITEM
+        // =========================
+        if ($currentObstetri !== null) {
+            $obstetriList[] = $currentObstetri;
+        }
+
+        // =========================
+        // MERGE OBSTETRI RESULT
+        // =========================
+        if (!empty($obstetriList)) {
+            $raw = array_merge($raw, $obstetriList);
+            $formatted = array_merge($formatted, $obstetriList);
+        }
+
+        // =========================
+        // FINAL OUTPUT
         // =========================
         $raw = array_values(array_unique($raw));
         $formatted = array_values(array_unique($formatted));
