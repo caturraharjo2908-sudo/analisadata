@@ -33,7 +33,7 @@ function openSejarah(pasienId) {
 
 function exportTableToExcel(tableID, options = {}) {
 
-    // 🔥 Handle format lama (string filename)
+    // 🔥 support legacy string filename
     if (typeof options === 'string') {
         options = { filename: options };
     }
@@ -42,17 +42,28 @@ function exportTableToExcel(tableID, options = {}) {
         filename = 'export',
         excludeColumns = [],
         excludeClass = '.excludeThisClass',
-        removeLastColumn = false
+        removeLastColumn = false,
+        onlyVisible = true   // ✔ NEW FEATURE
     } = options;
 
-    let $table = $("#" + tableID).clone();
-
+    // 🔥 validasi table
     if ($("#" + tableID).length === 0) {
         console.error("Table tidak ditemukan:", tableID);
         return;
     }
 
-    // 🔹 Hapus kolom berdasarkan index
+    let $table = $("#" + tableID).clone();
+
+    // 🔥 FIX UTAMA: hanya ambil row yang visible
+    if (onlyVisible) {
+        $table.find("tr").each(function () {
+            if ($(this).css("display") === "none") {
+                $(this).remove();
+            }
+        });
+    }
+
+    // 🔹 Hapus kolom tertentu
     if (excludeColumns.length > 0) {
         $table.find("tr").each(function () {
             $(this).find("th, td").each(function (i) {
@@ -68,20 +79,20 @@ function exportTableToExcel(tableID, options = {}) {
         $table.find(excludeClass).remove();
     }
 
-    // 🔹 Optional hapus kolom terakhir
+    // 🔹 Hapus kolom terakhir
     if (removeLastColumn) {
         $table.find("tr").each(function () {
             $(this).find("td:last, th:last").remove();
         });
     }
 
-    // 🔹 Bersihkan elemen UI
-    $table.find("button, .dropdown-menu, .no-export").remove();
+    // 🔹 bersihkan UI element
+    $table.find("button, .dropdown-menu, .no-export, .filtered-hidden").remove();
 
-    // 🔹 Sanitasi nama file (biar aman)
+    // 🔹 sanitize filename
     const safeFilename = filename.replace(/[\\/:*?"<>|]/g, '_');
 
-    // 🔹 Export
+    // 🔥 EXPORT
     $table.table2excel({
         exclude: excludeClass,
         name: "Worksheet",
@@ -216,12 +227,12 @@ function setDurasiSLA(startTime, endTime, elementId, slaJam = 24) {
     }
 }
 
-function filterTableByKeywords(inputSelector, tableSelector){
+function filterTableByKeywords(inputSelector, tableSelector) {
 
     let spinner = $("#searchSpinner");
     spinner.removeClass("d-none");
 
-    setTimeout(function(){
+    setTimeout(function () {
 
         let keywords = $(inputSelector).val()
             .toLowerCase()
@@ -234,11 +245,16 @@ function filterTableByKeywords(inputSelector, tableSelector){
             let row = $(this);
             let rowText = row.text().toLowerCase();
 
-            let match = keywords.every(function(word){
+            let match = keywords.every(function (word) {
                 return rowText.indexOf(word) > -1;
             });
 
-            row.toggle(match);
+            // ✔ lebih stabil daripada toggle saja
+            if (match) {
+                row.show().addClass("filtered-visible");
+            } else {
+                row.hide().removeClass("filtered-visible");
+            }
 
         });
 
