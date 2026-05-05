@@ -13,7 +13,7 @@
                 <div class="d-flex overflow-auto min-h-30px">
                     <ul class="nav nav-stretch nav-line-tabs border-transparent fs-6 fw-bold flex-nowrap">
 						<li class="nav-item">
-							<a class="nav-link active" data-bs-toggle="tab" href="#tab1">Rawat Jalan</a>
+							<a class="nav-link active" data-bs-toggle="tab" href="#tab1">Rawat Inap</a>
 						</li>
 					</ul>
                 </div>
@@ -31,7 +31,7 @@
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Rawat Jalan</span>
+					<span class="card-label fw-bolder fs-3 mb-1">Kunjungan Rawat Inap</span>
 					<span class="text-muted mt-1 fw-bold fs-7">-</span>
 				</h3>
 				<div class="card-toolbar m-0">
@@ -52,21 +52,21 @@
 							<div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">More Actions</div>
 						</div>
 						<div class="menu-item px-3">
-							<a href="#" class="menu-link px-3" onclick="exportTableToExcel('tabledatacasemixrj', 'Casemix Rawat Jalan')">Download Excel</a>
+							<a href="#" class="menu-link px-3" onclick="exportTableToExcel('tabledatacasemixri', 'Casemix Rawat Inap')">Download Excel</a>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="card-body pt-0">
 				<div class="table-responsive mh-610px">
-                    <table class="table align-middle table-row-dashed fs-8 gy-2" id="tabledatacasemixrj">
+                    <table class="table align-middle table-row-dashed fs-8 gy-2" id="tabledatacasemixri">
                         <thead class="align-middle">
                             <tr class="fw-bolder text-muted bg-light">
                                 <th class="ps-4 rounded-start">#</th>
                                 <th>No MR</th>
                                 <th>Nama Pasien</th>
                                 <th>Tgl Masuk</th>
-                                <th>Poli Tujuan</th>
+                                <th>Ruangan</th>
                                 <th>Nama Dokter</th>
                                 <th>No SEP</th>
 								<th>Status</th>
@@ -75,7 +75,7 @@
                                 <th class="pe-4 text-end rounded-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="text-gray-600 fw-bold" id="resultdatacasemixrj"></tbody>
+                        <tbody class="text-gray-600 fw-bold" id="resultdatacasemixri"></tbody>
                     </table>
                 </div>
 			</div>
