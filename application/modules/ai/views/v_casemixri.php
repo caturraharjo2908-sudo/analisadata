@@ -66,6 +66,7 @@
                                 <th>No MR</th>
                                 <th>Nama Pasien</th>
                                 <th>Tgl Masuk</th>
+								<th>Tgl Keluar</th>
                                 <th>Ruangan</th>
                                 <th>Nama Dokter</th>
                                 <th>No SEP</th>

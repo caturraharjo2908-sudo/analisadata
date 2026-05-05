@@ -9,6 +9,7 @@
                         A.PASIEN_ID,
                         A.EPISODE_ID,
                         A.TGL_MASUK,
+                        A.TGL_KELUAR,
                         A.RUANGRWT_ID,
                         A.DOKTER_ID
                     FROM SR01_KEU_EPISODE A
@@ -24,10 +25,11 @@
                     SELECT EPISODE_ID FROM EP
                 ),
 
-                -- 🔥 KONSUL INTERNAL (1 ROW / EPISODE)
                 READMISI AS (
                     SELECT 
                         K.EPISODE_ID,
+                        MAX(K.PREV_DOKTER_ID) PREV_DOKTER_ID,
+                        MAX(K.NEXT_DOKTER_ID) NEXT_DOKTER_ID,
                         MAX(K.SEP_NOMOR) SEP_NOMOR,
                         MAX(K.STATUS_BPJS) STATUS_BPJS,
                         MAX(K.FLAG_KLAIM) FLAG_KLAIM
@@ -42,23 +44,38 @@
                     A.EPISODE_ID,
                     A.RUANGRWT_ID,
                     TO_CHAR(A.TGL_MASUK,'DD.MM.YYYY') TGLMASUK,
+                    TO_CHAR(A.TGL_KELUAR,'DD.MM.YYYY') TGLKELUAR,
 
                     GETPIDINT(A.PASIEN_ID) MRPASIEN,
                     SR01_GET_SUFFIX(A.PASIEN_ID) NAMAPASIEN,
 
                     MD.NAMA NAMADOKTER,
+                    DOKTERPREV.NAMA NAMADOKTERPREV,
+                    DOKTERNEXT.NAMA NAMADOKTERNEXT,
 
+                    K.PREV_DOKTER_ID,
+                    K.NEXT_DOKTER_ID,
                     K.SEP_NOMOR,
                     K.STATUS_BPJS STATUSBPJS_READMISI,
                     K.FLAG_KLAIM FLAGKLAIM_READMISI
 
                 FROM EP A
 
+                /* JOIN READMISI DULU */
+                LEFT JOIN READMISI K
+                    ON K.EPISODE_ID = A.EPISODE_ID
+
+                /* DOKTER SAAT INI */
                 LEFT JOIN SR01_MED_DOKTER_MS MD
                     ON MD.DOKTER_ID = A.DOKTER_ID
 
-                LEFT JOIN READMISI K
-                    ON K.EPISODE_ID = A.EPISODE_ID
+                /* DOKTER PREV */
+                LEFT JOIN SR01_MED_DOKTER_MS DOKTERPREV
+                    ON DOKTERPREV.DOKTER_ID = K.PREV_DOKTER_ID
+
+                /* DOKTER NEXT */
+                LEFT JOIN SR01_MED_DOKTER_MS DOKTERNEXT
+                    ON DOKTERNEXT.DOKTER_ID = K.NEXT_DOKTER_ID
             ";
 
             // 🔥 EXECUTE (POSITIONAL BIND)
