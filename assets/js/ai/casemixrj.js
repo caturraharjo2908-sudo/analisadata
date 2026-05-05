@@ -55,6 +55,35 @@ function casemixrj(startDate, endDate){
             if(data.responCode==="00"){
                 for(var i in result){
 
+                    let statusGabung = "";
+                    let statusSet = new Set();
+
+                    if(result[i].FLAGKLAIM_KONSULINTERNAL !== "Clear"){
+                        statusGabung += "<span class='badge badge-light-danger mb-3'>" + result[i].STATUSBPJS_KONSULINTERNAL + "</span>";
+                    }
+
+                    if(result[i].FLAGKLAIM_LAMPIRAN !== "Clear"){
+                        statusGabung += "<span class='badge badge-light-danger mb-3'>" + (result[i].STATUSBPJS_LAMPIRAN || '') + "</span>";
+                    }
+
+                    if(result[i].FLAGKLAIM_PROCEDURE !== "Clear"){
+                        statusGabung += "<span class='badge badge-light-danger mb-3'>" + (result[i].STATUSBPJS_PROCEDURE || '') + "</span>";
+                    }
+
+                    if (result[i].FLAGKLAIM_KONSULINTERNAL !== "Clear" && result[i].FLAGKLAIM_KONSULINTERNAL !== null) {
+                        statusSet.add(result[i].FLAGKLAIM_KONSULINTERNAL);
+                    }
+
+                    if (result[i].FLAGKLAIM_LAMPIRAN !== "Clear" && result[i].FLAGKLAIM_LAMPIRAN !== null) {
+                        statusSet.add(result[i].FLAGKLAIM_LAMPIRAN);
+                    }
+
+                    if (result[i].FLAGKLAIM_PROCEDURE !== "Clear" && result[i].FLAGKLAIM_PROCEDURE !== null) {
+                        statusSet.add(result[i].FLAGKLAIM_PROCEDURE);
+                    }
+
+                    let status = Array.from(statusSet).join(" ");
+
                     let btnaction = "<a class='dropdown-item btn btn-sm' href='#' onclick=\"openSejarah('" + result[i].PASIEN_ID + "')\"><i class='bi bi-clock-history text-primary pe-4'></i>Sejarah</a>";
 
                     tableresult +="<tr>";
@@ -65,16 +94,19 @@ function casemixrj(startDate, endDate){
                     tableresult +="<td>"+(result[i].NAMAPOLI || "")+"</td>"; 
                     tableresult +="<td>"+(result[i].NAMADOKTER || "")+"</td>";  
                     tableresult +="<td>"+(result[i].SEP_NOMOR || "")+"</td>";  
-                    if(result[i].FLAG_KLAIM!="Clear"){
-                        tableresult +="<td>"+("<span class='badge badge-light-danger'>"+result[i].STATUS_BPJS+"</span>" || "")+"</td>";
+
+                    tableresult += "<td><span class='badge badge-light-info'>" + status + "</span></td>";
+
+                    tableresult += "<td><div class='d-flex flex-wrap gap-1'>" + statusGabung + "</div></td>";
+                    
+                    if(result[i].FLAGKLAIM_KONSULINTERNAL!="Clear"){
                         tableresult +="<td>"+(result[i].DPJP_UTAMA || "")+"</td>";  
                     }else{
-                        tableresult +="<td></td>";
                         tableresult +="<td></td>";
                     }  
                       
                     
-                    tableresult += "<td class='fw-bold text-end pe-4'>";
+                    tableresult += "<td class='fw-bold text-end'>";
                     tableresult += "<div class='btn-group'>";
                     tableresult += "<button type='button' class='btn btn-light-primary dropdown-toggle btn-sm' data-bs-toggle='dropdown'>Actions</button>";
                     tableresult += "<div class='dropdown-menu'>";
