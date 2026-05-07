@@ -28,6 +28,8 @@
                 READMISI AS (
                     SELECT 
                         K.EPISODE_ID,
+                        MAX(K.GAP_PREV) GAP_PREV,
+                        MAX(K.GAP_NEXT) GAP_NEXT,
                         MAX(K.PREV_DOKTER_ID) PREV_DOKTER_ID,
                         MAX(K.NEXT_DOKTER_ID) NEXT_DOKTER_ID,
                         MAX(K.SEP_NOMOR) SEP_NOMOR,
@@ -37,6 +39,28 @@
                     JOIN TABLE(SIMRS_MANAGER.ALGORTIMABPJS.RI_READMISI(L.EPISODE_ID)) K
                         ON 1=1
                     GROUP BY K.EPISODE_ID
+                ),
+                                
+                PNEUMONIA AS (
+                    SELECT 
+                        M.EPISODE_ID,
+                        MAX(M.STATUS_BPJS) STATUS_BPJS,
+                        MAX(M.FLAG_KLAIM) FLAG_KLAIM
+                    FROM LIST_EP L
+                    JOIN TABLE(SIMRS_MANAGER.ALGORTIMABPJS.RI_PNEUMONIA(L.EPISODE_ID)) M
+                        ON 1=1
+                    GROUP BY M.EPISODE_ID
+                ),
+
+                LOS AS (
+                    SELECT 
+                        M.EPISODE_ID,
+                        MAX(M.STATUS_BPJS) STATUS_BPJS,
+                        MAX(M.FLAG_KLAIM) FLAG_KLAIM
+                    FROM LIST_EP L
+                    JOIN TABLE(SIMRS_MANAGER.ALGORTIMABPJS.RI_LOS(L.EPISODE_ID)) M
+                        ON 1=1
+                    GROUP BY M.EPISODE_ID
                 )
 
                 SELECT
@@ -53,17 +77,29 @@
                     DOKTERPREV.NAMA NAMADOKTERPREV,
                     DOKTERNEXT.NAMA NAMADOKTERNEXT,
 
+                    K.GAP_PREV,
+                    K.GAP_NEXT,
                     K.PREV_DOKTER_ID,
                     K.NEXT_DOKTER_ID,
                     K.SEP_NOMOR,
                     K.STATUS_BPJS STATUSBPJS_READMISI,
-                    K.FLAG_KLAIM FLAGKLAIM_READMISI
+                    DECODE(K.FLAG_KLAIM,NULL,'0',K.FLAG_KLAIM) FLAGKLAIM_READMISI,
+                    M.STATUS_BPJS STATUSBPJS_PNEUMONIA,
+                    DECODE(M.FLAG_KLAIM,NULL,'0',M.FLAG_KLAIM) FLAGKLAIM_PNEUMONIA,
+                    N.STATUS_BPJS STATUSBPJS_LOS,
+                    DECODE(N.FLAG_KLAIM,NULL,'0',N.FLAG_KLAIM) FLAGKLAIM_LOS
 
                 FROM EP A
 
                 /* JOIN READMISI DULU */
                 LEFT JOIN READMISI K
                     ON K.EPISODE_ID = A.EPISODE_ID
+
+                LEFT JOIN PNEUMONIA M
+                    ON M.EPISODE_ID = A.EPISODE_ID
+                
+                LEFT JOIN LOS N
+                    ON N.EPISODE_ID = A.EPISODE_ID
 
                 /* DOKTER SAAT INI */
                 LEFT JOIN SR01_MED_DOKTER_MS MD
@@ -76,6 +112,8 @@
                 /* DOKTER NEXT */
                 LEFT JOIN SR01_MED_DOKTER_MS DOKTERNEXT
                     ON DOKTERNEXT.DOKTER_ID = K.NEXT_DOKTER_ID
+                                
+                ORDER BY A.TGL_MASUK ASC, NAMAPASIEN ASC
             ";
 
             // 🔥 EXECUTE (POSITIONAL BIND)

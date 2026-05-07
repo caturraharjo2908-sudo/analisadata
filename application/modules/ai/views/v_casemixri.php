@@ -70,9 +70,9 @@
                                 <th>Ruangan</th>
                                 <th>Nama Dokter</th>
                                 <th>No SEP</th>
-								<th>Status</th>
-                                <th>Algoritma</th>
-                                <th>DPJP Utama</th>
+								<th>Algoritma</th>
+                                <th>Catatan</th>
+								<th>DPJP Re Admision</th>
                                 <th class="pe-4 text-end rounded-end">Actions</th>
                             </tr>
                         </thead>

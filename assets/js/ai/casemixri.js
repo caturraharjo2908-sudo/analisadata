@@ -55,33 +55,29 @@ function casemixri(startDate, endDate){
             if(data.responCode==="00"){
                 for(var i in result){
 
-                    let statusGabung   = "";
                     let dokterreadmisi = "";
-                    let statusSet      = new Set();
+                    let algoritmaArr = [];
+                    let catatanArr   = [];
 
-                    if(result[i].FLAGKLAIM_READMISI !== "Clear" && result[i].FLAGKLAIM_READMISI !== null){
-                        statusGabung += "<span class='badge badge-light-danger mb-3'>" + result[i].STATUSBPJS_READMISI + "</span>";
+                    if (result[i].FLAGKLAIM_READMISI !== "0") {
+                        algoritmaArr.push(result[i].FLAGKLAIM_READMISI);
+                        catatanArr.push(result[i].STATUSBPJS_READMISI);
                     }
 
-                    if(result[i].FLAGKLAIM_READMISI !== "Clear" && result[i].FLAGKLAIM_READMISI !== null && result[i].NAMADOKTERPREV !== null){
-                        dokterreadmisi += "<span class='badge badge-light-info mb-3'>" + result[i].NAMADOKTERPREV + "</span>";
+                    if (result[i].FLAGKLAIM_PNEUMONIA !== "0") {
+                        algoritmaArr.push(result[i].FLAGKLAIM_PNEUMONIA);
+                        catatanArr.push(result[i].STATUSBPJS_PNEUMONIA);
                     }
 
-                    if(result[i].FLAGKLAIM_READMISI !== "Clear" && result[i].FLAGKLAIM_READMISI !== null && result[i].NAMADOKTERNEXT !== null){
-                        dokterreadmisi += "<span class='badge badge-light-info mb-3'>" + result[i].NAMADOKTERNEXT + "</span>";
+                    if (result[i].FLAGKLAIM_LOS !== "0") {
+                        algoritmaArr.push(result[i].FLAGKLAIM_LOS);
+                        catatanArr.push(result[i].STATUSBPJS_LOS);
                     }
 
-                    if (result[i].FLAGKLAIM_READMISI !== "Clear" && result[i].FLAGKLAIM_READMISI !== null) {
-                        statusSet.add(result[i].FLAGKLAIM_READMISI);
-                    }
-
-
-
-
+                    /* JOIN */
+                    let algoritma = algoritmaArr.join(" | ");
+                    let catatan   = catatanArr.join(" | ");
                     
-
-                    let status         = Array.from(statusSet).join(" ");
-
                     let btnaction = "<a class='dropdown-item btn btn-sm' href='#' onclick=\"openSejarah('" + result[i].PASIEN_ID + "')\"><i class='bi bi-clock-history text-primary pe-4'></i>Sejarah</a>";
 
                     tableresult +="<tr>";
@@ -93,15 +89,11 @@ function casemixri(startDate, endDate){
                     tableresult +="<td>"+(result[i].RUANGRWT_ID || "")+"</td>"; 
                     tableresult +="<td>"+(result[i].NAMADOKTER || "")+"</td>";  
                     tableresult +="<td>"+(result[i].SEP_NOMOR || "")+"</td>";  
-
-                    tableresult += "<td><span class='badge badge-light-info'>" + status + "</span></td>";
-                    tableresult += "<td><div class='d-flex flex-wrap gap-1'>" + statusGabung + dokterreadmisi +"</div></td>";
+                    tableresult += "<td>"+ algoritma +"</td>";
+                    tableresult += "<td>"+ catatan + "</td>";
+                    tableresult += "<td>"+ dokterreadmisi +"</td>";
                     
-                    if(result[i].FLAGKLAIM_KONSULINTERNAL!="Clear"){
-                        tableresult +="<td>"+(result[i].DPJP_UTAMA || "")+"</td>";  
-                    }else{
-                        tableresult +="<td></td>";
-                    }  
+ 
                       
                     
                     tableresult += "<td class='fw-bold text-end'>";
