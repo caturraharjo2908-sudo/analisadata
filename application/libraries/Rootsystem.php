@@ -31,7 +31,7 @@
             self::$app->load->model("Modelroot");
             self::$segment1        = self::$app->uri->segment(1);
             self::$segment2        = self::$app->uri->segment(2);
-            self::$resultmenu      = self::$app->Modelroot->menu();
+            self::$resultmenu      = self::$app->Modelroot->menu($_SESSION['userid']);
         }
 
         public static function category(){
