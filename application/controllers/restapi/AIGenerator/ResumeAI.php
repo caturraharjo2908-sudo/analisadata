@@ -38,12 +38,10 @@ class ResumeAI extends REST_Controller {
         $this->load->model("ModelResumeAI","md");
     }
 
-    public function errorloging($episodeid){
-        
-    }
-
     public function generateresumeai_post($episodeid){
-        $body = [];
+        $body       = [];
+        $sourcedata = [];
+        $dataresume = [];
 
         $resultkunjungan      = $this->md->kunjungan($episodeid);
         $resultkeluhanutama   = $this->md->keluhanutama($episodeid);
@@ -85,9 +83,28 @@ class ResumeAI extends REST_Controller {
         $body['transaksi']             = $this->kunjungan($resultkunjungan);
         $body['metadata']['timestamp'] = date('Y-m-d H:i:s');
 
+        $dataresume['PASIEN_ID']         = $body['transaksi']['pasienid'];
+        $dataresume['EPISODE_ID']        = $body['transaksi']['episodeid'];
+        $dataresume['DOKTER_ID']         = $body['transaksi']['dokterid'];
+        $dataresume['RUANG_ID']          = $body['transaksi']['ruangid'];
+        $dataresume['CREATED_BY']        = $body['transaksi']['dokterid'];
+        $dataresume['KONDISI']           = $body['transaksi']['pulang'];
+        $dataresume['KONDISI_PULANG_ID'] = $body['transaksi']['pulangid'];
+        $dataresume['KELUHAN']           = $body['sourcedata'][0]['riwayat']['keluhanutama']['text'];
+        $dataresume['GEJALA']            = $body['sourcedata'][0]['riwayat']['gejala']['text'];
+        $dataresume['RIWAYATPS']         = $body['sourcedata'][0]['riwayat']['sekarang']['text'];
+        $dataresume['RIWAYATPD']         = $body['sourcedata'][0]['riwayat']['dahulu']['text'];
+        $dataresume['STATUS']            = $body['sourcedata'][0]['pemeriksaanfisik']['statuslokalis']['text'];
+        $dataresume['VITAL']             = $body['sourcedata'][0]['pemeriksaanfisik']['ttv']['text'];
+        $dataresume['INDIKASI']          = $body['sourcedata'][0]['diagnosis']['indikasiranap']['text'];
+        $dataresume['LAINNYA']           = $body['sourcedata'][0]['penunjang']['radiologi']['text'];
+        $dataresume['OBATP']             = $body['sourcedata'][0]['penunjang']['obat']['pulang']['text'];
+        $dataresume['KONTROL']           = $body['sourcedata'][0]['kontrolulang']['text'];
+        $dataresume['INTRUKSI']          = $body['sourcedata'][0]['segeradibawa']['text'];
+
+        $this->md->insertresume($dataresume);
+
         $this->response($body, 200);
-
-
     }
 
     public function kunjungan($result){
