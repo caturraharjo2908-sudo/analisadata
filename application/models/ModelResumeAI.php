@@ -240,6 +240,24 @@
             return $recordset;
         }
 
+        function cekdata($episodeid){
+            $query =
+                    "
+                        SELECT A.*
+                        FROM WEB_CO_RESUME_RANAP_AI A
+                        WHERE A.EPISODE_ID='".$episodeid."'
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->result();
+            return $recordset;
+        }
+
+        function updateresume($episodeid,$data){           
+            $sql =   $this->db->update("WEB_CO_RESUME_RANAP_AI",$data,array("EPISODE_ID"=>$episodeid));
+            return $sql;
+        }
+
         function insertresume($data){           
             $sql =   $this->db->insert("WEB_CO_RESUME_RANAP_AI",$data);
             return $sql;

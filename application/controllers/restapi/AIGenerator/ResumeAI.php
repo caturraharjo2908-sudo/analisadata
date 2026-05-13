@@ -102,7 +102,14 @@ class ResumeAI extends REST_Controller {
         $dataresume['KONTROL']           = $body['sourcedata'][0]['kontrolulang']['text'];
         $dataresume['INTRUKSI']          = $body['sourcedata'][0]['segeradibawa']['text'];
 
-        $this->md->insertresume($dataresume);
+        $resultcekdata = $this->md->cekdata($body['transaksi']['episodeid']);
+
+        if(empty($resultcekdata)){
+            $this->md->insertresume($dataresume);
+        }else{
+            $this->md->updateresume($body['transaksi']['episodeid'],$dataresume);
+        }
+        
 
         $this->response($body, 200);
     }
