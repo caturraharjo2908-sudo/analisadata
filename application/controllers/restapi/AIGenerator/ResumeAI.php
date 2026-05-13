@@ -38,6 +38,10 @@ class ResumeAI extends REST_Controller {
         $this->load->model("ModelResumeAI","md");
     }
 
+    public function errorloging($episodeid){
+        
+    }
+
     public function generateresumeai_post($episodeid){
         $body = [];
 
@@ -82,6 +86,8 @@ class ResumeAI extends REST_Controller {
         $body['metadata']['timestamp'] = date('Y-m-d H:i:s');
 
         $this->response($body, 200);
+
+
     }
 
     public function kunjungan($result){
@@ -312,6 +318,7 @@ class ResumeAI extends REST_Controller {
         $parsed = $this->extractRiwayatClinical($text);
 
         return [
+            "baseon"  => $text,
             "raw"  => $parsed['raw'],
             "text" => $parsed['text'],
             "len"  => mb_strlen($parsed['text'])
@@ -816,7 +823,7 @@ class ResumeAI extends REST_Controller {
         $defaults = [
 
             "startKeywords" => [
-                'riw', 'riwayat', 'h/o', 'history',
+                'rw', 'riw', 'riwayat', 'h/o', 'history',
                 'ckd', 'dm', 'hipertensi',
                 'dx', 'tx'
             ],
