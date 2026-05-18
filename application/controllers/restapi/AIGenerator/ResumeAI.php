@@ -274,28 +274,144 @@ class ResumeAI extends REST_Controller {
         ];
     }
 
+    // public function sekarang($result){
+    //     $body = [];
+
+    //     $text                   = trim($result->S2);
+    //     $rencanateripiperawatan = trim($result->P);
+
+    //     $lines = preg_split('/\n+/', $text);
+
+    //     $cleaned = [];
+
+    //     foreach ($lines as $line) {
+
+    //         $lower = strtolower(trim($line));
+
+    //         // =========================
+    //         // 🔥 SKIP SEMUA RIWAYAT BLOCK
+    //         // =========================
+    //         if (
+    //             strpos($lower, 'riwayat sosial') !== false ||
+    //             strpos($lower, 'riwayat nikah') !== false ||
+    //             strpos($lower, 'riwayat obstetri') !== false ||
+    //             strpos($lower, 'riwayat kb') !== false ||
+    //             strpos($lower, 'riwayat menstruasi') !== false ||
+    //             strpos($lower, 'rpd') !== false ||
+    //             strpos($lower, 'rpk') !== false ||
+    //             strpos($lower, 'rpo') !== false
+    //         ) {
+    //             continue;
+    //         }
+
+    //         // =========================
+    //         // 🔥 SKIP DETAIL SOSIAL & ADMIN
+    //         // =========================
+    //         if (
+    //             preg_match('/\b(irt|suami|istri|karyawan|pekerjaan|pendidikan|sma|smk|stm|merokok|minum alkohol|alkohol)\b/i', $lower)
+    //         ) {
+    //             continue;
+    //         }
+
+    //         // =========================
+    //         // 🔥 SKIP OBSTETRI DETAIL (1. 2. 3. 4. Hamil ini)
+    //         // =========================
+    //         if (preg_match('/^\d+\./', $lower)) {
+    //             continue;
+    //         }
+
+    //         if (preg_match('/\b(hamil ini|abortus|spontan|bbl|aterm|dikuret)\b/i', $lower)) {
+    //             continue;
+    //         }
+
+    //         // =========================
+    //         // KEEP ONLY CURRENT CONDITION
+    //         // =========================
+    //         $cleaned[] = $line;
+    //     }
+
+    //     $text = implode("\n", $cleaned);
+
+    //     $body['text']   = $text;
+    //     $body['len']    = mb_strlen($text);
+
+    //     return $body;
+    // }
+
     public function sekarang($result){
         $body = [];
 
-        $text = trim($result->S2);
+        // =========================
+        // AMBIL S2 & P
+        // =========================
+        $s2 = trim($result->S2 ?? "");
+        $p  = trim($result->P ?? "");
 
-        $lines = preg_split('/\n+/', $text);
+        if ($s2 === "" && $p === "") {
+            return [
+                "text" => "",
+                "len"  => 0
+            ];
+        }
 
-        $cleaned = [];
+        // =========================
+        // NORMALISASI
+        // =========================
+        $clean = function($text) {
+
+            $text = str_replace("\r", "\n", $text);
+            $text = preg_replace('/\n{2,}/', "\n", $text);
+            $text = preg_replace('/[ \t]+/', ' ', $text);
+
+            return trim($text);
+        };
+
+        $s2 = $clean($s2);
+        $p  = $clean($p);
+
+        // =========================
+        // AMBIL HANYA BAGIAN "Rencana Terapi"
+        // =========================
+        if (preg_match('/rencana\s*terapi/i', $p)) {
+
+            $parts = preg_split(
+                '/rencana\s*terapi\s*(di)?\s*perawatan/i',
+                $p
+            );
+
+            $p = trim($parts[1] ?? "");
+        }
+
+        // =========================
+        // FILTER BARIS P
+        // =========================
+        $lines = preg_split('/\n+/', $p);
+
+        $cleanedP = [];
 
         foreach ($lines as $line) {
 
-            $lower = strtolower(trim($line));
+            $line = trim($line);
+            $lower = strtolower($line);
+
+            if ($line === "") {
+                continue;
+            }
 
             // =========================
-            // 🔥 SKIP SEMUA RIWAYAT BLOCK
+            // ❌ HAPUS "USUL : ..."
+            // =========================
+            if (preg_match('/^usul\s*:/i', $lower)) {
+                continue;
+            }
+
+            // =========================
+            // skip riwayat
             // =========================
             if (
                 strpos($lower, 'riwayat sosial') !== false ||
                 strpos($lower, 'riwayat nikah') !== false ||
                 strpos($lower, 'riwayat obstetri') !== false ||
-                strpos($lower, 'riwayat kb') !== false ||
-                strpos($lower, 'riwayat menstruasi') !== false ||
                 strpos($lower, 'rpd') !== false ||
                 strpos($lower, 'rpk') !== false ||
                 strpos($lower, 'rpo') !== false
@@ -303,48 +419,67 @@ class ResumeAI extends REST_Controller {
                 continue;
             }
 
-            // =========================
-            // 🔥 SKIP DETAIL SOSIAL & ADMIN
-            // =========================
-            if (
-                preg_match('/\b(irt|suami|istri|karyawan|pekerjaan|pendidikan|sma|smk|stm|merokok|minum alkohol|alkohol)\b/i', $lower)
-            ) {
-                continue;
-            }
-
-            // =========================
-            // 🔥 SKIP OBSTETRI DETAIL (1. 2. 3. 4. Hamil ini)
-            // =========================
-            if (preg_match('/^\d+\./', $lower)) {
-                continue;
-            }
-
-            if (preg_match('/\b(hamil ini|abortus|spontan|bbl|aterm|dikuret)\b/i', $lower)) {
-                continue;
-            }
-
-            // =========================
-            // KEEP ONLY CURRENT CONDITION
-            // =========================
-            $cleaned[] = $line;
+            $cleanedP[] = $line;
         }
 
-        $text = implode("\n", $cleaned);
+        // =========================
+        // GABUNG S2 + P
+        // =========================
+        $final = [];
 
-        $body['text'] = $text;
-        $body['len']  = mb_strlen($text);
+        if ($s2 !== "") {
+            $final[] = $s2;
+        }
 
-        return $body;
+        if (!empty($cleanedP)) {
+            $final[] = implode("\n", $cleanedP);
+        }
+
+        $output = implode("\n\n", $final);
+
+        return [
+            "text" => $output,
+            "len"  => mb_strlen($output)
+        ];
     }
 
+    // public function dahulu($result){
+    //     $text = $result->S3;
+
+    //     $parsed = $this->extractRiwayatClinical($text);
+
+    //     return [
+    //         "baseon" => $text,
+    //         "raw"    => $parsed['raw'],
+    //         "text"   => $parsed['text'],
+    //         "len"    => mb_strlen($parsed['text'])
+    //     ];
+    // }
+
     public function dahulu($result){
-        $text = $result->S3;
+        $text = $result->S3 ?? "";
 
         $parsed = $this->extractRiwayatClinical($text);
 
+        if (
+            empty($parsed) ||
+            !is_array($parsed) ||
+            empty($parsed['text'])
+        ) {
+            return [
+                "baseon" => $text,
+                "raw"    => preg_split('/\n+/', trim($text)),
+                "text"   => $text,
+                "len"    => mb_strlen($text)
+            ];
+        }
+
         return [
             "baseon" => $text,
-            "raw"    => $parsed['raw'],
+            "raw"    => is_array($parsed['raw'] ?? null)
+                ? $parsed['raw']
+                : preg_split('/\n+/', trim($parsed['raw'] ?? $text)),
+
             "text"   => $parsed['text'],
             "len"    => mb_strlen($parsed['text'])
         ];
@@ -527,208 +662,276 @@ class ResumeAI extends REST_Controller {
         return $sentence;
     }
 
+    // public function extractSymptomsPerItem($text){
+
+    //     $items = [];
+
+    //     // =========================
+    //     // NORMALISASI
+    //     // =========================
+    //     $text = strtolower($text);
+
+    //     // 🔥 FIX:
+    //     // lindungi format jam seperti 23.00 / 04.30
+    //     $text = preg_replace('/(\d)\.(\d)/', '$1__DOT__$2', $text);
+
+    //     // 🔥 hapus bullet
+    //     $text = preg_replace('/^\s*\*\s*/m', '', $text);
+
+    //     // newline → koma
+    //     $text = preg_replace('/\n+/', ',', $text);
+
+    //     // titik → koma
+    //     $text = preg_replace('/\.\s*/', ',', $text);
+
+    //     // restore jam
+    //     $text = str_replace('__DOT__', '.', $text);
+
+    //     $text = preg_replace('/\s*-\s*/', ',', $text);
+
+    //     // "dan" → koma
+    //     $text = preg_replace('/\s+dan\s+/i', ',', $text);
+
+    //     // =========================
+    //     // 🔥 TAMBAHAN:
+    //     // daftar gejala klinis neurologi & umum
+    //     // =========================
+    //     $clinicalPatterns = [
+    //         'kejang',
+    //         'post kejang',
+    //         'kelojotan',
+    //         'kelojotan seluruh tubuh',
+    //         'mata mendelik',
+    //         'mata mendelik keatas',
+    //         'memejamkan mata',
+    //         'meracau',
+    //         'bicara tidak jelas',
+    //         'kalimat tidak jelas',
+    //         'kontak ada',
+    //         'buka mata spontan',
+    //         'melokalisir nyeri',
+    //         'nyeri',
+    //         'sakit',
+    //         'pegal',
+    //         'lemas',
+    //         'demam',
+    //         'mual',
+    //         'muntah',
+    //         'sesak',
+    //         'batuk'
+    //     ];
+
+    //     // =========================
+    //     // SPLIT
+    //     // =========================
+    //     $parts = preg_split('/,/', $text);
+
+    //     foreach ($parts as $part){
+
+    //         $part = trim($part);
+    //         if ($part === '') continue;
+
+    //         // =========================
+    //         // CLEAN PREFIX (IMPORTANT)
+    //         // =========================
+    //         $part = preg_replace('/^pasien.*?keluhan/i', '', $part);
+    //         $part = preg_replace('/^terdapat/i', '', $part);
+    //         $part = preg_replace('/^keluhan( lainnya)? seperti/i', '', $part);
+    //         $part = preg_replace('/^disertai/i', '', $part);
+    //         $part = preg_replace('/^bab\s*/', '', $part);
+    //         $part = preg_replace('/^bak\s*/', '', $part);
+
+    //         // 🔥 tambahan cleanup
+    //         $part = preg_replace('/^dikatakan oleh keluarga/i', '', $part);
+    //         $part = preg_replace('/^saat tiba di.*?pasien/i', '', $part);
+
+    //         // hapus sisa *
+    //         $part = str_replace('*', '', $part);
+
+    //         $part = trim($part);
+    //         if ($part === '') continue;
+
+    //         // =========================
+    //         // SKIP NEGATIVE
+    //         // =========================
+    //         if (preg_match('/\(-\)|-\s*$/', $part)) continue;
+
+    //         // 🔥 skip kalimat negatif
+    //         if (preg_match('/\b(tidak|tidak ada|disangkal|menyangkal|tanpa|negatif)\b/i', $part)) {
+    //             continue;
+    //         }
+
+    //         // =========================
+    //         // POSITIVE DETECTION (DIKETATKAN)
+    //         // =========================
+    //         $isPositive = false;
+
+    //         // simbol +
+    //         if (preg_match('/\(\+\)|\+$/', $part)) {
+    //             $isPositive = true;
+    //         }
+
+    //         // keyword klinis lama
+    //         if (preg_match('/\b(mual|muntah|nyeri|demam|lemas|batuk|sesak|keringat|mata merah|diare|encer)\b/i', $part)){
+    //             $isPositive = true;
+    //         }
+
+    //         // =========================
+    //         // 🔥 TAMBAHAN:
+    //         // deteksi gejala klinis neurologi
+    //         // =========================
+    //         foreach ($clinicalPatterns as $pattern){
+
+    //             if (preg_match('/\b' . preg_quote($pattern, '/') . '\b/i', $part)){
+    //                 $isPositive = true;
+    //                 break;
+    //             }
+    //         }
+
+    //         if (!$isPositive) continue;
+
+    //         // =========================
+    //         // FINAL CLEAN
+    //         // =========================
+    //         $clean = preg_replace('/\(\+\)|\+$/', '', $part);
+    //         $clean = preg_replace('/pasien.*$/', '', $clean);
+
+    //         // 🔥 hapus jam & durasi
+    //         $clean = preg_replace('/pukul\s*\d{1,2}\.\d{1,2}/i', '', $clean);
+    //         $clean = preg_replace('/selama\s*\+?\-?\s*\d+\s*menit/i', '', $clean);
+    //         $clean = preg_replace('/durasi\s*\d+\-?\d*\s*menit/i', '', $clean);
+
+    //         // 🔥 hapus angka sisa
+    //         $clean = preg_replace('/^\d+\.\d+/', '', $clean);
+
+    //         // 🔥 hapus sisa kata tidak penting
+    //         $clean = preg_replace('/^dengan\s*/', '', $clean);
+    //         $clean = preg_replace('/^yang\s*/', '', $clean);
+
+    //         // 🔥 rapikan tanda baca
+    //         $clean = trim($clean, ' .,:;"');
+
+    //         // =========================
+    //         // 🔥 EKSTRAK PATTERN SPESIFIK
+    //         // =========================
+    //         foreach ($clinicalPatterns as $pattern){
+
+    //             if (preg_match('/\b' . preg_quote($pattern, '/') . '\b/i', $clean)){
+    //                 $items[] = trim($pattern);
+    //             }
+    //         }
+
+    //         // fallback lama
+    //         if ($clean !== ''){
+    //             $items[] = $clean;
+    //         }
+    //     }
+
+    //     // =========================
+    //     // 🔥 FILTER SAMPAH
+    //     // =========================
+    //     $items = array_filter($items, function($v){
+
+    //         $v = trim($v);
+
+    //         if ($v === '') return false;
+
+    //         // buang angka/random
+    //         if (preg_match('/^\d+$/', $v)) return false;
+
+    //         if (mb_strlen($v) <= 2) return false;
+
+    //         // buang noise
+    //         if (preg_match('/^(selama|durasi|menit|jam)$/i', $v)) return false;
+
+    //         return true;
+    //     });
+
+    //     // =========================
+    //     // UNIQUE
+    //     // =========================
+    //     $items = array_values(array_unique($items));
+
+    //     // =========================
+    //     // FORMAT
+    //     // =========================
+    //     $formatted = [];
+
+    //     foreach ($items as $item){
+    //         $formatted[] = ucfirst(trim($item)) . ' (+)';
+    //     }
+
+    //     return [
+    //         "raw"  => $items,
+    //         "text" => implode(', ', $formatted)
+    //     ];
+    // }
+
     public function extractSymptomsPerItem($text){
 
-    $items = [];
+        $items = [];
 
-    // =========================
-    // NORMALISASI
-    // =========================
-    $text = strtolower($text);
+        $text = strtolower($text);
 
-    // 🔥 FIX:
-    // lindungi format jam seperti 23.00 / 04.30
-    $text = preg_replace('/(\d)\.(\d)/', '$1__DOT__$2', $text);
-
-    // 🔥 hapus bullet
-    $text = preg_replace('/^\s*\*\s*/m', '', $text);
-
-    // newline → koma
-    $text = preg_replace('/\n+/', ',', $text);
-
-    // titik → koma
-    $text = preg_replace('/\.\s*/', ',', $text);
-
-    // restore jam
-    $text = str_replace('__DOT__', '.', $text);
-
-    $text = preg_replace('/\s*-\s*/', ',', $text);
-
-    // "dan" → koma
-    $text = preg_replace('/\s+dan\s+/i', ',', $text);
-
-    // =========================
-    // 🔥 TAMBAHAN:
-    // daftar gejala klinis neurologi & umum
-    // =========================
-    $clinicalPatterns = [
-        'kejang',
-        'post kejang',
-        'kelojotan',
-        'kelojotan seluruh tubuh',
-        'mata mendelik',
-        'mata mendelik keatas',
-        'memejamkan mata',
-        'meracau',
-        'bicara tidak jelas',
-        'kalimat tidak jelas',
-        'kontak ada',
-        'buka mata spontan',
-        'melokalisir nyeri',
-        'nyeri',
-        'sakit',
-        'pegal',
-        'lemas',
-        'demam',
-        'mual',
-        'muntah',
-        'sesak',
-        'batuk'
-    ];
-
-    // =========================
-    // SPLIT
-    // =========================
-    $parts = preg_split('/,/', $text);
-
-    foreach ($parts as $part){
-
-        $part = trim($part);
-        if ($part === '') continue;
+        $text = preg_replace('/\r/', '', $text);
+        $text = preg_replace('/\n+/', "\n", $text);
 
         // =========================
-        // CLEAN PREFIX (IMPORTANT)
+        // AMBIL KALIMAT UTAMA
         // =========================
-        $part = preg_replace('/^pasien.*?keluhan/i', '', $part);
-        $part = preg_replace('/^terdapat/i', '', $part);
-        $part = preg_replace('/^keluhan( lainnya)? seperti/i', '', $part);
-        $part = preg_replace('/^disertai/i', '', $part);
-        $part = preg_replace('/^bab\s*/', '', $part);
-        $part = preg_replace('/^bak\s*/', '', $part);
+        $sentences = preg_split('/\n+|\./', $text);
 
-        // 🔥 tambahan cleanup
-        $part = preg_replace('/^dikatakan oleh keluarga/i', '', $part);
-        $part = preg_replace('/^saat tiba di.*?pasien/i', '', $part);
+        foreach ($sentences as $sentence){
 
-        // hapus sisa *
-        $part = str_replace('*', '', $part);
+            $sentence = trim($sentence);
+            if ($sentence === '') continue;
 
-        $part = trim($part);
-        if ($part === '') continue;
+            // hapus prefix
+            $sentence = preg_replace('/^(pasien|datang|dengan|keluhan)\s*/i', '', $sentence);
 
-        // =========================
-        // SKIP NEGATIVE
-        // =========================
-        if (preg_match('/\(-\)|-\s*$/', $part)) continue;
-
-        // 🔥 skip kalimat negatif
-        if (preg_match('/\b(tidak|tidak ada|disangkal|menyangkal|tanpa|negatif)\b/i', $part)) {
-            continue;
-        }
-
-        // =========================
-        // POSITIVE DETECTION (DIKETATKAN)
-        // =========================
-        $isPositive = false;
-
-        // simbol +
-        if (preg_match('/\(\+\)|\+$/', $part)) {
-            $isPositive = true;
-        }
-
-        // keyword klinis lama
-        if (preg_match('/\b(mual|muntah|nyeri|demam|lemas|batuk|sesak|keringat|mata merah|diare|encer)\b/i', $part)){
-            $isPositive = true;
-        }
-
-        // =========================
-        // 🔥 TAMBAHAN:
-            // deteksi gejala klinis neurologi
-            // =========================
-            foreach ($clinicalPatterns as $pattern){
-
-                if (preg_match('/\b' . preg_quote($pattern, '/') . '\b/i', $part)){
-                    $isPositive = true;
-                    break;
-                }
+            // skip negatif
+            if (preg_match('/\b(tidak|disangkal|menyangkal|tanpa|negatif)\b/i', $sentence)) {
+                continue;
             }
 
-            if (!$isPositive) continue;
-
-            // =========================
-            // FINAL CLEAN
-            // =========================
-            $clean = preg_replace('/\(\+\)|\+$/', '', $part);
-            $clean = preg_replace('/pasien.*$/', '', $clean);
-
-            // 🔥 hapus jam & durasi
-            $clean = preg_replace('/pukul\s*\d{1,2}\.\d{1,2}/i', '', $clean);
-            $clean = preg_replace('/selama\s*\+?\-?\s*\d+\s*menit/i', '', $clean);
-            $clean = preg_replace('/durasi\s*\d+\-?\d*\s*menit/i', '', $clean);
-
-            // 🔥 hapus angka sisa
-            $clean = preg_replace('/^\d+\.\d+/', '', $clean);
-
-            // 🔥 hapus sisa kata tidak penting
-            $clean = preg_replace('/^dengan\s*/', '', $clean);
-            $clean = preg_replace('/^yang\s*/', '', $clean);
-
-            // 🔥 rapikan tanda baca
-            $clean = trim($clean, ' .,:;"');
-
-            // =========================
-            // 🔥 EKSTRAK PATTERN SPESIFIK
-            // =========================
-            foreach ($clinicalPatterns as $pattern){
-
-                if (preg_match('/\b' . preg_quote($pattern, '/') . '\b/i', $clean)){
-                    $items[] = trim($pattern);
-                }
+            // hanya proses jika ada tanda positif / kata klinis
+            if (!preg_match('/\+|\b(sesak|nyeri|mual|muntah|demam|lemas|batuk|bengkak|pucat)\b/i', $sentence)) {
+                continue;
             }
 
-            // fallback lama
-            if ($clean !== ''){
-                $items[] = $clean;
+            // =========================
+            // SPLIT SUB-GEJALA
+            // =========================
+            $parts = preg_split('/,/', $sentence);
+
+            foreach ($parts as $part){
+
+                $part = trim($part);
+                if ($part === '') continue;
+
+                // bersihkan prefix kecil
+                $part = preg_replace('/^(dan|serta|disertai)\s*/i', '', $part);
+
+                // skip kalau terlalu pendek
+                if (mb_strlen($part) < 3) continue;
+
+                // bersihkan tanda +
+                $part = str_replace(['(+)', '+'], '', $part);
+
+                $part = trim($part);
+
+                if ($part === '') continue;
+
+                $items[] = ucfirst($part) . ' (+)';
             }
         }
 
-        // =========================
-        // 🔥 FILTER SAMPAH
-        // =========================
-        $items = array_filter($items, function($v){
-
-            $v = trim($v);
-
-            if ($v === '') return false;
-
-            // buang angka/random
-            if (preg_match('/^\d+$/', $v)) return false;
-
-            if (mb_strlen($v) <= 2) return false;
-
-            // buang noise
-            if (preg_match('/^(selama|durasi|menit|jam)$/i', $v)) return false;
-
-            return true;
-        });
-
-        // =========================
-        // UNIQUE
-        // =========================
+        // unique
         $items = array_values(array_unique($items));
-
-        // =========================
-        // FORMAT
-        // =========================
-        $formatted = [];
-
-        foreach ($items as $item){
-            $formatted[] = ucfirst(trim($item)) . ' (+)';
-        }
 
         return [
             "raw"  => $items,
-            "text" => implode(', ', $formatted)
+            "text" => implode("\n", $items)
         ];
     }
 

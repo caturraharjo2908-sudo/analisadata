@@ -69,7 +69,7 @@
         function keluhanutama($episodeid){
             $query =
                     "
-                        SELECT A.S, A.A, A.O, A.S2, A.S3
+                        SELECT A.S, A.A, A.O, A.S2, A.S3, A.P
                         FROM WEB_CO_DIAGNOSA_DT A
                         WHERE A.EPISODE_ID = '".$episodeid."'
                         AND   A.FLAG_HAPUS = '1'
