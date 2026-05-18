@@ -39,7 +39,7 @@
                 $json["responCode"] = "00";
                 $json["responHead"] = "success";
                 $json["responDesc"] = "Hey, ".$datasession->NAMA."<br>Welcome Back and Have a nice day";
-                $json["url"]        = base_url()."index.php/dashboard/kpi";
+                $json["url"]        = base_url()."index.php/dashboard/welcome";
             } else {
                 $json["responCode"] = "01";
                 $json["responHead"] = "error";

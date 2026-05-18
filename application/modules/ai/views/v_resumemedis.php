@@ -47,18 +47,18 @@
             <div class="mb-5">
                 <label class="fs-5 fw-bold mb-3">Keluhan Utama</label>
                 <div class="row">
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>SOAP</label>
                         <textarea class="form-control" id="keluhanutama_soap" rows="4"></textarea>
-                    </div>
-                    <div class="col-md-4">
+                    </div> -->
+                    <div class="col-md-12">
                         <label>AI</label>
                         <textarea class="form-control" id="keluhanutama_ai" rows="4" readonly></textarea>
                     </div>
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>Final Resume</label>
                         <textarea class="form-control" id="keluhanutama_final" rows="4"></textarea>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -66,18 +66,18 @@
             <div class="mb-5">
                 <label class="fs-5 fw-bold mb-3">Gejala Penyerta</label>
                 <div class="row">
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>SOAP</label>
                         <textarea class="form-control" id="gejala_soap" rows="4"></textarea>
-                    </div>
-                    <div class="col-md-4">
+                    </div> -->
+                    <div class="col-md-12">
                         <label>AI</label>
                         <textarea class="form-control" id="gejala_ai" rows="4" readonly></textarea>
                     </div>
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>Final Resume</label>
                         <textarea class="form-control" id="gejala_final" rows="4"></textarea>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -85,18 +85,18 @@
             <div class="mb-5">
                 <label class="fs-5 fw-bold mb-3">Riwayat Penyakit Sekarang</label>
                 <div class="row">
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>SOAP</label>
                         <textarea class="form-control" id="rps_soap" rows="4"></textarea>
-                    </div>
-                    <div class="col-md-4">
+                    </div> -->
+                    <div class="col-md-12">
                         <label>AI</label>
                         <textarea class="form-control" id="rps_ai" rows="4" readonly></textarea>
                     </div>
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>Final Resume</label>
                         <textarea class="form-control" id="rps_final" rows="4"></textarea>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -104,18 +104,18 @@
             <div class="mb-5">
                 <label class="fs-5 fw-bold mb-3">Riwayat Penyakit Dahulu</label>
                 <div class="row">
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>SOAP</label>
                         <textarea class="form-control" id="rpd_soap" rows="4"></textarea>
-                    </div>
-                    <div class="col-md-4">
+                    </div> -->
+                    <div class="col-md-12">
                         <label>AI</label>
                         <textarea class="form-control" id="rpd_ai" rows="4" readonly></textarea>
                     </div>
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>Final Resume</label>
                         <textarea class="form-control" id="rpd_final" rows="4"></textarea>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -127,22 +127,22 @@
                 <div class="row">
 
                     <!-- SOAP -->
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>SOAP</label>
                         <textarea class="form-control" id="ttv_soap" rows="4" placeholder="Input dari SOAP..."></textarea>
-                    </div>
+                    </div> -->
 
                     <!-- AI -->
-                    <div class="col-md-4">
+                    <div class="col-md-12">
                         <label>AI</label>
                         <textarea class="form-control" id="ttv_ai" rows="4" placeholder="Hasil AI..." readonly></textarea>
                     </div>
 
                     <!-- FINAL -->
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>Final Resume</label>
                         <textarea class="form-control" id="ttv_final" rows="4" placeholder="Final dokter..."></textarea>
-                    </div>
+                    </div> -->
 
                 </div>
             </div>
@@ -153,22 +153,22 @@
                 <div class="row">
 
                     <!-- SOAP -->
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>SOAP</label>
                         <textarea class="form-control" id="lokalis_soap" rows="4" placeholder="Input dari SOAP..."></textarea>
-                    </div>
+                    </div> -->
 
                     <!-- AI -->
-                    <div class="col-md-4">
+                    <div class="col-md-12">
                         <label>AI</label>
                         <textarea class="form-control" id="lokalis_ai" rows="4" placeholder="Hasil AI..." readonly></textarea>
                     </div>
 
                     <!-- FINAL -->
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <label>Final Resume</label>
                         <textarea class="form-control" id="lokalis_final" rows="4" placeholder="Final dokter..."></textarea>
-                    </div>
+                    </div> -->
 
                 </div>
             </div>

@@ -28,7 +28,7 @@ $(document).on("click", ".btn-apply", function (e) {
     casemixri(startDate, endDate);
 });
 
-casemixri(startDate, endDate);
+// casemixri(startDate, endDate);
 
 function casemixri(startDate, endDate){
     $.ajax({
@@ -77,6 +77,10 @@ function casemixri(startDate, endDate){
                     /* JOIN */
                     let algoritma = algoritmaArr.join(" | ");
                     let catatan   = catatanArr.join(" | ");
+
+                    if(algoritma!=""){
+                        algoritma += "Potensi Review BPJS : "+algoritma;
+                    }
                     
                     let btnaction = "<a class='dropdown-item btn btn-sm' href='#' onclick=\"openSejarah('" + result[i].PASIEN_ID + "')\"><i class='bi bi-clock-history text-primary pe-4'></i>Sejarah</a>";
 

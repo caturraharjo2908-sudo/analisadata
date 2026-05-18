@@ -28,7 +28,7 @@ $(document).on("click", ".btn-apply", function (e) {
     casemixrj(startDate, endDate);
 });
 
-casemixrj(startDate, endDate);
+// casemixrj(startDate, endDate);
 
 function casemixrj(startDate, endDate){
     $.ajax({
