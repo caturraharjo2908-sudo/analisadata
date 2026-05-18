@@ -21,22 +21,20 @@
                     "
                         WITH RESUME AS (
                             SELECT
-                                PASIEN_ID,
                                 EPISODE_ID,
-                                TRANS_CO,
+                                TRANS_ID,
                                 CREATED_DATE
                             FROM (
                                 SELECT
-                                    PASIEN_ID,
                                     EPISODE_ID,
-                                    TRANS_CO,
+                                    TRANS_ID,
                                     CREATED_DATE,
                                     ROW_NUMBER() OVER (
-                                        PARTITION BY PASIEN_ID, EPISODE_ID
+                                        PARTITION BY EPISODE_ID
                                         ORDER BY CREATED_DATE
                                     ) RN
-                                FROM WEB_CO_RESUME_RANAP
-                                WHERE SHOW_ITEM <> '0'
+                                FROM SR01_RESUME_MEDIS
+                                WHERE AKTIF <> '0'
                             )
                             WHERE RN = 1
                         ),
@@ -55,7 +53,7 @@
 
                                 UPPER(DOK.NAMA) AS DPJP,
 
-                                RS.TRANS_CO AS TRANSCORESUME,
+                                RS.TRANS_ID AS TRANSCORESUME,
                                 TO_CHAR(RS.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS') AS CREATEDDATERESUME,
 
                                 /* =========================
@@ -102,8 +100,7 @@
                                 AND RKN.AKTIF = '1'
 
                             LEFT JOIN RESUME RS
-                                ON RS.PASIEN_ID = A.PASIEN_ID
-                                AND RS.EPISODE_ID = A.EPISODE_ID
+                                ON RS.EPISODE_ID = A.EPISODE_ID
 
                             WHERE A.LOKASI_ID = '001'
                             AND A.AKTIF = '1'
