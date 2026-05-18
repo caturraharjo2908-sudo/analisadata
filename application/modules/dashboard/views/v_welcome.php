@@ -4,7 +4,7 @@
             <div class="card-body pt-9 pb-0">
                 <div class="d-flex flex-wrap flex-sm-nowrap mb-5">
                     <div>
-                        <h1>Welcome Page</h1>
+                        <h1>Welcome Back <?php echo $_SESSION['name']?></h1>
                         <p class="mb-0">
 							Selamat datang di aplikasi monitoring dan manajemen layanan. Sistem ini digunakan untuk membantu pengelolaan data, monitoring performa,  serta mendukung operasional layanan secara efisien dan terintegrasi.
 						</p>
