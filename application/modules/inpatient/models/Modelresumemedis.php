@@ -22,7 +22,7 @@
                         WITH RESUME AS (
                             SELECT
                                 EPISODE_ID,
-                                TRANS_ID,
+                                TRANS_ID TRANSCO,
                                 CREATED_DATE
                             FROM (
                                 SELECT
@@ -37,9 +37,29 @@
                                 WHERE AKTIF <> '0'
                             )
                             WHERE RN = 1
-                        ),
+                            ),
 
-                        BASE AS (
+                            RESUMEWEBCO AS (
+                            SELECT
+                                EPISODE_ID,
+                                TRANS_CO TRANSCO,
+                                CREATED_DATE
+                            FROM (
+                                SELECT
+                                    EPISODE_ID,
+                                    TRANS_CO,
+                                    CREATED_DATE,
+                                    ROW_NUMBER() OVER (
+                                        PARTITION BY EPISODE_ID
+                                        ORDER BY CREATED_DATE
+                                    ) RN
+                                FROM WEB_CO_RESUME_RANAP
+                                WHERE SHOW_ITEM <> '0'
+                            )
+                            WHERE RN = 1
+                            ),
+
+                            BASE AS (
                             SELECT  
                                 A.PASIEN_ID,
                                 A.EPISODE_ID,
@@ -53,18 +73,34 @@
 
                                 UPPER(DOK.NAMA) AS DPJP,
 
-                                RS.TRANS_ID AS TRANSCORESUME,
-                                TO_CHAR(RS.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS') AS CREATEDDATERESUME,
+                                /* ====================================
+                                    AMBIL DARI RESUME / RESUMEWEBCO
+                                ==================================== */
+
+                                COALESCE(RS.TRANSCO, RSW.TRANSCO) AS TRANSCORESUME,
+
+                                TO_CHAR(
+                                    COALESCE(RS.CREATED_DATE, RSW.CREATED_DATE),
+                                    'DD.MM.YYYY HH24:MI:SS'
+                                ) AS CREATEDDATERESUME,
 
                                 /* =========================
-                                DURASI SUDAH DI-NORMALIZE
+                                    DURASI SUDAH DI-NORMALIZE
                                 ========================= */
+
                                 GREATEST(
                                     CASE
-                                        WHEN RS.EPISODE_ID IS NULL THEN
-                                            SR01_HITUNG_UMURDLMHARI(A.TGL_KELUAR, TRUNC(SYSDATE))+1
+                                        WHEN RS.EPISODE_ID IS NULL 
+                                                AND RSW.EPISODE_ID IS NULL THEN
+                                            SR01_HITUNG_UMURDLMHARI(
+                                                A.TGL_KELUAR,
+                                                TRUNC(SYSDATE)
+                                            ) + 1
                                         ELSE
-                                            SR01_HITUNG_UMURDLMHARI(A.TGL_KELUAR, TRUNC(A.TGL_KELUAR))
+                                            SR01_HITUNG_UMURDLMHARI(
+                                                A.TGL_KELUAR,
+                                                TRUNC(A.TGL_KELUAR)
+                                            )
                                     END
                                 ,0) AS DURASI,
 
@@ -102,23 +138,22 @@
                             LEFT JOIN RESUME RS
                                 ON RS.EPISODE_ID = A.EPISODE_ID
 
+                            LEFT JOIN RESUMEWEBCO RSW
+                                ON RSW.EPISODE_ID = A.EPISODE_ID
+
                             WHERE A.LOKASI_ID = '001'
                             AND A.AKTIF = '1'
                             AND A.JENIS_EPISODE = 'I'
                             AND A.STATUS_EPISODE = '55'
-                            
+
                             AND A.TGL_KELUAR >= TO_DATE('01-01-" . $periode . "','DD-MM-YYYY')
                             AND A.TGL_KELUAR <  TO_DATE('01-01-" . ($periode+1) . "','DD-MM-YYYY')
 
-                        ),
+                            ),
 
-                        FINAL AS (
+                            FINAL AS (
                             SELECT
                                 BASE.*,
-
-                                /* =========================
-                                KPI CLEAN LOGIC
-                                ========================= */
 
                                 CASE
                                     WHEN DURASI <= 2 THEN 1
@@ -131,11 +166,11 @@
                                 END AS STATUSLEBIH
 
                             FROM BASE
-                        )
+                            )
 
-                        SELECT *
-                        FROM FINAL
-                        ORDER BY TRANSCORESUME DESC, TGL_KELUAR ASC, DPJP ASC
+                            SELECT *
+                            FROM FINAL
+                            ORDER BY TRANSCORESUME DESC, TGL_KELUAR ASC, DPJP ASC
                     ";
 
             $recordset = $this->db->query($query);
