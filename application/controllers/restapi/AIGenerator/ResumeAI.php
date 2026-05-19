@@ -262,10 +262,13 @@ class ResumeAI extends REST_Controller {
     }
 
     public function gejala($result){
-        $text   = $result->S2;
 
-        $parsed   = $this->extractPositiveClinicalFlags($text);
-        $joined   = implode(", ", $parsed['raw']);
+        $text = $result->S2;
+
+        $parsed = $this->extractPositiveClinicalFlags($text);
+
+        $joined = implode(", ", $parsed['raw']);
+
         $symptoms = $this->extractSymptomsPerItem($joined);
 
         return [
@@ -275,6 +278,21 @@ class ResumeAI extends REST_Controller {
             "len"    => mb_strlen($symptoms['text'])
         ];
     }
+
+    // public function gejala($result){
+    //     $text   = $result->S2;
+
+    //     $parsed   = $this->extractPositiveClinicalFlags($text);
+    //     $joined   = implode(", ", $parsed['raw']);
+    //     $symptoms = $this->extractSymptomsPerItem($joined);
+
+    //     return [
+    //         "baseon" => $text,
+    //         "raw"    => $symptoms['raw'],
+    //         "text"   => $symptoms['text'],
+    //         "len"    => mb_strlen($symptoms['text'])
+    //     ];
+    // }
 
     // public function sekarang($result){
     //     $body = [];
@@ -577,29 +595,30 @@ class ResumeAI extends REST_Controller {
             'negatif'
         ];
 
-        // 🔥 split ringan (jangan hancurkan struktur)
-        $sentences = preg_split('/(?<=[\.\!\?])\s+|\n+/', trim($text));
+        // =========================
+        // SPLIT KALIMAT (AMAN DARI 23.00 / 04.30)
+        // =========================
+        $text = preg_replace('/(?<=\d)\.(?=\d)/', '<DOT>', trim($text));
+
+        $sentences = preg_split('/(?<=[\.\!\?])\s+|\n+/', $text);
 
         foreach ($sentences as $sentence){
 
             $sentence = trim($sentence);
             if ($sentence === '') continue;
 
+            $sentence = str_replace('<DOT>', '.', $sentence);
+
             $lower = strtolower($sentence);
 
             $positive = false;
             $negative = false;
 
-            // =========================
-            // SYMBOL DETECTION
-            // =========================
+            // SYMBOL
             if (preg_match('/\(\+\)|\+/', $lower)) $positive = true;
-            // if (preg_match('/\(-\)|-/', $lower)) $negative = true;
             if (preg_match('/\(-\)/', $lower)) $negative = true;
 
-            // =========================
-            // KEYWORD DETECTION
-            // =========================
+            // KEYWORDS
             foreach ($negativeMarkers as $neg){
                 if (strpos($lower, $neg) !== false) $negative = true;
             }
@@ -608,12 +627,10 @@ class ResumeAI extends REST_Controller {
                 if (strpos($lower, $pos) !== false) $positive = true;
             }
 
-            // =========================
-            // DECISION
-            // =========================
             if ($negative && !$positive) continue;
 
             if ($positive){
+
                 $clean = $this->removeNegativeSegments($sentence);
 
                 if ($clean !== ''){
@@ -624,7 +641,7 @@ class ResumeAI extends REST_Controller {
 
         return [
             "raw"  => array_values(array_unique($raw)),
-            "text" => implode("\n", $raw) // 🔥 JANGAN pakai titik
+            "text" => implode("\n", $raw)
         ];
     }
 
@@ -866,6 +883,9 @@ class ResumeAI extends REST_Controller {
         $text = preg_replace('/\r/', '', $text);
         $text = preg_replace('/\n+/', "\n", $text);
 
+        // 🔥 FIX: amankan angka desimal (23.00 / 04.30)
+        $text = preg_replace('/(?<=\d)\.(?=\d)/', '<DOT>', $text);
+
         // =========================
         // SPLIT KALIMAT
         // =========================
@@ -876,6 +896,9 @@ class ResumeAI extends REST_Controller {
             $sentence = trim($sentence);
 
             if ($sentence === '') continue;
+
+            // restore titik desimal
+            $sentence = str_replace('<DOT>', '.', $sentence);
 
             // =========================
             // HAPUS PREFIX UMUM
@@ -918,16 +941,13 @@ class ResumeAI extends REST_Controller {
                     ||
                     preg_match('/-\s*$/', $part)
                     ||
-                    preg_match(
-                        '/\b(tidak|disangkal|menyangkal|tanpa|negatif)\b/i',
-                        $part
-                    )
+                    preg_match('/\b(tidak|disangkal|menyangkal|tanpa|negatif)\b/i', $part)
                 ) {
                     continue;
                 }
 
                 // =========================
-                // HARUS ADA POSITIF / GEJALA
+                // HARUS ADA GEJALA / POSITIF
                 // =========================
                 if (
                     !preg_match(
@@ -960,24 +980,19 @@ class ResumeAI extends REST_Controller {
                 }
 
                 // =========================
-                // BERSIHKAN SIMBOL
+                // CLEAN SYMBOL (+) TANPA MERUSAK +- (DURASI)
                 // =========================
-                $part = str_replace(
-                    ['(+)', '+'],
-                    '',
-                    $part
-                );
+
+                // hapus hanya (+)
+                $part = str_replace('(+)', '', $part);
+
+                // hapus + tunggal tapi JANGAN ganggu +- (durasi)
+                $part = preg_replace('/(?<!-)\+(?!-)/', '', $part);
 
                 $part = trim($part);
 
-                // =========================
-                // SKIP PENDEK
-                // =========================
                 if (mb_strlen($part) < 3) continue;
 
-                // =========================
-                // FINAL
-                // =========================
                 $items[] = ucfirst($part) . ' (+)';
             }
         }
