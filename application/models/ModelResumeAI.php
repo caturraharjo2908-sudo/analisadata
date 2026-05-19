@@ -243,7 +243,7 @@
         function cekdata($episodeid){
             $query =
                     "
-                        SELECT A.*
+                        SELECT A.EPISODE_ID
                         FROM WEB_CO_RESUME_RANAP_AI A
                         WHERE A.EPISODE_ID='".$episodeid."'
                     ";

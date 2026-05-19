@@ -39,6 +39,7 @@ class ResumeAI extends REST_Controller {
     }
 
     public function generateresumeai_post($episodeid){
+
         $body       = [];
         $sourcedata = [];
         $dataresume = [];
@@ -52,9 +53,9 @@ class ResumeAI extends REST_Controller {
 
         if (empty($resultkeluhanutama)) {
 
-            $body['status']  = false;
-            $body['code']    = 404;
-            $body['message'] = "Source Data Tidak Tersedia";
+            $body['status']                = false;
+            $body['code']                  = 404;
+            $body['message']               = "Source Data Tidak Tersedia";
             $body['metadata']['timestamp'] = date('Y-m-d H:i:s');
 
             return $this->response($body, 404);
@@ -101,6 +102,7 @@ class ResumeAI extends REST_Controller {
         $dataresume['OBATP']             = $body['sourcedata'][0]['penunjang']['obat']['pulang']['text'];
         $dataresume['KONTROL']           = $body['sourcedata'][0]['kontrolulang']['text'];
         $dataresume['INTRUKSI']          = $body['sourcedata'][0]['segeradibawa']['text'];
+        $dataresume['SHOW_ITEM']         = "1";
 
         $resultcekdata = $this->md->cekdata($body['transaksi']['episodeid']);
 
@@ -339,7 +341,6 @@ class ResumeAI extends REST_Controller {
     // }
 
     public function sekarang($result){
-        $body = [];
 
         // =========================
         // AMBIL S2 & P
@@ -347,17 +348,10 @@ class ResumeAI extends REST_Controller {
         $s2 = trim($result->S2 ?? "");
         $p  = trim($result->P ?? "");
 
-        if ($s2 === "" && $p === "") {
-            return [
-                "text" => "",
-                "len"  => 0
-            ];
-        }
-
         // =========================
         // NORMALISASI
         // =========================
-        $clean = function($text) {
+        $clean = function($text){
 
             $text = str_replace("\r", "\n", $text);
             $text = preg_replace('/\n{2,}/', "\n", $text);
@@ -370,9 +364,9 @@ class ResumeAI extends REST_Controller {
         $p  = $clean($p);
 
         // =========================
-        // AMBIL HANYA BAGIAN "Rencana Terapi"
+        // AMBIL HANYA BAGIAN TERAPI DI P
         // =========================
-        if (preg_match('/rencana\s*terapi/i', $p)) {
+        if ($p !== "" && preg_match('/rencana\s*terapi/i', $p)) {
 
             $parts = preg_split(
                 '/rencana\s*terapi\s*(di)?\s*perawatan/i',
@@ -389,25 +383,21 @@ class ResumeAI extends REST_Controller {
 
         $cleanedP = [];
 
-        foreach ($lines as $line) {
+        foreach ($lines as $line){
 
-            $line = trim($line);
+            $line  = trim($line);
             $lower = strtolower($line);
 
             if ($line === "") {
                 continue;
             }
 
-            // =========================
-            // ❌ HAPUS "USUL : ..."
-            // =========================
+            // hapus "USUL :"
             if (preg_match('/^usul\s*:/i', $lower)) {
                 continue;
             }
 
-            // =========================
             // skip riwayat
-            // =========================
             if (
                 strpos($lower, 'riwayat sosial') !== false ||
                 strpos($lower, 'riwayat nikah') !== false ||
@@ -422,20 +412,17 @@ class ResumeAI extends REST_Controller {
             $cleanedP[] = $line;
         }
 
-        // =========================
-        // GABUNG S2 + P
-        // =========================
-        $final = [];
+        $p = implode("\n", $cleanedP);
 
+        // =========================
+        // PILIH SALAH SATU
+        // PRIORITAS S2
+        // =========================
         if ($s2 !== "") {
-            $final[] = $s2;
+            $output = $s2;
+        } else {
+            $output = $p;
         }
-
-        if (!empty($cleanedP)) {
-            $final[] = implode("\n", $cleanedP);
-        }
-
-        $output = implode("\n\n", $final);
 
         return [
             "text" => $output,
@@ -873,60 +860,131 @@ class ResumeAI extends REST_Controller {
 
         $text = strtolower($text);
 
+        // =========================
+        // NORMALISASI
+        // =========================
         $text = preg_replace('/\r/', '', $text);
         $text = preg_replace('/\n+/', "\n", $text);
 
         // =========================
-        // AMBIL KALIMAT UTAMA
+        // SPLIT KALIMAT
         // =========================
         $sentences = preg_split('/\n+|\./', $text);
 
         foreach ($sentences as $sentence){
 
             $sentence = trim($sentence);
+
             if ($sentence === '') continue;
 
-            // hapus prefix
-            $sentence = preg_replace('/^(pasien|datang|dengan|keluhan)\s*/i', '', $sentence);
-
-            // skip negatif
-            if (preg_match('/\b(tidak|disangkal|menyangkal|tanpa|negatif)\b/i', $sentence)) {
-                continue;
-            }
-
-            // hanya proses jika ada tanda positif / kata klinis
-            if (!preg_match('/\+|\b(sesak|nyeri|mual|muntah|demam|lemas|batuk|bengkak|pucat)\b/i', $sentence)) {
-                continue;
-            }
+            // =========================
+            // HAPUS PREFIX UMUM
+            // =========================
+            $sentence = preg_replace(
+                '/^(pasien|datang|dengan|keluhan)\s*/i',
+                '',
+                $sentence
+            );
 
             // =========================
-            // SPLIT SUB-GEJALA
+            // SPLIT PER ITEM
             // =========================
             $parts = preg_split('/,/', $sentence);
 
             foreach ($parts as $part){
 
                 $part = trim($part);
+
                 if ($part === '') continue;
 
-                // bersihkan prefix kecil
-                $part = preg_replace('/^(dan|serta|disertai)\s*/i', '', $part);
-
-                // skip kalau terlalu pendek
-                if (mb_strlen($part) < 3) continue;
-
-                // bersihkan tanda +
-                $part = str_replace(['(+)', '+'], '', $part);
+                // =========================
+                // BERSIHKAN PREFIX KECIL
+                // =========================
+                $part = preg_replace(
+                    '/^(dan|serta|disertai)\s*/i',
+                    '',
+                    $part
+                );
 
                 $part = trim($part);
 
                 if ($part === '') continue;
 
+                // =========================
+                // SKIP NEGATIF
+                // =========================
+                if (
+                    preg_match('/\(-\)/i', $part)
+                    ||
+                    preg_match('/-\s*$/', $part)
+                    ||
+                    preg_match(
+                        '/\b(tidak|disangkal|menyangkal|tanpa|negatif)\b/i',
+                        $part
+                    )
+                ) {
+                    continue;
+                }
+
+                // =========================
+                // HARUS ADA POSITIF / GEJALA
+                // =========================
+                if (
+                    !preg_match(
+                        '/
+                        \(\+\)
+                        |
+                        \+
+                        |
+                        \b(
+                            sesak|
+                            nyeri|
+                            mual|
+                            muntah|
+                            demam|
+                            lemas|
+                            batuk|
+                            bengkak|
+                            pucat|
+                            pusing|
+                            diare|
+                            kejang|
+                            pilek|
+                            kembung
+                        )\b
+                        /ix',
+                        $part
+                    )
+                ) {
+                    continue;
+                }
+
+                // =========================
+                // BERSIHKAN SIMBOL
+                // =========================
+                $part = str_replace(
+                    ['(+)', '+'],
+                    '',
+                    $part
+                );
+
+                $part = trim($part);
+
+                // =========================
+                // SKIP PENDEK
+                // =========================
+                if (mb_strlen($part) < 3) continue;
+
+                // =========================
+                // FINAL
+                // =========================
                 $items[] = ucfirst($part) . ' (+)';
             }
         }
 
-        // unique
+        // =========================
+        // UNIQUE
+        // =========================
         $items = array_values(array_unique($items));
 
         return [
@@ -936,6 +994,7 @@ class ResumeAI extends REST_Controller {
     }
 
     public function extractTtv($text){
+
         $lines = preg_split('/\n+/', $text);
 
         $raw = [];
@@ -948,20 +1007,41 @@ class ResumeAI extends REST_Controller {
             'kes',
             'kesadaran',
             'gcs',
+
+            // tekanan darah
             'tekanan darah',
-            'frekuensi',
+            'td',
+
+            // nadi
+            'frekuensi nadi',
             'nadi',
+            'hr',
+
+            // napas
+            'frekuensi napas',
             'napas',
             'respirasi',
+            'rr',
+
+            // suhu
             'suhu',
+            't°',
+            'temp',
+            'temperature',
+
+            // saturasi
             'saturasi',
+            'spo2',
+
+            // antropometri
             'bb',
             'tb',
+
             'ews'
         ];
 
         $stopKeywords = [
-            'Kepala',
+            'kepala',
             'mata',
             'hidung',
             'mulut',
@@ -983,11 +1063,14 @@ class ResumeAI extends REST_Controller {
         // HELPER
         // =========================
         $matchKeyword = function ($line, $keywords) {
+
             foreach ($keywords as $keyword) {
+
                 if (stripos($line, $keyword) !== false) {
                     return true;
                 }
             }
+
             return false;
         };
 
@@ -997,30 +1080,62 @@ class ResumeAI extends REST_Controller {
         foreach ($lines as $line) {
 
             $line = trim($line);
-            if ($line === '') continue;
+
+            if ($line === '') {
+                continue;
+            }
 
             $lower = strtolower($line);
 
-            // 🔥 STOP kalau masuk pemeriksaan fisik / lab
+            // =========================
+            // STOP SECTION
+            // =========================
             if (
-                preg_match('/^(' . implode('|', $stopKeywords) . ')\s*:/i', $line) ||
-                preg_match('/^\./', $line) // .HEMATOLOGI dll
+                preg_match(
+                    '/^(' . implode('|', $stopKeywords) . ')\s*:/i',
+                    $line
+                ) ||
+                preg_match('/^\./', $line)
             ) {
-                break; // ⛔ langsung berhenti total
+                break;
             }
 
             // =========================
             // AMBIL TTV
             // =========================
             if (
-                $matchKeyword($lower, $ttvKeywords) ||
-                preg_match('/(mmhg|bpm|celcius|%|kg|cm|kali\/mnt)/i', $line)
+
+                // keyword utama
+                $matchKeyword($lower, $ttvKeywords)
+
+                ||
+
+                // satuan umum TTV
+                preg_match(
+                    '/(
+                        mmhg|
+                        bpm|
+                        celcius|
+                        °c|
+                        %|
+                        kg|
+                        cm|
+                        kali\/mnt|
+                        x\/menit|
+                        x\/mnt|
+                        \/menit
+                    )/ix',
+                    $line
+                )
             ) {
+
                 $raw[] = $line;
             }
         }
 
-        // hapus duplikat
+        // =========================
+        // HAPUS DUPLIKAT
+        // =========================
         $raw = array_values(array_unique($raw));
 
         $finalText = implode("\n", $raw);
