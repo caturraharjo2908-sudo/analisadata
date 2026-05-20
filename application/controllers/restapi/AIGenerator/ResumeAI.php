@@ -428,7 +428,7 @@ class ResumeAI extends REST_Controller {
     }
 
     public function dahulu($result){
-        $text = $result->S3 ?? "";
+        $text = trim($result->S3) ?? "";
 
         $parsed = $this->extractRiwayatClinical($text);
 
@@ -489,7 +489,7 @@ class ResumeAI extends REST_Controller {
     }
 
     public function ttv($result){
-        $text = $result->O;
+        $text = trim($result->O);
 
         $parsed = $this->extractTtv($text);
 
@@ -578,8 +578,7 @@ class ResumeAI extends REST_Controller {
         // =========================
         // SPLIT KALIMAT (AMAN DARI 23.00 / 04.30)
         // =========================
-        $text = preg_replace('/(?<=\d)\.(?=\d)/', '<DOT>', trim($text));
-
+        $text      = preg_replace('/(?<=\d)\.(?=\d)/', '<DOT>', trim($text));
         $sentences = preg_split('/(?<=[\.\!\?])\s+|\n+/', $text);
 
         foreach ($sentences as $sentence){
