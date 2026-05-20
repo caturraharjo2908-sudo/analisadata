@@ -28,7 +28,23 @@
             $query =
                     "
                         SELECT X.*,
-                            (SELECT KETERANGAN FROM SR01_MED_POLI_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND POLI_ID=X.POLIID)POLIKLINIK
+                            (SELECT KETERANGAN FROM SR01_MED_POLI_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND POLI_ID=X.POLIID)POLIKLINIK,
+                            CASE
+                                WHEN X.ASALSPRI = 'A001' THEN
+                                'POLI'
+                                ELSE
+                                CASE
+                                    WHEN X.RUANGRWT_ID LIKE 'KBY%' THEN
+                                    'BAYI'
+                                    ELSE
+                                    CASE
+                                        WHEN X.RUANGIDFIRST LIKE 'NICU%' AND X.RUANGRWT_ID LIKE 'PERINA%' THEN
+                                        'NPP'
+                                        ELSE
+                                        'NORMAL'
+                                    END
+                                END
+                            END STATUSJENIS
                         FROM(
                             SELECT A.PASIEN_ID, EPISODE_ID, PULANG_ID, DOKTER_ID, STATUS_EPISODE, RUANGRWT_ID,
                                 GETPIDINT(A.PASIEN_ID)MRPASIEN,
@@ -36,7 +52,10 @@
                                 TO_CHAR(A.TGL_MASUK,'DD.MM.YYYY')TGLMASUK, TO_CHAR(A.TGL_KELUAR,'DD.MM.YYYY HH24:MI:SS')TGLKELUAR,
                                 (SELECT KETERANGAN  FROM SR01_MED_MSKKLR_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND KATEGORI_ID='MP' AND MSKKLR_ID=A.PULANG_ID)CARAPULANG,
                                 (SELECT NAMA        FROM SR01_MED_DOKTER_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND DOKTER_ID=A.DOKTER_ID)NAMADOKTER,
-                                (SELECT DEF_POLI_ID FROM SR01_MED_DOKTER_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND DOKTER_ID=A.DOKTER_ID)POLIID
+                                (SELECT DEF_POLI_ID FROM SR01_MED_DOKTER_MS WHERE LOKASI_ID='001' AND AKTIF='1' AND DOKTER_ID=A.DOKTER_ID)POLIID,
+                                (SELECT RUANG_ID    FROM SR01_KEU_TRANSKMR_IT WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID ORDER BY CREATED_DATE ASC FETCH FIRST 1 ROW ONLY)RUANGIDFIRST,
+                                (SELECT ASAL_POLI   FROM WEB_CO_MINTA_RANAP WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID ORDER BY CREATED_DATE ASC FETCH FIRST 1 ROW ONLY)ASALSPRI,
+                                (SELECT POLI_ID     FROM WEB_CO_MINTA_RANAP WHERE LOKASI_ID='001' AND AKTIF='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID ORDER BY CREATED_DATE ASC FETCH FIRST 1 ROW ONLY)POLIIDLAST
                                 
                             FROM SR01_KEU_EPISODE A
                             WHERE A.LOKASI_ID='001'
@@ -69,7 +88,7 @@
         function keluhanutama($episodeid){
             $query =
                     "
-                        SELECT A.S, A.A, A.O, A.S2, A.S3, A.P
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
                         FROM WEB_CO_DIAGNOSA_DT A
                         WHERE A.EPISODE_ID = '".$episodeid."'
                         AND   A.FLAG_HAPUS = '1'
@@ -77,6 +96,116 @@
                         AND   A.POLI_ID='UGD01'
                         AND   A.CREATED_BY LIKE 'DR%'
                         ORDER BY A.CREATED_DATE DESC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamapoli($poliid,$pasienid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.PASIEN_ID = '".$pasienid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.POLI_ID='".$poliid."'
+                        ORDER BY A.CREATED_DATE DESC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamaranappoli($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID IS NOT NULL
+                        ORDER BY A.CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamabayibarulahir($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID='KBY'
+                        ORDER BY A.CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamabayibarulahirdokter($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID='KBY'
+                        AND   A.CREATED_BY LIKE 'DR%'
+                        ORDER BY A.CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamabayibarulahirnicu($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID='NICU'
+                        ORDER BY A.CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamabayibarulahirnicudokter($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID='NICU'
+                        AND   A.CREATED_BY LIKE 'DR%'
+                        ORDER BY A.CREATED_DATE ASC
                         FETCH FIRST 1 ROW ONLY
                     ";
 
