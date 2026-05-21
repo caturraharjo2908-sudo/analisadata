@@ -15,7 +15,7 @@
                         AND   A.JENIS_EPISODE  = 'I'
                         AND   A.STATUS_EPISODE = '55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        AND   A.TGL_KELUAR >= TRUNC(SYSDATE, 'MM')
+                        AND   A.TGL_KELUAR >= TRUNC(SYSDATE)
                         AND NOT EXISTS (
                             SELECT 1
                             FROM WEB_CO_RESUME_RANAP_AI B
