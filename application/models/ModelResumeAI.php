@@ -34,7 +34,7 @@
                                 'POLI'
                                 ELSE
                                 CASE
-                                    WHEN X.RUANGRWT_ID LIKE 'KBY%' THEN
+                                    WHEN X.RUANGRWT_ID LIKE 'KBY%' OR (X.RUANGRWT_ID LIKE 'PERINA%' AND X.RUANGIDFIRST LIKE 'KBY%') THEN
                                     'BAYI'
                                     ELSE
                                     CASE
