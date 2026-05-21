@@ -15,14 +15,7 @@
                         AND   A.JENIS_EPISODE  = 'I'
                         AND   A.STATUS_EPISODE = '55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        -- AND   A.TGL_KELUAR >= TRUNC(SYSDATE)
-                        AND EXISTS (
-                            SELECT 1
-                            FROM WEB_CO_RESUME_RANAP B
-                            WHERE B.KONTROL IN ('Kontrol ulang ke POLI PENYAKIT DALAM','Kontrol ulang ke POLI ORTHOPEDI','Kontrol ulang ke POLI ANAK','Kontrol ulang ke fasilitas kesehatan pertama','Kontrol ulang ke POLI SARAF','Kontrol ulang ke POLI JANTUNG','Kontrol ulang ke POLI PARU')
-                            AND   B.CREATED_BY LIKE 'DR%'
-                            AND B.EPISODE_ID = A.EPISODE_ID
-                        ) 
+                        AND   A.TGL_KELUAR >= TRUNC(SYSDATE)
                         AND NOT EXISTS (
                             SELECT 1
                             FROM WEB_CO_RESUME_RANAP_AI B
