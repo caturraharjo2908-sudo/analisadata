@@ -31,7 +31,7 @@
                                     CREATED_DATE,
                                     ROW_NUMBER() OVER (
                                         PARTITION BY EPISODE_ID
-                                        ORDER BY CREATED_DATE
+                                        ORDER BY CREATED_DATE ASC
                                     ) RN
                                 FROM SR01_RESUME_MEDIS
                                 WHERE AKTIF <> '0'
@@ -51,10 +51,31 @@
                                     CREATED_DATE,
                                     ROW_NUMBER() OVER (
                                         PARTITION BY EPISODE_ID
-                                        ORDER BY CREATED_DATE
+                                        ORDER BY CREATED_DATE ASC
                                     ) RN
                                 FROM WEB_CO_RESUME_RANAP
-                                WHERE SHOW_ITEM <> '0'
+                                WHERE SHOW_ITEM = '1'
+                                AND   CREATED_BY LIKE 'DR%'
+                            )
+                            WHERE RN = 1
+                            ),
+
+                            RESUMEAI AS (
+                            SELECT
+                                EPISODE_ID,
+                                TRANS_CO TRANSCO,
+                                CREATED_DATE
+                            FROM (
+                                SELECT
+                                    EPISODE_ID,
+                                    TRANS_CO,
+                                    CREATED_DATE,
+                                    ROW_NUMBER() OVER (
+                                        PARTITION BY EPISODE_ID
+                                        ORDER BY CREATED_DATE ASC
+                                    ) RN
+                                FROM WEB_CO_RESUME_RANAP_AI
+                                WHERE SHOW_ITEM = '1'
                             )
                             WHERE RN = 1
                             ),
@@ -77,31 +98,19 @@
                                     AMBIL DARI RESUME / RESUMEWEBCO
                                 ==================================== */
 
-                                COALESCE(RS.TRANSCO, RSW.TRANSCO) AS TRANSCORESUME,
+                                COALESCE(RSWAI.TRANSCO, RS.TRANSCO, RSW.TRANSCO) AS TRANSCORESUME,
 
-                                TO_CHAR(
-                                    COALESCE(RS.CREATED_DATE, RSW.CREATED_DATE),
-                                    'DD.MM.YYYY HH24:MI:SS'
-                                ) AS CREATEDDATERESUME,
+                                TO_CHAR(COALESCE(RSWAI.CREATED_DATE, RS.CREATED_DATE, RSW.CREATED_DATE),'DD.MM.YYYY HH24:MI:SS') AS CREATEDDATERESUME,
 
                                 /* =========================
                                     DURASI SUDAH DI-NORMALIZE
                                 ========================= */
 
                                 GREATEST(
-                                    CASE
-                                        WHEN RS.EPISODE_ID IS NULL 
-                                                AND RSW.EPISODE_ID IS NULL THEN
-                                            SR01_HITUNG_UMURDLMHARI(
-                                                A.TGL_KELUAR,
-                                                TRUNC(SYSDATE)
-                                            ) + 1
-                                        ELSE
-                                            SR01_HITUNG_UMURDLMHARI(
-                                                A.TGL_KELUAR,
-                                                TRUNC(A.TGL_KELUAR)
-                                            )
-                                    END
+                                    SR01_HITUNG_UMURDLMHARI(
+                                        COALESCE(RSWAI.CREATED_DATE, RS.CREATED_DATE, RSW.CREATED_DATE),
+                                        TRUNC(A.TGL_KELUAR)
+                                    )
                                 ,0) AS DURASI,
 
                                 ''''||PS.INT_PASIEN_ID AS MRPAS,
@@ -140,6 +149,9 @@
 
                             LEFT JOIN RESUMEWEBCO RSW
                                 ON RSW.EPISODE_ID = A.EPISODE_ID
+                                
+                            LEFT JOIN RESUMEAI RSWAI
+                                ON RSWAI.EPISODE_ID = A.EPISODE_ID
 
                             WHERE A.LOKASI_ID = '001'
                             AND A.AKTIF = '1'
@@ -152,20 +164,20 @@
                             ),
 
                             FINAL AS (
-                            SELECT
-                                BASE.*,
+                                SELECT
+                                    BASE.*,
 
-                                CASE
-                                    WHEN DURASI <= 2 THEN 1
-                                    ELSE 0
-                                END AS STATUSKURANG,
+                                    CASE
+                                        WHEN DURASI <= 2 THEN 1
+                                        ELSE 0
+                                    END AS STATUSKURANG,
 
-                                CASE
-                                    WHEN DURASI > 2 THEN 1
-                                    ELSE 0
-                                END AS STATUSLEBIH
+                                    CASE
+                                        WHEN DURASI > 2 THEN 1
+                                        ELSE 0
+                                    END AS STATUSLEBIH
 
-                            FROM BASE
+                                FROM BASE
                             )
 
                             SELECT *

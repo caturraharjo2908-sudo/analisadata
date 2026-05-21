@@ -1423,60 +1423,11 @@ class ResumeAI extends REST_Controller {
                 $statusMsg   = "INVALID JSON";
                 $statusColor = "red";
             } else {
-
-                // =========================
-                // HANDLE RESPONSE BARU
-                // =========================
                 if (isset($result['status']) && $result['status'] === true && $result['code'] == 200) {
+                    $statusMsg   = "Success";
+                    $statusColor = "green";
 
-                    $dataresume  = [];
-                    
-                    $labText   = $result['sourcedata'][0]['penunjang']['laboratorium']['text'] ?? '';
-                    $chunkSize = 4000;
-                    $chunks    = str_split($labText, $chunkSize);
-
-                    foreach ($chunks as $i => $chunk) {
-                        if ($i >= 3) break;
-
-                        if ($i == 0) {
-                            $dataresume['LAB'] = $chunk;
-                        } else {
-                            $dataresume['LAB'.($i+1)] = $chunk;
-                        }
-                    }
-
-                    $dataresume['PASIEN_ID']         = $result['transaksi']['pasienid'];
-                    $dataresume['EPISODE_ID']        = $result['transaksi']['episodeid'];
-                    $dataresume['DOKTER_ID']         = $result['transaksi']['dokterid'];
-                    $dataresume['RUANG_ID']          = $result['transaksi']['ruangid'];
-                    $dataresume['CREATED_BY']        = $result['transaksi']['dokterid'];
-                    $dataresume['KONDISI']           = $result['transaksi']['pulang'];
-                    $dataresume['KONDISI_PULANG_ID'] = $result['transaksi']['pulangid'];
-                    $dataresume['KELUHAN']           = $result['sourcedata'][0]['riwayat']['keluhanutama']['text'];
-                    $dataresume['GEJALA']            = $result['sourcedata'][0]['riwayat']['gejala']['text'];
-                    $dataresume['RIWAYATPS']         = $result['sourcedata'][0]['riwayat']['sekarang']['text'];
-                    $dataresume['RIWAYATPD']         = $result['sourcedata'][0]['riwayat']['dahulu']['text'];
-                    $dataresume['STATUS']            = $result['sourcedata'][0]['pemeriksaanfisik']['statuslokalis']['text'];
-                    $dataresume['VITAL']             = $result['sourcedata'][0]['pemeriksaanfisik']['ttv']['text'];
-                    $dataresume['INDIKASI']          = $result['sourcedata'][0]['diagnosis']['indikasiranap']['text'];
-                    $dataresume['LAINNYA']           = $result['sourcedata'][0]['penunjang']['radiologi']['text'];
-                    $dataresume['OBATP']             = $result['sourcedata'][0]['penunjang']['obat']['pulang']['text'];
-                    $dataresume['KONTROL']           = $result['sourcedata'][0]['kontrolulang']['text'];
-                    $dataresume['INTRUKSI']          = $result['sourcedata'][0]['segeradibawa']['text'];
-                    $dataresume['SHOW_ITEM']         = "1";
-
-
-                    if($this->md->insertresume($dataresume)){
-                        $statusMsg   = "Success";
-                        $statusColor = "green";
-
-                        echo formatlog($a->PASIEN_ID,$a->EPISODE_ID,$a->TGLKELUAR,$a->DOKTER_ID,$statusMsg,'cyan','cyan','cyan','cyan',$statusColor);
-                    }else{
-                        $statusMsg   = "Failed Save Resume";
-                        $statusColor = "green";
-
-                        echo formatlog($a->PASIEN_ID,$a->EPISODE_ID,$a->TGLKELUAR,$a->DOKTER_ID,$statusMsg,'cyan','cyan','cyan','cyan',$statusColor);
-                    }
+                    echo formatlog($a->PASIEN_ID,$a->EPISODE_ID,$a->TGLKELUAR,$a->DOKTER_ID,$statusMsg,'cyan','cyan','cyan','cyan',$statusColor);
                 } else {
 
                     $msg  = $result['message'] ?? 'FAILED';
