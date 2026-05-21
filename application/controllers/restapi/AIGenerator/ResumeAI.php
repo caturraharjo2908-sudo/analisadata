@@ -1441,7 +1441,6 @@ class ResumeAI extends REST_Controller {
             }
             
         }
-
         
     }
     

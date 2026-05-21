@@ -19,8 +19,7 @@
                         AND NOT EXISTS (
                             SELECT 1
                             FROM WEB_CO_RESUME_RANAP_AI B
-                            WHERE B.SHOW_ITEM = '1'
-                            AND   B.EPISODE_ID = A.EPISODE_ID
+                            WHERE B.EPISODE_ID = A.EPISODE_ID
                         )
                         ORDER BY A.TGL_KELUAR DESC
                         FETCH FIRST 10 ROWS ONLY
