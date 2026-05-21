@@ -2,7 +2,7 @@
     class ModelResumeAI extends CI_Model{
 
         function listrresume(){
-            $query =
+            echo $query =
                     "
                         SELECT 
                             A.PASIEN_ID,
