@@ -11,7 +11,7 @@
                         AND   A.JENIS_EPISODE='I'
                         AND   A.STATUS_EPISODE='55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        AND   A.TGL_KELUAR >= TO_DATE('01-01-' || TO_CHAR(SYSDATE, 'YYYY'), 'DD-MM-YYYY')
+                        AND   A.TGL_KELUAR >= TO_DATE('01-05-' || TO_CHAR(SYSDATE, 'YYYY'), 'DD-MM-YYYY')
                         AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP_AI WHERE LOKASI_ID='001' AND SHOW_ITEM='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
                         ORDER BY TGL_KELUAR DESC
                         FETCH FIRST 10 ROW ONLY
