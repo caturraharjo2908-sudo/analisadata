@@ -1011,7 +1011,7 @@ class ResumeAI extends REST_Controller {
             // =========================
             // 🔥 AUTO START JIKA KETEMU ORGAN
             // =========================
-            if (preg_match('/^(' . implode('|', $organKeywords) . ')\s*:/i', $line)) {
+            if (preg_match('/^(' . implode('|', $organKeywords) . ')\s*[:=]/i', $line)) {
                 $allowed = true;
             }
 
@@ -1020,7 +1020,7 @@ class ResumeAI extends REST_Controller {
             // =========================
             // ORGAN BARU
             // =========================
-            if (preg_match('/^(' . implode('|', $organKeywords) . ')\s*:/i', $line, $match)) {
+            if (preg_match('/^(' . implode('|', $organKeywords) . ')\s*[:=]/i', $line, $match)) {
                 $currentOrgan = ucfirst(strtolower($match[1]));
 
                 $raw[] = $line;
@@ -1031,7 +1031,7 @@ class ResumeAI extends REST_Controller {
             // =========================
             // SUB ORGAN (Mata:, THT:, dll)
             // =========================
-            if (preg_match('/^[A-Za-z ]+\s*:/', $line) && $currentOrgan !== null) {
+            if (preg_match('/^[A-Za-z ]+\s*[:=]/', $line) && $currentOrgan !== null) {
                 $raw[] = $line;
                 $clean[] = $line;
                 continue;
