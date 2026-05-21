@@ -1387,10 +1387,9 @@ class ResumeAI extends REST_Controller {
             // =========================
             // CALL API
             // =========================
-            $url = "http://10.12.120.58/rsudpasarminggu/prod/analisadata/index.php/generateresumeai/".$episodeid;
+            $url = site_url('resume/generateresumeai/'.$episodeid);
 
             $ch = curl_init();
-
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -1462,7 +1461,8 @@ class ResumeAI extends REST_Controller {
                     $dataresume['LAINNYA']           = $result['sourcedata'][0]['penunjang']['radiologi']['text'];
                     $dataresume['OBATP']             = $result['sourcedata'][0]['penunjang']['obat']['pulang']['text'];
                     $dataresume['KONTROL']           = $result['sourcedata'][0]['kontrolulang']['text'];
-                    $dataresume['INTRUKSI']         = $result['sourcedata'][0]['segeradibawa']['text'];
+                    $dataresume['INTRUKSI']          = $result['sourcedata'][0]['segeradibawa']['text'];
+                    $dataresume['SHOW_ITEM']         = "1";
 
 
                     if($this->md->insertresume($dataresume)){
