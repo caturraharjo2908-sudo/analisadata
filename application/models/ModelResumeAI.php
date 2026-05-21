@@ -4,17 +4,26 @@
         function listrresume(){
             $query =
                     "
-                        SELECT A.PASIEN_ID, EPISODE_ID, TO_CHAR(TGL_KELUAR,'DD.MM.YYYY HH24:MI:SS')TGLKELUAR, DOKTER_ID
+                        SELECT 
+                            A.PASIEN_ID,
+                            A.EPISODE_ID,
+                            TO_CHAR(A.TGL_KELUAR,'DD.MM.YYYY HH24:MI:SS') AS TGLKELUAR,
+                            A.DOKTER_ID
                         FROM SR01_KEU_EPISODE A
-                        WHERE A.LOKASI_ID='001'
-                        AND   A.AKTIF='1'
-                        AND   A.JENIS_EPISODE='I'
-                        AND   A.STATUS_EPISODE='55'
+                        WHERE A.LOKASI_ID      = '001'
+                        AND   A.AKTIF          = '1'
+                        AND   A.JENIS_EPISODE  = 'I'
+                        AND   A.STATUS_EPISODE = '55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        AND   A.TGL_KELUAR >= TO_DATE('01-05-' || TO_CHAR(SYSDATE, 'YYYY'), 'DD-MM-YYYY')
-                        AND   A.EPISODE_ID NOT IN (SELECT EPISODE_ID FROM WEB_CO_RESUME_RANAP_AI WHERE LOKASI_ID='001' AND SHOW_ITEM='1' AND PASIEN_ID=A.PASIEN_ID AND EPISODE_ID=A.EPISODE_ID)
-                        ORDER BY TGL_KELUAR DESC
-                        FETCH FIRST 10 ROW ONLY
+                        AND   A.TGL_KELUAR >= TRUNC(SYSDATE, 'MM')
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM WEB_CO_RESUME_RANAP_AI B
+                            WHERE B.SHOW_ITEM = '1'
+                            AND   B.EPISODE_ID = A.EPISODE_ID
+                        )
+                        ORDER BY A.TGL_KELUAR DESC
+                        FETCH FIRST 10 ROWS ONLY
                     ";
 
             $recordset = $this->db->query($query);
