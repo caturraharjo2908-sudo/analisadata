@@ -186,7 +186,10 @@ class ResumeAI extends REST_Controller {
     }
 
     public function obatperawat($result){
-        $body = [];
+        $body = [
+            'raw' => []
+        ];
+
         foreach ($result as $a) {
             $item             = [];
             $item['obatid']   = $a['OBAT_ID'];
@@ -197,8 +200,11 @@ class ResumeAI extends REST_Controller {
             }
         }
 
-        $body['text'] = implode("\n",array_map(function($item) {return "- {$item['namaobat']}";}, $body['raw']));
-        $body['len']  = mb_strlen($body['text']);
+        $body['text'] = implode("\n", array_map(function ($item) {
+            return "- {$item['namaobat']}";
+        }, $body['raw']));
+
+        $body['len'] = mb_strlen($body['text']);
 
         return $body;
     }
