@@ -1387,9 +1387,10 @@ class ResumeAI extends REST_Controller {
             // =========================
             // CALL API
             // =========================
-            $url = site_url('resume/generateresumeai/'.$episodeid);
+            $url = "http://192.168.200.41:8080/analisadata/index.php/generateresumeai/".$episodeid;
 
             $ch = curl_init();
+
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
