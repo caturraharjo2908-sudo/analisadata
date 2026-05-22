@@ -5,7 +5,7 @@
     $route['404_override']         = '';
     $route['translate_uri_dashes'] = FALSE;
 
-    $route['generateresumeai/(:num)'] = 'restapi/AIGenerator/ResumeAI/generateresumeai/$1';
+    $route['generateresumeai/(:any)'] = 'restapi/AIGenerator/ResumeAI/generateresumeai/$1';
     $route['generateresume']          = 'restapi/AIGenerator/ResumeAI/generateresume';
     $route['rujukanbpjs']             = 'restapi/BPJS/Rujukankeluar/rujukanbpjs';
 ?>
