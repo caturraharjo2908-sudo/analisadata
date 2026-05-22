@@ -236,6 +236,42 @@
             return $recordset;
         }
 
+        function hasilusg($episodeid){
+            $query =
+                    "
+                        SELECT *
+                        FROM (
+                            SELECT 
+                                A.CREATED_DATE,
+                                A.O,
+                                TO_CHAR(A.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS') AS CREATEDDATE
+                            FROM WEB_CO_DIAGNOSA_DT A
+                            WHERE A.EPISODE_ID = '".$episodeid."'
+                            AND A.FLAG_HAPUS = '1'
+                            AND A.SHOW_ITEM = '1'
+                            AND A.POLI_ID = 'UGD01'
+
+                            UNION ALL
+
+                            SELECT 
+                                A.CREATED_DATE,
+                                A.O,
+                                TO_CHAR(A.CREATED_DATE,'DD.MM.YYYY HH24:MI:SS') AS CREATEDDATE
+                            FROM WEB_CO_DIAGNOSA_DT A
+                            WHERE A.EPISODE_ID = '".$episodeid."'
+                            AND A.FLAG_HAPUS = '1'
+                            AND A.SHOW_ITEM = '1'
+                            AND A.RUANG_ID LIKE 'VK%'
+                        )
+                        ORDER BY CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
         function radiologi($episodeid){
             $query =
                     "

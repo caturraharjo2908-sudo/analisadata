@@ -78,6 +78,7 @@ class ResumeAI extends REST_Controller {
         $resultradiologi      = $this->md->radiologi($episodeid);
         $resultlaboratoriumhd = $this->md->laboratoriumhd($episodeid);
         $resultdiagnosa       = $this->md->diagnosa($episodeid);
+        $resultusg            = $this->md->hasilusg($episodeid);
 
         if($statusjenis==="POLI"){
             $sourcedata['riwayat']['keluhanutama']           = $this->keluhanutama($resultkeluhanutamaspesialis);
@@ -112,7 +113,7 @@ class ResumeAI extends REST_Controller {
         $sourcedata['segeradibawa']                      = $this->segaradibawa($resultkunjungan);
         $sourcedata['penunjang']['obat']['perawatan']    = $this->obatperawat($resultobat);
         $sourcedata['penunjang']['obat']['pulang']       = $this->obatpulang($resultobat);
-        $sourcedata['penunjang']['radiologi']            = $this->radiologi($resultradiologi);
+        $sourcedata['penunjang']['radiologi']            = $this->radiologi($resultradiologi,$resultusg);
         $sourcedata['penunjang']['laboratorium']         = $this->laboratorium($resultkunjungan,$resultlaboratoriumhd);
         
 
@@ -236,28 +237,97 @@ class ResumeAI extends REST_Controller {
         return $body;
     }
 
-    public function radiologi($result){
-        $body = [];
-        
-        if(!empty($result)){
+    public function radiologi($result, $resultusg){
+        $body = [
+            'raw'    => [],
+            'text'   => '',
+            'len'    => 0,
+            'baseon' => [
+                'usg' => ''
+            ]
+        ];
+
+        // =========================
+        // DEFAULT
+        // =========================
+        $hasilUSG = '';
+
+        // simpan raw usg
+        if (!empty($resultusg)) {
+            $body['baseon']['usg'] = $resultusg->O;
+        }
+
+        // =========================
+        // HASIL USG
+        // =========================
+        if (!empty($resultusg)) {
+
+            $hasilUSG = $this->extractHasilUSG($resultusg->O);
+
+            if (!empty($hasilUSG)) {
+
+                $body['raw'][] = [
+                    'namapemeriksaan' => 'USG',
+                    'result'          => $hasilUSG,
+                    'createddate'     => $resultusg->CREATEDDATE
+                ];
+            }
+        }
+
+        // =========================
+        // HASIL RADIOLOGI
+        // =========================
+        if (!empty($result)) {
+
             foreach ($result as $a) {
-                $item             = [];
-                $item['namapemeriksaan'] = $a['NAMAPEMERIKSAAN'];
-                $item['result']          = $a['RESULT'];
-                $item['createddate']     = $a['CREATEDDATE'];
+
+                $item = [];
+
+                $item['namapemeriksaan'] = $a['NAMAPEMERIKSAAN'] ?? '';
+                $item['result']          = $a['RESULT'] ?? '';
+                $item['createddate']     = $a['CREATEDDATE'] ?? '';
 
                 $body['raw'][] = $item;
             }
+        }
 
-            $body['text'] = implode("\n\n", array_map(function($item){return trim($item['createddate']) . " " . $item['namapemeriksaan'] . "\n" ."Conclusion:\n" . $item['result'];}, $body['raw']));
-            $body['len']  = mb_strlen($body['text']);
-        }else{
-            $body['raw']  = [];
-            $body['text'] = "";
-            $body['len']  = 0;
+        // =========================
+        // TEXT FINAL
+        // =========================
+        if (!empty($body['raw'])) {
+
+            $body['text'] = implode(
+                "\n\n",
+                array_map(function ($item) {
+
+                    return trim(
+                        $item['createddate'] . " " .
+                        $item['namapemeriksaan']
+                    ) .
+                    "\nConclusion:\n" .
+                    trim($item['result']);
+
+                }, $body['raw'])
+            );
+
+            $body['len'] = mb_strlen($body['text']);
         }
 
         return $body;
+    }
+
+    public function extractHasilUSG($text){
+        if (!$text || !is_string($text)) {
+            return '';
+        }
+
+        $hasilUSG = '';
+
+        if (preg_match('/(Hasil\s+USG.*?)(\n\s*\n|$)/is', $text, $match)) {
+            $hasilUSG = trim($match[1]);
+        }
+
+        return $hasilUSG;
     }
     
     public function laboratorium($kunjungan, $result){
