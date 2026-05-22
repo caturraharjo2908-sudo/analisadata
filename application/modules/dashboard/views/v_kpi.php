@@ -50,16 +50,16 @@
 			</span>
 			<div class="d-flex flex-column pe-0 pe-sm-10">
 				<h5 class="mb-1">Waktu Pelayanan Rawat Jalan Tanpa Pemeriksaan Penunjang</h5>
-				<span>
+				<!-- <span>
 					Waktu pelayanan pasien rawat jalan tanpa pemeriksaan penunjang dihitung dari saat pasien check in di Poliklinik sampai dengan obat selesai disiapkan oleh Farmasi ≤ 120 menit
-				</span>
+				</span> -->
 			</div>
 		</div>
 		<div class="card card-flush">
 			<div class="card-header pt-5">
 				<h3 class="card-title align-items-start flex-column">
 					<span class="card-label fw-bolder fs-3 mb-1">Waktu Pelayanan Rawat Jalan Tanpa Pemeriksaan Penunjang</span>
-					<span class="text-muted mt-1 fw-bold fs-7">80% selesai di bawah 120 menit</span>
+					<!-- <span class="text-muted mt-1 fw-bold fs-7">80% selesai di bawah 120 menit</span> -->
 				</h3>
 				<div class="card-toolbar m-0">
 					<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
@@ -113,7 +113,7 @@
 					<div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
 							<span class="card-label fw-bolder fs-3 mb-1">Waktu Tunggu Rawat Jalan</span>
-							<span class="text-muted mt-1 fw-bold fs-7">> 80% Pasien Rawat Jalan ≤ 60 menit</span>
+							<!-- <span class="text-muted mt-1 fw-bold fs-7">> 80% Pasien Rawat Jalan ≤ 60 menit</span> -->
 						</h3>
 						<div class="card-toolbar m-0">
 							<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
@@ -148,7 +148,7 @@
 					<div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
 							<span class="card-label fw-bolder fs-3 mb-1">Waktu Tunggu Check In - Mulai Anamnesa</span>
-							<span class="text-muted mt-1 fw-bold fs-7">> 80% Waktu Tunggu Check In - Mulai Anamnesa ≤ 20 menit</span>
+							<!-- <span class="text-muted mt-1 fw-bold fs-7">> 80% Waktu Tunggu Check In - Mulai Anamnesa ≤ 20 menit</span> -->
 						</h3>
 						<div class="card-toolbar m-0">
 							<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
@@ -183,7 +183,7 @@
 					<div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
 							<span class="card-label fw-bolder fs-3 mb-1">Waktu Tunggu Mulai - Selesai Anamnesa</span>
-							<span class="text-muted mt-1 fw-bold fs-7">> 80% Waktu Tunggu Mulai - Selesai Anamnesa ≤ 10 menit</span>
+							<!-- <span class="text-muted mt-1 fw-bold fs-7">> 80% Waktu Tunggu Mulai - Selesai Anamnesa ≤ 10 menit</span> -->
 						</h3>
 						<div class="card-toolbar m-0">
 							<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
@@ -218,7 +218,7 @@
 					<div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
 							<span class="card-label fw-bolder fs-3 mb-1">Waktu Tunggu Selesai Anamnesa - Mulai Dokter</span>
-							<span class="text-muted mt-1 fw-bold fs-7">> 80% Waktu Tunggu Selesai Anamnesa - Mulai Dokter ≤ 30 menit</span>
+							<!-- <span class="text-muted mt-1 fw-bold fs-7">> 80% Waktu Tunggu Selesai Anamnesa - Mulai Dokter ≤ 30 menit</span> -->
 						</h3>
 						<div class="card-toolbar m-0">
 							<button type="button" class="btn btn-clean btn-sm btn-icon btn-icon-primary btn-active-light-primary me-n3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">

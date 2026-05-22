@@ -798,8 +798,6 @@ class ResumeAI extends REST_Controller {
         // MASTER KEYWORDS
         // =========================
         $ttvKeywords = [
-            'STATUS GENERALIS',
-
             'ku',
             'kes',
             'Keadaan',
@@ -964,6 +962,7 @@ class ResumeAI extends REST_Controller {
         ];
 
         $organKeywords = [
+            'status generalis',
             'kepala','mata','hidung','mulut','leher',
             'jantung','paru','abdomen','integumen',
             'ekstremitas','extremitas','thorax','telinga','tht'
@@ -1005,13 +1004,19 @@ class ResumeAI extends REST_Controller {
             // =========================
             if ($matchKeyword($lower, $startKeywords)) {
                 $allowed = true;
+
+                $currentOrgan = ucfirst($lower);
+
+                $raw[] = $line;
+                $clean[] = $line;
+
                 continue;
             }
 
             // =========================
             // 🔥 AUTO START JIKA KETEMU ORGAN
             // =========================
-            if (preg_match('/^(' . implode('|', $organKeywords) . ')\s*[:=]/i', $line)) {
+            if (preg_match('/^(' . implode('|', array_map('preg_quote', $organKeywords)) . ')\s*[:=]/i', $line)) {
                 $allowed = true;
             }
 
@@ -1020,7 +1025,7 @@ class ResumeAI extends REST_Controller {
             // =========================
             // ORGAN BARU
             // =========================
-            if (preg_match('/^(' . implode('|', $organKeywords) . ')\s*[:=]/i', $line, $match)) {
+            if (preg_match('/^(' . implode('|', array_map('preg_quote', $organKeywords)) . ')\s*[:=]/i', $line, $match)) {
                 $currentOrgan = ucfirst(strtolower($match[1]));
 
                 $raw[] = $line;
