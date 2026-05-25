@@ -44,17 +44,11 @@
                         AND   A.JENIS_EPISODE  = 'I'
                         AND   A.STATUS_EPISODE = '55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        -- AND   A.TGL_KELUAR >= TO_DATE('22.05.2026','DD.MM.YYYY')
+                        AND   A.TGL_KELUAR >= TO_DATE('22.05.2026','DD.MM.YYYY')
                         AND NOT EXISTS (
                             SELECT 1
                             FROM WEB_CO_RESUME_RANAP_AI B
                             WHERE B.EPISODE_ID = A.EPISODE_ID
-                        )
-                        AND EXISTS (
-                            SELECT 1
-                            FROM WEB_CO_RESUME_RANAP B
-                            WHERE B.EPISODE_ID = A.EPISODE_ID
-                            AND   B.KONTROL like 'Kontrol ulang ke POLI%'
                         )
                         ORDER BY A.TGL_KELUAR DESC
                         FETCH FIRST 30 ROWS ONLY
