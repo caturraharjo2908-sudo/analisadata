@@ -58,9 +58,13 @@ class ResumeAI extends REST_Controller {
                     $resultkeluhanutama          = $this->md->keluhanutamabayibarulahirnicu($episodeid);
                     $resultkeluhanutamaspesialis = $this->md->keluhanutamabayibarulahirnicudokter($episodeid);
                 }else{
-                    $resultkeluhanutama          = $this->md->keluhanutamaranappoli($episodeid);
-                    $resultkeluhanutamaspesialis = $this->md->keluhanutamapoli($resultkunjungan->POLIIDLAST,$resultkunjungan->PASIEN_ID);
-                    
+                    if($statusjenis==="PERINA"){
+                        $resultkeluhanutama          = $this->md->keluhanutamabayibarulahirperina($episodeid);
+                        $resultkeluhanutamaspesialis = $this->md->keluhanutamabayibarulahirperinadokter($episodeid);
+                    }else{
+                        $resultkeluhanutama          = $this->md->keluhanutamaranappoli($episodeid);
+                        $resultkeluhanutamaspesialis = $this->md->keluhanutamapoli($resultkunjungan->POLIIDLAST,$resultkunjungan->PASIEN_ID);
+                    }
                 }
             }
         }
@@ -592,7 +596,7 @@ class ResumeAI extends REST_Controller {
         $body = [];
 
         if($result->PULANG_ID === "P01"){
-            if($statusjenis==="NORMAL" || $statusjenis==="NPP" || $statusjenis==="POLI"){
+            if($statusjenis==="NORMAL" || $statusjenis==="NPP" || $statusjenis==="PERINA" || $statusjenis==="POLI"){
                 $text = "Kontrol ulang ke ".$result->POLIKLINIK;
             }else{
                 $text = "Kontrol ulang ke fasilitas kesehatan pertama";

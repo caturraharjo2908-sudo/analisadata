@@ -73,10 +73,15 @@
                                     'BAYI'
                                     ELSE
                                     CASE
-                                        WHEN (X.RUANGIDFIRST LIKE 'NICU%' AND X.RUANGRWT_ID LIKE 'PERINA%') OR (X.RUANGIDFIRST LIKE 'PERINA%' AND X.RUANGRWT_ID LIKE 'PERINA%') THEN
+                                        WHEN X.RUANGIDFIRST LIKE 'NICU%' AND X.RUANGRWT_ID LIKE 'PERINA%' THEN
                                         'NPP'
                                         ELSE
-                                        'NORMAL'
+                                        CASE
+                                            WHEN X.RUANGRWT_ID LIKE 'PERINA%' AND X.RUANGIDFIRST LIKE 'PERINA%' THEN
+                                            'PERINA'
+                                            ELSE
+                                            'NORMAL'
+                                        END
                                     END
                                 END
                             END STATUSJENIS
@@ -230,6 +235,24 @@
             return $recordset;
         }
 
+        function keluhanutamabayibarulahirperina($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID LIKE 'PERINA%'
+                        ORDER BY A.CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
         function keluhanutamabayibarulahirnicudokter($episodeid){
             $query =
                     "
@@ -239,6 +262,25 @@
                         AND   A.FLAG_HAPUS = '1'
                         AND   A.SHOW_ITEM = '1'
                         AND   A.RUANG_ID='NICU'
+                        AND   A.CREATED_BY LIKE 'DR%'
+                        ORDER BY A.CREATED_DATE ASC
+                        FETCH FIRST 1 ROW ONLY
+                    ";
+
+            $recordset = $this->db->query($query);
+            $recordset = $recordset->row();
+            return $recordset;
+        }
+
+        function keluhanutamabayibarulahirperinadokter($episodeid){
+            $query =
+                    "
+                        SELECT A.CREATED_DATE, A.S, A.A, A.O, A.S2, A.S3, A.P
+                        FROM WEB_CO_DIAGNOSA_DT A
+                        WHERE A.EPISODE_ID = '".$episodeid."'
+                        AND   A.FLAG_HAPUS = '1'
+                        AND   A.SHOW_ITEM = '1'
+                        AND   A.RUANG_ID LIKE 'PERINA%'
                         AND   A.CREATED_BY LIKE 'DR%'
                         ORDER BY A.CREATED_DATE ASC
                         FETCH FIRST 1 ROW ONLY
