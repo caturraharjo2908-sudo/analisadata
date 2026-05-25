@@ -1,6 +1,35 @@
 <?php
     class ModelResumeAI extends CI_Model{
 
+        // function listrresume(){
+        //     $query =
+        //             "
+        //                 SELECT 
+        //                     A.PASIEN_ID,
+        //                     A.EPISODE_ID,
+        //                     TO_CHAR(A.TGL_KELUAR,'DD.MM.YYYY HH24:MI:SS') AS TGLKELUAR,
+        //                     A.DOKTER_ID
+        //                 FROM SR01_KEU_EPISODE A
+        //                 WHERE A.LOKASI_ID      = '001'
+        //                 AND   A.AKTIF          = '1'
+        //                 AND   A.JENIS_EPISODE  = 'I'
+        //                 AND   A.STATUS_EPISODE = '55'
+        //                 AND   A.TGL_KELUAR IS NOT NULL
+        //                 AND   A.TGL_KELUAR >= TO_DATE('22.05.2026','DD.MM.YYYY')
+        //                 AND NOT EXISTS (
+        //                     SELECT 1
+        //                     FROM WEB_CO_RESUME_RANAP_AI B
+        //                     WHERE B.EPISODE_ID = A.EPISODE_ID
+        //                 )
+        //                 ORDER BY A.TGL_KELUAR DESC
+        //                 FETCH FIRST 10 ROWS ONLY
+        //             ";
+
+        //     $recordset = $this->db->query($query);
+        //     $recordset = $recordset->result();
+        //     return $recordset;
+        // }
+
         function listrresume(){
             $query =
                     "
@@ -15,11 +44,17 @@
                         AND   A.JENIS_EPISODE  = 'I'
                         AND   A.STATUS_EPISODE = '55'
                         AND   A.TGL_KELUAR IS NOT NULL
-                        AND   A.TGL_KELUAR >= TO_DATE('22.05.2026','DD.MM.YYYY')
+                        -- AND   A.TGL_KELUAR >= TO_DATE('22.05.2026','DD.MM.YYYY')
                         AND NOT EXISTS (
                             SELECT 1
                             FROM WEB_CO_RESUME_RANAP_AI B
                             WHERE B.EPISODE_ID = A.EPISODE_ID
+                        )
+                        AND EXISTS (
+                            SELECT 1
+                            FROM WEB_CO_RESUME_RANAP B
+                            WHERE B.EPISODE_ID = A.EPISODE_ID
+                            AND   B.KONTROL like 'Kontrol ulang ke POLI%'
                         )
                         ORDER BY A.TGL_KELUAR DESC
                         FETCH FIRST 10 ROWS ONLY

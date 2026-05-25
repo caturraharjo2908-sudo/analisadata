@@ -77,10 +77,6 @@ function casemixri(startDate, endDate){
                     /* JOIN */
                     let algoritma = algoritmaArr.join(" | ");
                     let catatan   = catatanArr.join(" | ");
-
-                    if(algoritma!=""){
-                        algoritma += "Potensi Review BPJS : "+algoritma;
-                    }
                     
                     let btnaction = "<a class='dropdown-item btn btn-sm' href='#' onclick=\"openSejarah('" + result[i].PASIEN_ID + "')\"><i class='bi bi-clock-history text-primary pe-4'></i>Sejarah</a>";
 
@@ -93,13 +89,23 @@ function casemixri(startDate, endDate){
                     tableresult +="<td>"+(result[i].RUANGRWT_ID || "")+"</td>"; 
                     tableresult +="<td>"+(result[i].NAMADOKTER || "")+"</td>";  
                     tableresult +="<td>"+(result[i].SEP_NOMOR || "")+"</td>";  
-                    tableresult += "<td>"+ algoritma +"</td>";
+                    tableresult += `
+                        <td>
+                            ${
+                                algoritma && algoritma.trim() !== ''
+                                ? `<div class="mb-1">
+                                        <span class="badge badge-light-info small">
+                                            Potensi Review BPJS
+                                        </span>
+                                </div>`
+                                : ''
+                            }
+
+                            <div>${algoritma}</div>
+                        </td>
+                    `;
                     tableresult += "<td>"+ catatan + "</td>";
                     tableresult += "<td>"+ dokterreadmisi +"</td>";
-                    
- 
-                      
-                    
                     tableresult += "<td class='fw-bold text-end'>";
                     tableresult += "<div class='btn-group'>";
                     tableresult += "<button type='button' class='btn btn-light-primary dropdown-toggle btn-sm' data-bs-toggle='dropdown'>Actions</button>";
