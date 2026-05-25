@@ -57,7 +57,7 @@
                             AND   B.KONTROL like 'Kontrol ulang ke POLI%'
                         )
                         ORDER BY A.TGL_KELUAR DESC
-                        FETCH FIRST 10 ROWS ONLY
+                        FETCH FIRST 30 ROWS ONLY
                     ";
 
             $recordset = $this->db->query($query);
