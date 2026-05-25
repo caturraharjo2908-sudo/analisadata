@@ -73,7 +73,7 @@
                                     'BAYI'
                                     ELSE
                                     CASE
-                                        WHEN X.RUANGIDFIRST LIKE 'NICU%' AND X.RUANGRWT_ID LIKE 'PERINA%' THEN
+                                        WHEN (X.RUANGIDFIRST LIKE 'NICU%' AND X.RUANGRWT_ID LIKE 'PERINA%') OR (X.RUANGIDFIRST LIKE 'PERINA%' AND X.RUANGRWT_ID LIKE 'PERINA%') THEN
                                         'NPP'
                                         ELSE
                                         'NORMAL'
