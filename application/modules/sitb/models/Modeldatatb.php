@@ -137,7 +137,7 @@ class Modeldatatb extends CI_Model
             WHERE A.TGL_MASUK >= TO_DATE(?, 'DDMMYYYY') 
             AND A.TGL_MASUK < TO_DATE(?, 'DDMMYYYY')
             AND A.STATUS_EPISODE <> '99' 
-            AND E.AKTIF = '1' 
+            AND E.AKTIF = '1'    
             AND F.AKTIF = '1'
             AND C.SHOW_ITEM = '1'
             AND UPPER(C.DIAGNOSA) LIKE '%TB%'

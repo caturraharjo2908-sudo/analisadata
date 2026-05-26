@@ -8,7 +8,7 @@
                         <h1>Laporan Lab Tuberkulosis(TB)</h1>
                         <p class="mb-0">Monitoring Tuberkulosis (TB) guna mendukung peningkatan mutu dan kualitas pelayanan kesehatan.</p>
                     </div>
-                </div>
+                </div>   
                 <div class="d-flex overflow-auto min-h-30px">
                     <ul class="nav nav-stretch nav-line-tabs border-transparent fs-6 fw-bold flex-nowrap">
                         <li class="nav-item">

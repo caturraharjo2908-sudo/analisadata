@@ -33,7 +33,7 @@ class DashboardTB extends CI_Controller {
         $data['pasien_tb'] = $this->md->datatb($tgl_awal, $tgl_akhir);
 
         // 5. Bangun string dropdown agar status 'selected' tetap terjaga
-        $html_periode = "";
+        $html_periode = "";  
         foreach($resultperiode as $a) {
             $selected = ($a->PERIODE_KEY == $periode_terpilih) ? "selected" : "";
             $html_periode .= "<option value='".$a->PERIODE_KEY."' $selected>".$a->PERIODE."</option>";
