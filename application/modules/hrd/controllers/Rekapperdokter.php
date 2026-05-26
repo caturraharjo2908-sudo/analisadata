@@ -93,7 +93,7 @@ class Rekapperdokter extends CI_Controller {
     // 8. Load file template tampilan Excel
     $this->load->view('cetakpdf/v_excel_rekapperdokter', $data);
     }
-
+                
     public function export_pdf() {
     $startdate = $this->input->post('startdate');
     $endate    = $this->input->post('endate');

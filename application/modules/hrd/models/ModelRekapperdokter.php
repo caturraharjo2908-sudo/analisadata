@@ -78,7 +78,7 @@ class Modelrekapperdokter extends CI_Model {
 
         return $rows;
     }
-    
+                            
 
     public function datarincianpasien($startdate, $endate, $dokter_id) {
     $query = "SELECT 

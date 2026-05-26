@@ -35,7 +35,7 @@
                         <select class="form-select form-select-sm" id="dokter_id" data-placeholder="Cari & Pilih Dokter...">
                             <?= $opt_dokter; ?>
                         </select>
-                    </div>
+                    </div>                   
                     <!-- <div class="col-md-2 d-flex align-items-end gap-2">
                         <button type="button" class="btn btn-sm btn-primary w-100 px-2" id="btnFilter" onclick="loadDataRekap()">
                             <i class="fas fa-search"></i> Tampilkan
