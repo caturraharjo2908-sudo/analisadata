@@ -149,5 +149,31 @@ class Modeldatatb extends CI_Model
         $recordset = $this->db->query($query, array($tgl_awal, $tgl_akhir));
         return $recordset->result_array(); 
     }
+
+
+    public function get_data_statistik_6_bulan() {
+        $query = "
+            SELECT 
+                TO_CHAR(A.TGL_MASUK, 'Mon') as BULAN, 
+                COUNT(*) as JML 
+            FROM SR01_KEU_EPISODE A
+            -- Kita tetap join dengan tabel yang mempengaruhi filter status
+            JOIN SR01_MED_PRWT_TR E ON A.EPISODE_ID = E.EPISODE_ID AND A.PASIEN_ID = E.PASIEN_ID AND A.LOKASI_ID = E.LOKASI_ID
+            JOIN SR01_MED_ANAMAWAL F ON E.TRANS_ID = F.TRANS_ID AND A.PASIEN_ID = F.PASIEN_ID
+            JOIN WEB_CO_DIAGNOSA_MS C ON A.EPISODE_ID = C.EPISODE_ID AND A.PASIEN_ID = C.PASIEN_ID
+            
+            WHERE A.TGL_MASUK >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -6)
+            AND A.STATUS_EPISODE <> '99' 
+            AND E.AKTIF = '1'    
+            AND F.AKTIF = '1'
+            AND C.SHOW_ITEM = '1'
+            AND UPPER(C.DIAGNOSA) LIKE '%TB%'
+            
+            GROUP BY TO_CHAR(A.TGL_MASUK, 'Mon'), TRUNC(A.TGL_MASUK, 'MM')
+            ORDER BY TRUNC(A.TGL_MASUK, 'MM') ASC
+        ";
+        
+        return $this->db->query($query)->result_array();
+    }
 }
 ?>

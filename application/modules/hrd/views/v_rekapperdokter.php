@@ -67,12 +67,20 @@
 
                 <div class="d-flex overflow-auto min-h-30px">
                     <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bolder flex-nowrap">
-						<li class="nav-item">
-							<a class="nav-link text-muted active" data-bs-toggle="tab" href="#tab_rekap_pelayanan">Rekap Pelayanan</a>
+                        <li class="nav-item">
+							<a class="nav-link text-muted" data-bs-toggle="tab" href="#tab_rincian_pasien">Rekap Jumlah Pasien by DPJP</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link text-muted" data-bs-toggle="tab" href="#tab_rincian_pasien">Rekap Jumlah Pasien</a>
+							<a class="nav-link text-muted active" data-bs-toggle="tab" href="#tab_rekap_pelayanan">Rincian Tindakan</a>
 						</li>
+					<!-- <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bolder"> -->
+                        <li class="nav-item">
+                            <a class="nav-link text-active-primary" data-bs-toggle="tab" href="#tabrincianpasienharian">Rincian Pasien </a>
+                        </li>                    
+                        <li class="nav-item">
+                            <a class="nav-link text-active-primary" data-bs-toggle="tab" href="#tabjenispelayanan">Aktivitas Dokter Jenis Pelayanan</a>
+                        </li>
+                    </ul>	
 					</ul>
                 </div>
             </div>
@@ -87,7 +95,7 @@
 				<div class="card card-flush">
 					<div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
-                            <span class="card-label fw-bolder fs-3 mb-1">Data Rekap Pelayanan</span>
+                            <span class="card-label fw-bolder fs-3 mb-1">Data Rekap Rincian TIndakan</span>
 						</h3>
 						<div class="card-toolbar m-0">
 							<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px py-3" data-kt-menu="true">
@@ -124,7 +132,7 @@
 				<div class="card card-flush">
 					<div class="card-header pt-5">
 						<h3 class="card-title align-items-start flex-column">
-                            <span class="card-label fw-bolder fs-3 mb-1">Data Rincian Pasien</span>
+                            <span class="card-label fw-bolder fs-3 mb-1">Data Rincian Pasien By DPJP</span>
 						</h3>
 						<div class="card-toolbar m-0">
 							<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px py-3" data-kt-menu="true">
@@ -140,9 +148,10 @@
                                 <thead>
                                     <tr class="fw-bolder text-muted bg-light align-middle text-uppercase">
                                         <th class="ps-4 rounded-start w-50px">#</th>
-                                        <th>TANGGAL</th>
-                                        <th>NAMA DOKTER</th>
-                                        <th class="text-center rounded-end w-150px">JUMLAH PASIEN</th>
+                                        <th>JENIS PELAYANAN</th>
+                                        <th>PERIODE</th>
+                                        <!-- <th>ID DOKTER</th> -->
+                                        <th class="text-center rounded-end w-150px">TOTAL KUNJUNGAN</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-600 fw-bold" id="result_rincian_pasien">
@@ -153,7 +162,86 @@
 				</div>
 			</div>
 		</div>
-	</div>    
+	</div>
+
+
+    <div class="tab-pane fade" id="tabjenispelayanan" role="tabpanel">
+		<div class="row gy-5 g-xl-8 mb-xl-8">
+			<div class="col-xl-12">
+				<div class="card card-flush">					
+					<div class="card-body p-8">
+						<div class="table-responsive">
+							<table class="table align-middle gs-0 gy-4" id="tablejenispelayanan">
+                                <thead>
+                                    <tr class="fw-bolder text-muted bg-light align-middle text-uppercase">
+                                        <th class="ps-4 rounded-start w-50px">#</th>
+                                        <th>JENIS PELAYANAN</th>
+                                        <th>NAMA DOKTER</th>
+                                        <th>NAMA TINDAKAN / PELAYANAN</th>
+                                        <th class="text-center rounded-end w-150px">TOTAL QTY</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="result_jenis_pelayanan">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Silakan tentukan filter tanggal dan dokter terlebih dahulu.</td>
+                                    </tr>
+                                </tbody>
+                             </table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    
+    <!-- <div class="tab-pane fade" id="tabrincianpasienharian" role="tabpanel">
+        <div class="table-responsive">
+            <table class="table align-middle gs-0 gy-4" id="tablerincianpasienharian">
+                <thead>
+                    <tr class="fw-bolder text-muted bg-light align-middle text-uppercase">
+                        <th class="ps-4 rounded-start w-50px">#</th>
+                        <th>TANGGAL</th>
+                        <th>NAMA DOKTER</th>
+                        <th class="text-center rounded-end w-150px">JUMLAH PASIEN</th>
+                    </tr>
+                </thead>
+                <tbody id="result_rincian_pasien_harian">
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Silakan tentukan filter tanggal dan dokter terlebih dahulu.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div> -->
+
+    <div class="tab-pane fade" id="tabrincianpasienharian" role="tabpanel">
+		<div class="row gy-5 g-xl-8 mb-xl-8">
+			<div class="col-xl-12">
+				<div class="card card-flush">					
+					<div class="card-body p-8">
+						<div class="table-responsive">
+							<table class="table align-middle gs-0 gy-4" id="tablerincianpasienharian">
+                                <thead>
+                                    <tr class="fw-bolder text-muted bg-light align-middle text-uppercase">
+                                        <th class="ps-4 rounded-start w-50px">#</th>
+                                        <th>TANGGAL</th>
+                                        <th>NAMA DOKTER</th>
+                                        <th class="text-center rounded-end w-150px">JUMLAH PASIEN</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="result_rincian_pasien_harian">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Silakan tentukan filter tanggal dan dokter terlebih dahulu.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -243,9 +331,101 @@
         
     });
 
+    /// ============================================
     // AJAX UNTUK RINCIAN PASIEN
-    $('#result_rincian_pasien').html('<tr><td colspan="4" class="text-center">Sedang memuat data...</td></tr>');
+    // ============================================
+    $('#result_rincian_pasien').html('<tr><td colspan="5" class="text-center">Sedang memuat data...</td></tr>');
     
+    $.ajax({
+        url: "<?= site_url('hrd/Rekapperdokter/datarincianpasien_bykeuepisode') ?>",
+        type: "POST",
+        dataType: "JSON",
+        data: {
+            // Cukup kirimkan 3 variabel yang sudah dideklarasikan di awal loadDataRekap()
+            startdate: startdate, 
+            endate: endate,
+            dokter_id: dokter_id,
+            '<?= $this->security->get_csrf_token_name(); ?>': '<?= $this->security->get_csrf_hash(); ?>'
+        },
+        success: function(res) {
+            var html = "";
+            if(res.responCode == "00") {
+                var no = 1;
+                $.each(res.responResult, function(i, item) {
+                    html += "<tr>";
+                    html += "<td class='ps-4'>" + no++ + "</td>";
+                    html += "<td>" + item.JENIS + "</td>";
+                    // Sesuaikan dengan alias pada query model Anda
+                    html += "<td>" + item.PERIODE + "</td>"; 
+                    // html += "<td>" + item.DOKTER_ID + "</td>"; 
+                    html += "<td class='text-center'>" + item.TOTAL_KUNJUNGAN + "</td>"; 
+                    html += "</tr>";
+                });
+            } else {
+                html = "<tr><td colspan='5' class='text-center text-danger'>" + res.responDesc + "</td></tr>";
+            }
+            $('#result_rincian_pasien').html(html);
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+            $('#result_rincian_pasien').html('<tr><td colspan="5" class="text-center text-danger">Terjadi kesalahan pada server.</td></tr>');
+        }
+    });
+
+    // ========================================================
+    // AJAX UNTUK TAB: AKTIVITAS DOKTER JENIS PELAYANAN
+    // ========================================================
+    $('#result_jenis_pelayanan').html('<tr><td colspan="5" class="text-center">Sedang memuat data aktivitas...</td></tr>');
+
+    $.ajax({
+        url: "<?= site_url('hrd/Rekapperdokter/datarekapaktivitasdokter_jenisPelayanan') ?>",
+        type: "POST",
+        dataType: "JSON",
+        data: {
+            startdate: startdate,
+            endate: endate,
+            dokter_id: dokter_id,
+            '<?= $this->security->get_csrf_token_name(); ?>': '<?= $this->security->get_csrf_hash(); ?>'
+        },
+        success: function(res) {
+            var html = "";
+            if(res.responCode == "00") {
+                var no = 1;
+                $.each(res.responResult, function(i, item) {
+                    html += "<tr>";
+                    html += "<td class='ps-4'>" + no++ + "</td>";
+                    html += "<td><span class='badge badge-light-primary fw-bold'>" + item.JENIS + "</span></td>";
+                    
+                    // Menampilkan Nama Dokter (hasil subquery NAMADOKTER atau fallback ke DOKTERID)
+                    var namaDokter = item.NAMADOKTER ? item.NAMADOKTER : (item.DOKTERID ? item.DOKTERID : '-');
+                    html += "<td>" + namaDokter + "</td>";
+                    
+                    // Menampilkan Nama Pelayanan (hasil subquery NAMAPELAYANAN atau fallback ke LAYAN_ID)
+                    var namaPelayanan = item.NAMAPELAYANAN ? item.NAMAPELAYANAN : (item.LAYAN_ID ? item.LAYAN_ID : '-');
+                    html += "<td>" + namaPelayanan + "</td>";
+                    
+                    // Mengambil nilai TOTAL_QTY sesuai dengan alias yang baru ditambahkan di Model
+                    var qty = item.TOTAL_QTY ? item.TOTAL_QTY : 0;
+                    html += "<td class='text-center fw-bold text-dark'>" + qty + "</td>";
+                    
+                    html += "</tr>";
+                });
+            } else {
+                html = "<tr><td colspan='5' class='text-center text-danger'>" + res.responDesc + "</td></tr>";
+            }
+            $('#result_jenis_pelayanan').html(html);
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+            $('#result_jenis_pelayanan').html('<tr><td colspan="5" class="text-center text-danger">Gagal memuat data dari server.</td></tr>');
+        }
+    });
+
+    // ========================================================
+    // AJAX UNTUK TAB: RINCIAN PASIEN HARIAN
+    // ========================================================
+    $('#result_rincian_pasien_harian').html('<tr><td colspan="4" class="text-center">Sedang memuat data...</td></tr>');
+
     $.ajax({
         url: "<?= site_url('hrd/Rekapperdokter/get_rincian_pasien') ?>",
         type: "POST",
@@ -263,18 +443,25 @@
                 $.each(res.responResult, function(i, item) {
                     html += "<tr>";
                     html += "<td class='ps-4'>" + no++ + "</td>";
-                    html += "<td>" + item.TANGGAL + "</td>";
+                    html += "<td><span class='badge badge-light-info fw-bold'>" + item.TANGGAL + "</span></td>";
                     html += "<td>" + item.NAMA_DOKTER + "</td>";
-                    html += "<td class='text-center'>" + item.JMLPASIEN + "</td>";
+                    html += "<td class='text-center fw-bold text-dark'>" + item.JMLPASIEN + "</td>";
                     html += "</tr>";
                 });
             } else {
                 html = "<tr><td colspan='4' class='text-center text-danger'>" + res.responDesc + "</td></tr>";
             }
-            $('#result_rincian_pasien').html(html);
+            $('#result_rincian_pasien_harian').html(html);
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+            $('#result_rincian_pasien_harian').html('<tr><td colspan="4" class="text-center text-danger">Gagal memuat data dari server.</td></tr>');
         }
     });
  }
+
+
+    
     
  function exportKePDF() {
     var startdate = $('#startdate').val();
