@@ -151,7 +151,7 @@
                                         <th>JENIS PELAYANAN</th>
                                         <th>PERIODE</th>
                                         <!-- <th>ID DOKTER</th> -->
-                                        <th class="text-center rounded-end w-150px">TOTAL KUNJUNGAN</th>
+                                        <th class="text-center rounded-end w-150px">TOTAL</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-600 fw-bold" id="result_rincian_pasien">

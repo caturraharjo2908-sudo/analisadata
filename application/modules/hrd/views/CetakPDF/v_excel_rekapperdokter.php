@@ -74,7 +74,7 @@ if (ob_get_level()) {
                 <th width="5">No</th>
                 <th width="40">JENIS PELAYANAN</th>
                 <th width="40">PERIODE</th>
-                <th width="20">TOTAL KUNJUNGAN</th>
+                <th width="20">TOTAL</th>
             </tr>
         </thead>
         <tbody>
