@@ -34,7 +34,7 @@ class Modelrekapperdokter extends CI_Model {
         
         $recordset = $this->db->query($query);
         return $recordset->result();
-    }
+    } 
 
     public function datarekapaktivitasdokter($startdate, $endate, $dokter_id) {
         $query = "SELECT 

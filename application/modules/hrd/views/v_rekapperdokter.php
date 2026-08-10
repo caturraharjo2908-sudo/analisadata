@@ -250,7 +250,7 @@
         if(startdate == "" || endate == "") {
             alert("Silakan lengkapi filter tanggal terlebih dahulu!");
             return;
-        }
+        } 
 
         var form = $('<form>', {
             'action': "<?= site_url('hrd/Rekapperdokter/export_excel') ?>",

@@ -165,7 +165,7 @@ class Rekapperdokter extends CI_Controller {
         if(empty($dokter_id)) {
             show_error('Akses Ditolak: Anda tidak memiliki akses sebagai Dokter atau DOKTER_ID tidak ditemukan.', 403, 'Akses Dilarang');
             return;
-        }
+        } 
 
         $data['rekap']   = $this->md->datarincianpasien_bykeuepisode($dokter_id, $startdate, $endate, $dokter_id, $startdate, $endate);
         $data['rincian'] = $this->md->datarekapaktivitasdokter_jenisPelayanan($startdate, $endate, $dokter_id);
