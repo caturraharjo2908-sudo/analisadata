@@ -56,8 +56,12 @@ if (ob_get_level()) {
             <?php 
                 $totalQty += $qty;
                 endforeach; 
-            endif;
+            else:
             ?>
+            <tr>
+                <td colspan="5" class="text-center">Tidak ada data ditemukan</td>
+            </tr>
+            <?php endif; ?>
             <tr>
                 <td colspan="4" class="text-right font-bold">TOTAL TINDAKAN:</td>
                 <td class="text-center font-bold"><?= $totalQty ?></td>
@@ -96,8 +100,12 @@ if (ob_get_level()) {
             <?php 
                 $totalKunjungan += $kunjungan; 
                 endforeach; 
-            endif; 
+            else:
             ?>
+            <tr>
+                <td colspan="4" class="text-center">Tidak ada data ditemukan</td>
+            </tr>
+            <?php endif; ?>
             <tr>
                 <td colspan="3" class="text-right font-bold">TOTAL KUNJUNGAN PASIEN:</td>
                 <td class="text-center font-bold"><?= $totalKunjungan ?></td>
