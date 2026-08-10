@@ -14,7 +14,8 @@
 			<?php
 				$filetoolbar = APPPATH . 'modules/' . $this->uri->segment(1) . '/toolbar/' . $this->uri->segment(2) . ".php";
 				$filefilter = APPPATH . 'modules/' . $this->uri->segment(1) . '/filter/' . $this->uri->segment(2) . ".php";
-
+				$filetoolbar = APPPATH . 'modules/' . $this->uri->segment(1) . '/toolbar/' . $this->uri->segment(2) . ".php";
+					
 				if(file_exists($filetoolbar)){
 					echo '<div class="me-4">';
 					if(file_exists($filefilter)){
