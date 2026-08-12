@@ -13,7 +13,7 @@ class Recoveryspace extends CI_Controller {
         rootsystem::system(); 
         
         // Load model dan buat alias 'md' agar pemanggilannya lebih ringkas
-        $this->load->model("Modelrecoveryspace", "md");
+        $this->load->model("Modelrecoveryspace", "md"); 
     }
 
     public function index(){

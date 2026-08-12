@@ -23,7 +23,7 @@
             margin-bottom: 25px;
         }
         .report-title { 
-            color: #0f172a; 
+            color: #0f172a;  
             font-size: 24pt; 
             font-weight: 800;
             text-transform: uppercase; 

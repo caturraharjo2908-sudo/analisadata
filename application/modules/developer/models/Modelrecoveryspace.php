@@ -18,7 +18,7 @@ class Modelrecoveryspace extends CI_Model {
                 ORDER BY total_samples DESC FETCH FIRST 10 ROWS ONLY";
         return $this->db->query($sql)->result_array();
     }
-
+ 
     public function get_db_status() {
         $sql = "SELECT name, database_role, open_mode, protection_mode FROM v\$database";
         return $this->db->query($sql)->row_array();

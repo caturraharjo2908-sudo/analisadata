@@ -24,7 +24,7 @@
 </a> -->
 
 
-<div class="row gy-5 g-xl-8 mb-xl-8">
+<div class="row gy-5 g-xl-8 mb-xl-8"> 
     
     <div class="col-xl-4">
 
